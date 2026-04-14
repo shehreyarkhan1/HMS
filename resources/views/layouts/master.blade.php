@@ -382,7 +382,7 @@
                 <a href="{{ route('pharmacy.medicines.index') }}"
                     class="nav-item {{ request()->routeIs('pharmacy.medicines.*') ? 'active' : '' }}">
                     <i class="bi bi-capsule"></i>
-                   Add Medicines
+                    Add Medicines
                 </a>
             @endif
 
@@ -457,11 +457,37 @@
                 </a>
             @endif
 
-            @if (Route::has('radiology.index'))
-                <a href="{{ route('radiology.index') }}"
-                    class="nav-item {{ request()->routeIs('radiology.*') ? 'active' : '' }}">
+            <div class="nav-section-label">Radiology</div>
+            @if (Route::has('radiology.orders.index'))
+                <a href="{{ route('radiology.orders.index') }}"
+                    class="nav-item {{ request()->routeIs('radiology.orders.*') ? 'active' : '' }}">
                     <i class="bi bi-radioactive"></i>
                     Radiology
+                </a>
+            @endif
+
+            <div class="nav-section-label">Radiology settings</div>
+            @if (Route::has('radiology.exams.index'))
+                <a href="{{ route('radiology.exams.index') }}"
+                    class="nav-item {{ request()->routeIs('radiology.exams.*') ? 'active' : '' }}">
+                    <i class="bi bi-collection"></i>
+                    Manage Exams
+                </a>
+            @endif
+
+            @if (Route::has('radiology.modalities.index'))
+                <a href="{{ route('radiology.modalities.index') }}"
+                    class="nav-item {{ request()->routeIs('radiology.modalities.*') ? 'active' : '' }}">
+                    <i class="bi bi-camera"></i>
+                    Modalities
+                </a>
+            @endif
+
+            @if (Route::has('radiology.body-parts.index'))
+                <a href="{{ route('radiology.body-parts.index') }}"
+                    class="nav-item {{ request()->routeIs('radiology.body-parts.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-bounding-box"></i>
+                    Body Parts
                 </a>
             @endif
 

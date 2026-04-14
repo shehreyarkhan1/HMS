@@ -13,6 +13,10 @@ use App\Http\Controllers\Dispensing\DispensingController;
 use App\Http\Controllers\Laboratory\LabOrderController;
 use App\Http\Controllers\Laboratory\LabTestController;
 use App\Http\Controllers\Laboratory\LabSampleTypeController;
+use App\Http\Controllers\Radiology\RadiologyController;
+use App\Http\Controllers\Radiology\RadiologyExamController;
+use App\Http\Controllers\Radiology\RadiologyModalityController;
+use App\Http\Controllers\Radiology\RadiologyBodyPartController;
 
 
 
@@ -123,4 +127,61 @@ Route::prefix('lab')->name('lab.')->group(function () {
     Route::put('sample-types/{labSampleType}', [LabSampleTypeController::class, 'update'])->name('sample-types.update');
     Route::delete('sample-types/{labSampleType}', [LabSampleTypeController::class, 'destroy'])->name('sample-types.destroy');
     Route::post('sample-types/{labSampleType}/toggle', [LabSampleTypeController::class, 'toggleActive'])->name('sample-types.toggleActive');
+});
+
+
+Route::prefix('radiology')->name('radiology.')->group(function () {
+
+    // ══════════════════════════════════════════════════════
+    //  Orders
+    // ══════════════════════════════════════════════════════
+    Route::get('orders', [RadiologyController::class, 'index'])->name('orders.index');
+    Route::get('orders/create', [RadiologyController::class, 'create'])->name('orders.create');
+    Route::post('orders', [RadiologyController::class, 'store'])->name('orders.store');
+    Route::get('orders/{radiologyOrder}', [RadiologyController::class, 'show'])->name('orders.show');
+
+    Route::post('orders/{radiologyOrder}/start-scan', [RadiologyController::class, 'startScan'])->name('orders.startScan');
+    Route::post('orders/{radiologyOrder}/complete-scan', [RadiologyController::class, 'completeScan'])->name('orders.completeScan');
+    Route::post('orders/{radiologyOrder}/report', [RadiologyController::class, 'storeReport'])->name('orders.storeReport');
+    Route::post('orders/{radiologyOrder}/schedule', [RadiologyController::class, 'schedule'])->name('orders.schedule');
+    Route::post('orders/{radiologyOrder}/payment', [RadiologyController::class, 'recordPayment'])->name('orders.recordPayment');
+    Route::post('orders/{radiologyOrder}/deliver', [RadiologyController::class, 'deliverReport'])->name('orders.deliverReport');
+    Route::post('orders/{radiologyOrder}/cancel', [RadiologyController::class, 'cancel'])->name('orders.cancel');
+
+    Route::post('reports/{radiologyReport}/verify', [RadiologyController::class, 'verifyReport'])->name('reports.verify');
+    Route::post('reports/{radiologyReport}/amend', [RadiologyController::class, 'amendReport'])->name('reports.amend');
+
+    // ══════════════════════════════════════════════════════
+    //  Modalities  ← static, exams se PEHLE
+    // ══════════════════════════════════════════════════════
+    Route::get('exams/modalities', [RadiologyModalityController::class, 'index'])->name('modalities.index');
+    Route::get('exams/modalities/create', [RadiologyModalityController::class, 'create'])->name('modalities.create');
+    Route::post('exams/modalities', [RadiologyModalityController::class, 'store'])->name('modalities.store');
+    Route::get('exams/modalities/{modality}/edit', [RadiologyModalityController::class, 'edit'])->name('modalities.edit');
+    Route::put('exams/modalities/{modality}', [RadiologyModalityController::class, 'update'])->name('modalities.update');
+    Route::delete('exams/modalities/{modality}', [RadiologyModalityController::class, 'destroy'])->name('modalities.destroy');
+    Route::post('exams/modalities/{modality}/toggle', [RadiologyModalityController::class, 'toggleStatus'])->name('modalities.toggle');
+
+    // ══════════════════════════════════════════════════════
+    //  Body Parts  ← static, exams se PEHLE
+    // ══════════════════════════════════════════════════════
+    Route::get('exams/body-parts', [RadiologyBodyPartController::class, 'index'])->name('body-parts.index');
+    Route::get('exams/body-parts/create', [RadiologyBodyPartController::class, 'create'])->name('body-parts.create');
+    Route::post('exams/body-parts', [RadiologyBodyPartController::class, 'store'])->name('body-parts.store');
+    Route::get('exams/body-parts/{bodyPart}/edit', [RadiologyBodyPartController::class, 'edit'])->name('body-parts.edit');
+    Route::put('exams/body-parts/{bodyPart}', [RadiologyBodyPartController::class, 'update'])->name('body-parts.update');
+    Route::delete('exams/body-parts/{bodyPart}', [RadiologyBodyPartController::class, 'destroy'])->name('body-parts.destroy');
+    Route::post('exams/body-parts/{bodyPart}/toggle', [RadiologyBodyPartController::class, 'toggleStatus'])->name('body-parts.toggle');
+
+    // ══════════════════════════════════════════════════════
+    //  Exams  ← dynamic {radiologyExam} SABSE AAKHIR
+    // ══════════════════════════════════════════════════════
+    Route::get('exams', [RadiologyExamController::class, 'index'])->name('exams.index');
+    Route::get('exams/create', [RadiologyExamController::class, 'create'])->name('exams.create');
+    Route::post('exams', [RadiologyExamController::class, 'store'])->name('exams.store');
+    Route::get('exams/{radiologyExam}', [RadiologyExamController::class, 'show'])->name('exams.show');
+    Route::get('exams/{radiologyExam}/edit', [RadiologyExamController::class, 'edit'])->name('exams.edit');
+    Route::put('exams/{radiologyExam}', [RadiologyExamController::class, 'update'])->name('exams.update');
+    Route::delete('exams/{radiologyExam}', [RadiologyExamController::class, 'destroy'])->name('exams.destroy');
+    Route::post('exams/{radiologyExam}/toggle-status', [RadiologyExamController::class, 'toggleStatus'])->name('exams.toggleStatus');
 });
