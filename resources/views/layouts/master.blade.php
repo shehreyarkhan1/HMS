@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>MediCare HMS — @yield('title', 'Dashboard')</title>
+    <title>Hospital Management System — @yield('title', 'Dashboard')</title>
 
+    {{-- favorite icon --}}
+    <link rel="icon" href="{{ asset('fav.png') }}" type="image/x-icon">
     {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -15,6 +17,9 @@
 
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
+
+    {{-- Turbo — SPA-like navigation (no full page reload) --}}
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/dist/turbo.es2017.umd.js"></script>
 
     <style>
         * {
@@ -27,6 +32,12 @@
             font-family: 'Segoe UI', sans-serif;
             background-color: #f4f6fb;
             color: #1e293b;
+        }
+
+        /* ===== TURBO PROGRESS BAR ===== */
+        .turbo-progress-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6);
         }
 
         /* ===== SIDEBAR ===== */
@@ -275,6 +286,23 @@
             flex: 1;
         }
 
+        /* ===== PAGE TRANSITION ANIMATION ===== */
+        @keyframes pageFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-content {
+            animation: pageFadeIn 0.18s ease;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar {
@@ -299,7 +327,8 @@
 <body>
 
     {{-- ==================== SIDEBAR ==================== --}}
-    <div class="sidebar" id="sidebar">
+    {{-- data-turbo-permanent: Sidebar Turbo navigation mein preserve hoti hai, re-render nahi hoti --}}
+    <div class="sidebar" id="sidebar" data-turbo-permanent>
 
         {{-- Brand / Logo --}}
         <div class="sidebar-brand">
@@ -313,7 +342,7 @@
         </div>
 
         {{-- Navigation --}}
-        <div class="sidebar-scroll">
+        <div class="sidebar-scroll" id="sidebarScrollArea">
 
             {{-- Main --}}
             <div class="nav-section-label">Main</div>
@@ -323,7 +352,6 @@
                     Dashboard
                 </a>
             @endif
-
 
             {{-- Doctors --}}
             <div class="nav-section-label">Doctors & Staff</div>
@@ -338,14 +366,12 @@
 
             {{-- Patients --}}
             <div class="nav-section-label">Patients</div>
+
             @if (Route::has('patients.index'))
                 <a href="{{ route('patients.index') }}"
                     class="nav-item {{ request()->routeIs('patients.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i>
                     Patients
-                    {{-- @if($pendingPatients > 0)
-                    <span class="nav-badge">{{ $pendingPatients }}</span>
-                    @endif --}}
                 </a>
             @endif
 
@@ -363,7 +389,6 @@
                     Staff / HR
                 </a>
             @endif
-
 
             {{-- Clinical --}}
             <div class="nav-section-label">Clinical</div>
@@ -429,7 +454,6 @@
                 </a>
             @endif
 
-
             {{-- Lab Settings --}}
             <div class="nav-section-label">Lab Settings</div>
 
@@ -457,7 +481,9 @@
                 </a>
             @endif
 
+            {{-- Radiology --}}
             <div class="nav-section-label">Radiology</div>
+
             @if (Route::has('radiology.orders.index'))
                 <a href="{{ route('radiology.orders.index') }}"
                     class="nav-item {{ request()->routeIs('radiology.orders.*') ? 'active' : '' }}">
@@ -466,7 +492,8 @@
                 </a>
             @endif
 
-            <div class="nav-section-label">Radiology settings</div>
+            <div class="nav-section-label">Radiology Settings</div>
+
             @if (Route::has('radiology.exams.index'))
                 <a href="{{ route('radiology.exams.index') }}"
                     class="nav-item {{ request()->routeIs('radiology.exams.*') ? 'active' : '' }}">
@@ -490,8 +517,6 @@
                     Body Parts
                 </a>
             @endif
-
-
 
             {{-- Finance --}}
             <div class="nav-section-label">Finance</div>
@@ -522,20 +547,89 @@
                     Settings
                 </a>
             @endif
+            <div class="nav-section-label">Operation Theater Rooms</div>
+            @if (Route::has('ot.rooms.index'))
+                <a href="{{ route('ot.rooms.index') }}"
+                    class="nav-item {{ request()->routeIs('ot.rooms.*') ? 'active' : '' }}">
+                    <i class="bi bi-hospital"></i>
+                    OT Rooms
+                </a>
+            @endif
 
-            @if (Route::has('users.index'))
-                <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+            <div class="nav-section-label">Operation Theater</div>
+
+            @if (Route::has('ot.index'))
+                <a href="{{ route('ot.index') }}" class="nav-item {{ request()->routeIs('ot.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar2-week"></i>
+                    OT Schedules
+                </a>
+            @endif
+
+            <div class="nav-section-label">Blood Bank</div>
+            @if (Route::has('blood-bank.index'))
+                <a href="{{ route('blood-bank.index') }}"
+                    class="nav-item {{ request()->routeIs('blood-bank.*') ? 'active' : '' }}">
+                    <i class="bi bi-droplet"></i>
+                    Blood Bank Dashboard
+                </a>
+            @endif
+
+            @if (Route::has('blood-bank.donors.index'))
+                <a href="{{ route('blood-bank.donors.index') }}"
+                    class="nav-item {{ request()->routeIs('blood-bank.donors.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i>
+                    Blood Donors
+                </a>
+            
+            @endif
+            @if (Route::has('blood-bank.donations.index'))
+                <a href="{{ route('blood-bank.donations.index') }}"
+                    class="nav-item {{ request()->routeIs('blood-bank.donations.*') ? 'active' : '' }}">
+                    <i class="bi bi-droplet"></i>
+                    Blood Donations
+                </a>
+            @endif
+            @if (Route::has('blood-bank.requests.index'))
+                <a href="{{ route('blood-bank.requests.index') }}"
+                    class="nav-item {{ request()->routeIs('blood-bank.requests.*') ? 'active' : '' }}">
+                    <i class="bi bi-droplet"></i>
+                    Blood Requests
+                </a>
+            
+            @endif
+
+
+            <div class="nav-section-label">Employee Management</div>
+            @if (Route::has('employees.index'))
+                <a href="{{ route('employees.index') }}"
+                    class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i>
+                    Employees
+                </a>
+            @endif
+
+
+            <div class="nav-section-label">User Management</div>
+            @if (Route::has('admin.users.index'))
+                <a href="{{ route('admin.users.index') }}"
+                    class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="bi bi-shield-lock"></i>
                     Users & Roles
                 </a>
             @endif
+
+
+
+
+
 
         </div>
 
         {{-- Sidebar Footer --}}
         <div class="sidebar-footer">
             @if (Route::has('logout'))
-                <form method="POST" action="{{ route('logout') }}">
+                {{-- Logout form: data-turbo="false" kyunke logout full page request chahti hai --}}
+                <form method="POST" action="{{ route('logout') }}" data-turbo="false">
                     @csrf
                     <button type="submit" class="nav-item w-100 border-0 bg-transparent text-start" style="color:#ef4444">
                         <i class="bi bi-box-arrow-left" style="color:#ef4444"></i>
@@ -553,11 +647,12 @@
     <div class="main-wrapper" id="mainWrapper">
 
         {{-- TOPBAR --}}
-        <div class="topbar">
+        {{-- data-turbo-permanent: Topbar bhi preserve hoti hai --}}
+        <div class="topbar" data-turbo-permanent id="topbar">
             <div class="topbar-left">
                 <div>
-                    <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
-                    <div class="topbar-breadcrumb">@yield('breadcrumb', 'Home / Dashboard')</div>
+                    <div class="topbar-title" id="topbarTitle">@yield('page-title', 'Dashboard')</div>
+                    <div class="topbar-breadcrumb" id="topbarBreadcrumb">@yield('breadcrumb', 'Home / Dashboard')</div>
                 </div>
             </div>
 
@@ -607,7 +702,7 @@
                 </div>
             @endif
 
-            {{-- Child Page Content Yahan Aayega --}}
+            {{-- Child Page Content --}}
             @yield('content')
 
         </div>
@@ -619,6 +714,75 @@
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ================================================================
+        // SIDEBAR SCROLL PERSISTENCE
+        // Turbo navigation par sidebar scroll position preserve karo
+        // ================================================================
+        (function () {
+            const SCROLL_KEY = 'sidebarScrollPos';
+            const scrollArea = document.getElementById('sidebarScrollArea');
+
+            // Pehli baar ya direct visit par bhi restore karo
+            function restoreScroll() {
+                const pos = sessionStorage.getItem(SCROLL_KEY);
+                if (pos && scrollArea) {
+                    scrollArea.scrollTop = parseInt(pos, 10);
+                }
+            }
+
+            // Turbo page load event (normal page load + turbo navigation dono cover karta hai)
+            document.addEventListener('turbo:load', restoreScroll);
+
+            // Fallback: agar Turbo na ho ya first load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', restoreScroll);
+            } else {
+                restoreScroll();
+            }
+
+            // Har nav-item click par position save karo
+            document.addEventListener('click', function (e) {
+                const navItem = e.target.closest('.nav-item');
+                if (navItem && scrollArea) {
+                    sessionStorage.setItem(SCROLL_KEY, scrollArea.scrollTop);
+                }
+            });
+        })();
+
+
+        // ================================================================
+        // ACTIVE NAV ITEM — Turbo navigation par highlight update karo
+        // (Sidebar permanent hai isliye manually active class update karni hai)
+        // ================================================================
+        document.addEventListener('turbo:load', function () {
+            const currentPath = window.location.pathname;
+
+            document.querySelectorAll('.nav-item[href]').forEach(function (link) {
+                link.classList.remove('active');
+                // Exact match ya sub-path match
+                const href = link.getAttribute('href');
+                if (href && (currentPath === href || currentPath.startsWith(href + '/'))) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+
+        // ================================================================
+        // BOOTSTRAP ALERTS — Turbo par auto-dismiss karo
+        // ================================================================
+        document.addEventListener('turbo:load', function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                setTimeout(function () {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                    if (bsAlert) bsAlert.close();
+                }, 4000);
+            });
+        });
+    </script>
 
     {{-- Extra JS from child pages --}}
     @stack('scripts')

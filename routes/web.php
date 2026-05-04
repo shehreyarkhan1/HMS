@@ -17,6 +17,29 @@ use App\Http\Controllers\Radiology\RadiologyController;
 use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
 use App\Http\Controllers\Radiology\RadiologyBodyPartController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Employee\EmployeeController;
+use App\Http\Controllers\OperationTheater\OtScheduleController;
+use App\Http\Controllers\OperationTheater\OtRoomController;
+use App\Http\Controllers\BloodBank\BloodBankController;
+use App\Http\Controllers\BloodBank\BloodDonorController;
+use App\Http\Controllers\BloodBank\BloodDonationController;
+use App\Http\Controllers\BloodBank\BloodRequestController;
+use App\Http\Controllers\BloodBank\BloodIssueController;
+use App\Http\Controllers\BloodBank\BloodCrossmatchController;
+
+
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // ── User Management ───────────────────────────────────────────────────
+    Route::resource('users', UserController::class);
+
+    // Toggle active/inactive status
+    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+        ->name('users.toggle-status');
+});
 
 
 
@@ -184,4 +207,63 @@ Route::prefix('radiology')->name('radiology.')->group(function () {
     Route::put('exams/{radiologyExam}', [RadiologyExamController::class, 'update'])->name('exams.update');
     Route::delete('exams/{radiologyExam}', [RadiologyExamController::class, 'destroy'])->name('exams.destroy');
     Route::post('exams/{radiologyExam}/toggle-status', [RadiologyExamController::class, 'toggleStatus'])->name('exams.toggleStatus');
+});
+
+// Employee management routes
+Route::resource('employees', EmployeeController::class);
+
+
+// OT Room management routes
+Route::prefix('ot')->name('ot.')->group(function () {
+    // ── OT SCHEDULES (Resource) ──────────────────────────────────────────
+    Route::resource('schedules', OtScheduleController::class)->except(['index'])
+        ->parameters(['schedules' => 'ot']);
+
+    // OT index is the main page
+    Route::get('/', [OtScheduleController::class, 'index'])->name('index');
+
+    // Quick status update (AJAX)
+    Route::patch('schedules/{ot}/status', [OtScheduleController::class, 'updateStatus'])
+        ->name('schedules.status');
+
+    // ── OT ROOMS (Master Data) ───────────────────────────────────────────
+    Route::prefix('rooms')->name('rooms.')->group(function () {
+        Route::get('/', [OtRoomController::class, 'index'])->name('index');
+        Route::post('/', [OtRoomController::class, 'store'])->name('store');
+        Route::put('/{room}', [OtRoomController::class, 'update'])->name('update');
+        Route::delete('/{room}', [OtRoomController::class, 'destroy'])->name('destroy');
+    });
+});
+
+// Blood Bank routes
+
+
+Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
+
+    // ── DASHBOARD ────────────────────────────────────────────────────────
+    Route::get('/', [BloodBankController::class, 'index'])->name('index');
+
+    // ── DONORS ───────────────────────────────────────────────────────────
+    Route::resource('donors', BloodDonorController::class);
+
+    // ── DONATIONS ────────────────────────────────────────────────────────
+    Route::get('donations', [BloodDonationController::class, 'index'])->name('donations.index'); 
+    Route::post('donations', [BloodDonationController::class, 'store'])->name('donations.store');
+    Route::patch('donations/{donation}/screening', [BloodDonationController::class, 'updateScreening'])->name('donations.screening');
+    Route::delete('donations/{donation}', [BloodDonationController::class, 'destroy'])->name('donations.destroy');
+
+    // ── BLOOD REQUESTS ───────────────────────────────────────────────────
+    Route::get('requests', [BloodRequestController::class, 'index'])->name('requests.index');
+    Route::post('requests', [BloodRequestController::class, 'store'])->name('requests.store');
+    Route::get('requests/{request}', [BloodRequestController::class, 'show'])->name('requests.show');
+    Route::patch('requests/{request}/status', [BloodRequestController::class, 'updateStatus'])->name('requests.status');
+    Route::delete('requests/{request}', [BloodRequestController::class, 'destroy'])->name('requests.destroy');
+
+    // ── BLOOD ISSUE (TRANSFUSION) ────────────────────────────────────────
+    Route::post('issues', [BloodIssueController::class, 'store'])->name('issues.store');
+    Route::patch('issues/{issue}/reaction', [BloodIssueController::class, 'updateReaction'])->name('issues.reaction');
+
+    // ── CROSS-MATCH ───────────────────────────────────────────────────────
+    Route::post('crossmatch', [BloodCrossmatchController::class, 'store'])->name('crossmatch.store');
+    Route::patch('crossmatch/{crossmatch}/result', [BloodCrossmatchController::class, 'updateResult'])->name('crossmatch.result');
 });

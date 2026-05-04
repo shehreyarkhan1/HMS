@@ -1,10 +1,18 @@
 @extends('layouts.master')
 
-@section('title', 'Dr. ' . $doctor->name)
+@section('title', 'Dr. ' . ($doctor->employee?->first_name . ' ' . $doctor->employee?->last_name))
 @section('page-title', 'Doctor Profile')
 @section('breadcrumb', 'Home / Doctors / ' . $doctor->doctor_id)
 
 @section('content')
+
+@php
+    $emp      = $doctor->employee;
+    $fullName = $emp ? $emp->first_name . ' ' . $emp->last_name : '—';
+    $initials = $emp ? strtoupper(substr($emp->first_name,0,1).substr($emp->last_name,0,1)) : 'DR';
+    $photo    = $emp?->photo ? asset('storage/'.$emp->photo) : null;
+    $days     = $doctor->available_days ?? [];
+@endphp
 
 <div class="row g-3">
 
@@ -14,33 +22,50 @@
         {{-- Profile --}}
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px;text-align:center;margin-bottom:12px">
 
-            {{-- Avatar / Photo --}}
-            @if($doctor->photo_url)
-                <img src="{{ $doctor->photo_url }}" alt="{{ $doctor->name }}"
+            @if($photo)
+                <img src="{{ $photo }}" alt="{{ $fullName }}"
                      style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:block;border:3px solid #e2e8f0">
             @else
                 <div style="width:80px;height:80px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-                    {{ $doctor->initials }}
+                    {{ $initials }}
                 </div>
             @endif
 
-            <div style="font-size:17px;font-weight:600;color:#1e293b">Dr. {{ $doctor->name }}</div>
+            <div style="font-size:17px;font-weight:600;color:#1e293b">Dr. {{ $fullName }}</div>
             <div style="font-size:13px;color:#6366f1;font-weight:500;margin-top:2px">{{ $doctor->specialization }}</div>
             <div style="font-size:12px;color:#94a3b8;margin-top:2px">{{ $doctor->doctor_id }}</div>
 
-            {{-- Status badges --}}
+            {{-- Badges --}}
             <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
                 @php $avClass = str_replace(' ', '-', $doctor->availability); @endphp
                 <span style="font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;
-                    {{ $doctor->availability == 'Available' ? 'background:#dcfce7;color:#166534' :
-                      ($doctor->availability == 'On Leave' ? 'background:#fef9c3;color:#854d0e' :
-                       'background:#fee2e2;color:#991b1b') }}">
+                    {{ $doctor->availability == 'Available'       ? 'background:#dcfce7;color:#166534' :
+                      ($doctor->availability == 'In Consultation' ? 'background:#dbeafe;color:#1e40af' :
+                      ($doctor->availability == 'On Leave'        ? 'background:#fef9c3;color:#854d0e' :
+                       'background:#fee2e2;color:#991b1b')) }}">
                     {{ $doctor->availability }}
                 </span>
-                <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:#f1f5f9;color:#475569;font-weight:500">
-                    {{ $doctor->shift }}
+                <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:#f5f3ff;color:#6d28d9;font-weight:500">
+                    {{ $doctor->doctor_type }}
                 </span>
+                @if($emp?->shift)
+                <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:#f1f5f9;color:#475569;font-weight:500">
+                    {{ $emp->shift }}
+                </span>
+                @endif
             </div>
+
+            {{-- Available Days --}}
+            @if(count($days))
+            <div class="d-flex justify-content-center gap-1 mt-3 flex-wrap">
+                @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $d)
+                    <span style="font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;
+                        {{ in_array($d, $days) ? 'background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe' : 'background:#f8fafc;color:#cbd5e1;border:1px solid #f1f5f9' }}">
+                        {{ $d }}
+                    </span>
+                @endforeach
+            </div>
+            @endif
 
             {{-- Actions --}}
             <div class="d-grid gap-2 mt-4">
@@ -49,7 +74,7 @@
                     <i class="bi bi-pencil me-1"></i>Edit profile
                 </a>
                 <form method="POST" action="{{ route('doctors.destroy', $doctor->id) }}"
-                      onsubmit="return confirm('Remove Dr. {{ $doctor->name }}?')">
+                      onsubmit="return confirm('Remove Dr. {{ $fullName }}?')">
                     @csrf @method('DELETE')
                     <button class="btn btn-sm btn-outline-danger w-100" style="font-size:13px">
                         <i class="bi bi-trash me-1"></i>Remove doctor
@@ -58,25 +83,22 @@
             </div>
         </div>
 
-        {{-- Details --}}
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
+        {{-- Doctor Details --}}
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:12px">
             <div style="padding:12px 16px;border-bottom:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#374151;background:#f8fafc">
-                <i class="bi bi-person-badge me-2 text-primary"></i>Doctor details
+                <i class="bi bi-clipboard2-pulse me-2 text-danger"></i>Clinical details
             </div>
             @php
-                $rows = [
-                    ['icon'=>'bi-award',       'label'=>'Qualification',  'value'=> $doctor->qualification],
-                    ['icon'=>'bi-building',    'label'=>'Department',     'value'=> $doctor->department],
-                    ['icon'=>'bi-telephone',   'label'=>'Phone',          'value'=> $doctor->phone],
-                    ['icon'=>'bi-envelope',    'label'=>'Email',          'value'=> $doctor->email ?? '—'],
-                    ['icon'=>'bi-person-vcard','label'=>'CNIC',           'value'=> $doctor->cnic ?? '—'],
-                    ['icon'=>'bi-gender-ambiguous','label'=>'Gender',     'value'=> $doctor->gender],
-                    ['icon'=>'bi-cash',        'label'=>'Fee',            'value'=> 'Rs ' . number_format($doctor->consultation_fee, 0)],
-                    ['icon'=>'bi-clock',       'label'=>'Shift time',     'value'=> $doctor->shift_start ? \Carbon\Carbon::parse($doctor->shift_start)->format('h:i A') . ' – ' . \Carbon\Carbon::parse($doctor->shift_end)->format('h:i A') : '—'],
-                    ['icon'=>'bi-calendar',    'label'=>'Joined',         'value'=> $doctor->created_at->format('d M Y')],
+                $clinicalRows = [
+                    ['icon'=>'bi-award',           'label'=>'Qualification',  'value'=> $doctor->qualification],
+                    ['icon'=>'bi-patch-check',      'label'=>'PMDC',           'value'=> $doctor->pmdc_number ?? '—'],
+                    ['icon'=>'bi-building',         'label'=>'Department',     'value'=> ($emp?->department ?? '—') . ($doctor->sub_department ? ' / '.$doctor->sub_department : '')],
+                    ['icon'=>'bi-cash',             'label'=>'Fee',            'value'=> 'Rs ' . number_format($doctor->consultation_fee, 0)],
+                    ['icon'=>'bi-hourglass-split',  'label'=>'Avg. mins',      'value'=> $doctor->avg_consultation_mins . ' mins'],
+                    ['icon'=>'bi-person-plus',      'label'=>'New patients',   'value'=> $doctor->accepts_new_patients ? 'Accepted' : 'Not accepting'],
                 ];
             @endphp
-            @foreach($rows as $row)
+            @foreach($clinicalRows as $row)
             <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid #f1f5f9;font-size:13px">
                 <i class="bi {{ $row['icon'] }}" style="width:20px;color:#94a3b8;flex-shrink:0"></i>
                 <span style="min-width:90px;color:#94a3b8;margin-left:6px">{{ $row['label'] }}</span>
@@ -85,12 +107,43 @@
             @endforeach
         </div>
 
+        {{-- Employee Details --}}
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
+            <div style="padding:12px 16px;border-bottom:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#374151;background:#f8fafc">
+                <i class="bi bi-person-badge me-2 text-primary"></i>Employee info
+            </div>
+            @php
+                $empRows = [
+                    ['icon'=>'bi-telephone',   'label'=>'Phone',   'value'=> $emp?->personal_phone ?? '—'],
+                    ['icon'=>'bi-envelope',    'label'=>'Email',   'value'=> $emp?->office_email ?? $emp?->personal_email ?? '—'],
+                    ['icon'=>'bi-person-vcard','label'=>'CNIC',    'value'=> $emp?->cnic ?? '—'],
+                    ['icon'=>'bi-gender-ambiguous','label'=>'Gender','value'=> $emp?->gender ?? '—'],
+                    ['icon'=>'bi-clock',       'label'=>'Shift',   'value'=> ($emp?->shift ?? '—') . ($emp?->shift_start ? ' (' . \Carbon\Carbon::parse($emp->shift_start)->format('h:i A') . ' – ' . \Carbon\Carbon::parse($emp->shift_end)->format('h:i A') . ')' : '')],
+                    ['icon'=>'bi-calendar',    'label'=>'Joined',  'value'=> $emp?->joining_date?->format('d M Y') ?? '—'],
+                ];
+            @endphp
+            @foreach($empRows as $row)
+            <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid #f1f5f9;font-size:13px">
+                <i class="bi {{ $row['icon'] }}" style="width:20px;color:#94a3b8;flex-shrink:0"></i>
+                <span style="min-width:90px;color:#94a3b8;margin-left:6px">{{ $row['label'] }}</span>
+                <span style="color:#1e293b;font-weight:500">{{ $row['value'] }}</span>
+            </div>
+            @endforeach
+            {{-- Link to employee profile --}}
+            <div style="padding:10px 16px">
+                <a href="{{ route('employees.show', $emp?->id) }}"
+                   style="font-size:12px;color:#3b82f6;text-decoration:none">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>View full employee profile
+                </a>
+            </div>
+        </div>
+
     </div>
 
     {{-- RIGHT --}}
     <div class="col-12 col-lg-8">
 
-        {{-- Stats Row --}}
+        {{-- Stats --}}
         <div class="row g-3 mb-3">
             <div class="col-4">
                 <div style="background:#eff6ff;border-radius:10px;padding:16px;text-align:center">
@@ -119,6 +172,16 @@
                 About
             </div>
             <p style="font-size:13px;color:#374151;line-height:1.7;margin:0">{{ $doctor->bio }}</p>
+        </div>
+        @endif
+
+        {{-- Clinical Notes (internal) --}}
+        @if($doctor->clinical_notes)
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">
+                <i class="bi bi-lock me-1"></i>Clinical notes (internal)
+            </div>
+            <p style="font-size:13px;color:#78350f;line-height:1.7;margin:0">{{ $doctor->clinical_notes }}</p>
         </div>
         @endif
 

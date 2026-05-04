@@ -18,61 +18,38 @@
         outline:none; border-color:#93c5fd; background:#fff;
     }
 
-    /* Doctor Card */
     .doctor-card {
-        background:#fff;
-        border:1px solid #e2e8f0;
-        border-radius:12px;
-        padding:20px;
-        transition:box-shadow 0.2s, transform 0.2s;
-        height:100%;
+        background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+        padding:20px; transition:box-shadow 0.2s, transform 0.2s; height:100%;
     }
-    .doctor-card:hover {
-        box-shadow:0 6px 20px rgba(0,0,0,0.07);
-        transform:translateY(-2px);
-    }
+    .doctor-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.07); transform:translateY(-2px); }
 
     .doctor-avatar {
         width:56px; height:56px; border-radius:50%;
         display:flex; align-items:center; justify-content:center;
         font-size:18px; font-weight:700;
-        background:#dbeafe; color:#1d4ed8;
-        flex-shrink:0;
+        background:#dbeafe; color:#1d4ed8; flex-shrink:0;
     }
-    .doctor-avatar img {
-        width:100%; height:100%; border-radius:50%; object-fit:cover;
-    }
+    .doctor-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
 
-    .avail-badge {
-        font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600;
-        display:inline-flex; align-items:center; gap:4px;
-    }
-    .avail-Available { background:#dcfce7; color:#166534; }
-    .avail-On-Leave  { background:#fef9c3; color:#854d0e; }
-    .avail-Off-Duty  { background:#fee2e2; color:#991b1b; }
+    .avail-badge { font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
+    .avail-Available         { background:#dcfce7; color:#166534; }
+    .avail-In-Consultation   { background:#dbeafe; color:#1e40af; }
+    .avail-On-Leave          { background:#fef9c3; color:#854d0e; }
+    .avail-Off-Duty          { background:#fee2e2; color:#991b1b; }
 
-    .avail-dot {
-        width:6px; height:6px; border-radius:50%;
-    }
-    .dot-Available { background:#16a34a; }
-    .dot-On-Leave  { background:#ca8a04; }
-    .dot-Off-Duty  { background:#dc2626; }
+    .avail-dot { width:6px; height:6px; border-radius:50%; }
+    .dot-Available         { background:#16a34a; }
+    .dot-In-Consultation   { background:#3b82f6; }
+    .dot-On-Leave          { background:#ca8a04; }
+    .dot-Off-Duty          { background:#dc2626; }
 
-    .shift-pill {
-        font-size:11px; padding:2px 8px; border-radius:6px;
-        background:#f1f5f9; color:#475569; font-weight:500;
-    }
-
+    .shift-pill { font-size:11px; padding:2px 8px; border-radius:6px; background:#f1f5f9; color:#475569; font-weight:500; }
     .card-divider { border:none; border-top:1px solid #f1f5f9; margin:12px 0; }
-
     .info-row { display:flex; gap:6px; align-items:center; font-size:12px; color:#64748b; margin-bottom:6px; }
     .info-row i { width:14px; color:#94a3b8; flex-shrink:0; }
-
-    .fee-badge {
-        background:#f0fdf4; color:#15803d;
-        font-size:12px; font-weight:600;
-        padding:3px 10px; border-radius:6px;
-    }
+    .fee-badge { background:#f0fdf4; color:#15803d; font-size:12px; font-weight:600; padding:3px 10px; border-radius:6px; }
+    .type-pill { font-size:10px; padding:2px 8px; border-radius:6px; background:#f5f3ff; color:#6d28d9; font-weight:600; }
 </style>
 @endpush
 
@@ -125,9 +102,10 @@
 
             <select name="availability">
                 <option value="">All availability</option>
-                <option value="Available" {{ request('availability') == 'Available' ? 'selected' : '' }}>Available</option>
-                <option value="On Leave"  {{ request('availability') == 'On Leave'  ? 'selected' : '' }}>On Leave</option>
-                <option value="Off Duty"  {{ request('availability') == 'Off Duty'  ? 'selected' : '' }}>Off Duty</option>
+                <option value="Available"       {{ request('availability') == 'Available'       ? 'selected' : '' }}>Available</option>
+                <option value="In Consultation" {{ request('availability') == 'In Consultation' ? 'selected' : '' }}>In Consultation</option>
+                <option value="On Leave"        {{ request('availability') == 'On Leave'        ? 'selected' : '' }}>On Leave</option>
+                <option value="Off Duty"        {{ request('availability') == 'Off Duty'        ? 'selected' : '' }}>Off Duty</option>
             </select>
 
             <select name="shift">
@@ -135,7 +113,7 @@
                 <option value="Morning"  {{ request('shift') == 'Morning'  ? 'selected' : '' }}>Morning</option>
                 <option value="Evening"  {{ request('shift') == 'Evening'  ? 'selected' : '' }}>Evening</option>
                 <option value="Night"    {{ request('shift') == 'Night'    ? 'selected' : '' }}>Night</option>
-                <option value="Full Day" {{ request('shift') == 'Full Day' ? 'selected' : '' }}>Full Day</option>
+                <option value="Rotating" {{ request('shift') == 'Rotating' ? 'selected' : '' }}>Rotating</option>
             </select>
 
             <button type="submit" class="btn btn-sm btn-primary px-3" style="height:36px;font-size:13px">
@@ -160,31 +138,38 @@
     @if($doctors->count())
     <div class="row g-3 mb-3">
         @foreach($doctors as $doctor)
+        @php
+            $emp      = $doctor->employee;
+            $fullName = $emp ? $emp->first_name . ' ' . $emp->last_name : '—';
+            $avClass  = str_replace(' ', '-', $doctor->availability);
+            $initials = $emp ? strtoupper(substr($emp->first_name,0,1) . substr($emp->last_name,0,1)) : 'DR';
+            $photo    = $emp?->photo ? asset('storage/' . $emp->photo) : null;
+        @endphp
         <div class="col-12 col-md-6 col-xl-4">
             <div class="doctor-card">
 
                 {{-- Header --}}
                 <div class="d-flex align-items-start gap-3 mb-3">
                     <div class="doctor-avatar">
-                        @if($doctor->photo_url)
-                            <img src="{{ $doctor->photo_url }}" alt="{{ $doctor->name }}">
+                        @if($photo)
+                            <img src="{{ $photo }}" alt="{{ $fullName }}">
                         @else
-                            {{ $doctor->initials }}
+                            {{ $initials }}
                         @endif
                     </div>
                     <div class="flex-grow-1 min-w-0">
                         <div style="font-size:14px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                            Dr. {{ $doctor->name }}
+                            Dr. {{ $fullName }}
                         </div>
                         <div style="font-size:12px;color:#6366f1;font-weight:500">
                             {{ $doctor->specialization }}
                         </div>
                         <div style="font-size:11px;color:#94a3b8;margin-top:1px">
                             {{ $doctor->doctor_id }}
+                            <span class="type-pill ms-1">{{ $doctor->doctor_type }}</span>
                         </div>
                     </div>
                     <div>
-                        @php $avClass = str_replace(' ', '-', $doctor->availability); @endphp
                         <span class="avail-badge avail-{{ $avClass }}">
                             <span class="avail-dot dot-{{ $avClass }}"></span>
                             {{ $doctor->availability }}
@@ -198,7 +183,10 @@
                 <div class="mb-3">
                     <div class="info-row">
                         <i class="bi bi-building"></i>
-                        {{ $doctor->department }}
+                        {{ $emp?->department ?? '—' }}
+                        @if($doctor->sub_department)
+                            <span style="color:#94a3b8">/ {{ $doctor->sub_department }}</span>
+                        @endif
                     </div>
                     <div class="info-row">
                         <i class="bi bi-award"></i>
@@ -206,19 +194,25 @@
                     </div>
                     <div class="info-row">
                         <i class="bi bi-telephone"></i>
-                        {{ $doctor->phone }}
+                        {{ $emp?->personal_phone ?? '—' }}
                     </div>
                     <div class="info-row">
                         <i class="bi bi-clock"></i>
-                        <span class="shift-pill">{{ $doctor->shift }}</span>
-                        @if($doctor->shift_start && $doctor->shift_end)
+                        <span class="shift-pill">{{ $emp?->shift ?? '—' }}</span>
+                        @if($emp?->shift_start && $emp?->shift_end)
                             <span style="color:#94a3b8">
-                                {{ \Carbon\Carbon::parse($doctor->shift_start)->format('h:i A') }}
+                                {{ \Carbon\Carbon::parse($emp->shift_start)->format('h:i A') }}
                                 –
-                                {{ \Carbon\Carbon::parse($doctor->shift_end)->format('h:i A') }}
+                                {{ \Carbon\Carbon::parse($emp->shift_end)->format('h:i A') }}
                             </span>
                         @endif
                     </div>
+                    @if($doctor->pmdc_number)
+                    <div class="info-row">
+                        <i class="bi bi-patch-check"></i>
+                        PMDC: {{ $doctor->pmdc_number }}
+                    </div>
+                    @endif
                 </div>
 
                 <hr class="card-divider">
@@ -238,7 +232,7 @@
                             <i class="bi bi-pencil"></i>
                         </a>
                         <form method="POST" action="{{ route('doctors.destroy', $doctor->id) }}"
-                              onsubmit="return confirm('Remove Dr. {{ $doctor->name }}?')">
+                              onsubmit="return confirm('Remove Dr. {{ $fullName }}?')">
                             @csrf @method('DELETE')
                             <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:12px">
                                 <i class="bi bi-trash"></i>

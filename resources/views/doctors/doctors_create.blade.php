@@ -5,6 +5,7 @@
 @section('breadcrumb', 'Home / Doctors / New')
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 <style>
     .form-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; margin-bottom:16px; }
     .form-card-header { padding:13px 20px; border-bottom:1px solid #e2e8f0; background:#f8fafc; }
@@ -22,15 +23,46 @@
     .invalid-feedback { font-size:11px; }
     .required-star { color:#ef4444; margin-left:2px; }
 
-    .photo-upload {
-        border:2px dashed #e2e8f0; border-radius:10px;
-        padding:24px; text-align:center; cursor:pointer;
-        transition:border-color 0.2s;
+    /* Select2 styling match karna */
+    .select2-container .select2-selection--single {
+        height:38px; border:1px solid #e2e8f0; border-radius:8px;
+        display:flex; align-items:center;
     }
-    .photo-upload:hover { border-color:#93c5fd; }
-    .photo-preview {
-        width:80px; height:80px; border-radius:50%; object-fit:cover;
-        margin:0 auto 8px; display:none;
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        font-size:13px; color:#1e293b; padding-left:12px; line-height:38px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height:36px;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color:#93c5fd; box-shadow:0 0 0 3px rgba(59,130,246,.1);
+    }
+    .select2-dropdown { border:1px solid #e2e8f0; border-radius:8px; font-size:13px; }
+    .select2-results__option--highlighted { background:#eff6ff !important; color:#1e293b !important; }
+
+    /* Employee preview card */
+    #emp-preview {
+        display:none;
+        background:#f8fafc; border:1px solid #e2e8f0;
+        border-radius:10px; padding:14px; margin-top:10px;
+    }
+    .emp-preview-avatar {
+        width:44px; height:44px; border-radius:50%;
+        background:#dbeafe; color:#1d4ed8; font-size:15px; font-weight:700;
+        display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .emp-preview-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+
+    /* Days checkboxes */
+    .day-check { display:none; }
+    .day-label {
+        display:inline-flex; align-items:center; justify-content:center;
+        width:40px; height:32px; border:1px solid #e2e8f0; border-radius:6px;
+        font-size:12px; font-weight:500; color:#64748b; cursor:pointer;
+        transition:all 0.15s; user-select:none;
+    }
+    .day-check:checked + .day-label {
+        background:#eff6ff; border-color:#3b82f6; color:#1d4ed8; font-weight:600;
     }
 </style>
 @endpush
@@ -45,32 +77,70 @@
     {{-- LEFT --}}
     <div class="col-12 col-lg-8">
 
-        {{-- Personal Info --}}
-        <div class="form-card">
-            <div class="form-card-header">
-                <h6><i class="bi bi-person me-2 text-primary"></i>Personal information</h6>
+        {{-- Employee Selection --}}
+        <div class="form-card" style="border-color:#bfdbfe">
+            <div class="form-card-header" style="background:#eff6ff">
+                <h6 style="color:#1d4ed8">
+                    <i class="bi bi-person-check me-2"></i>Select Employee
+                </h6>
             </div>
             <div class="form-card-body">
                 <div class="row g-3">
-
-                    <div class="col-md-6">
-                        <label class="form-label">Full name <span class="required-star">*</span></label>
-                        <input type="text" name="name"
-                               class="form-control @error('name') is-invalid @enderror"
-                               value="{{ old('name') }}" placeholder="e.g. Dr. Kamran Malik">
-                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Gender <span class="required-star">*</span></label>
-                        <select name="gender" class="form-select @error('gender') is-invalid @enderror">
-                            <option value="">Select gender</option>
-                            <option value="Male"   {{ old('gender') == 'Male'   ? 'selected' : '' }}>Male</option>
-                            <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
-                            <option value="Other"  {{ old('gender') == 'Other'  ? 'selected' : '' }}>Other</option>
+                    <div class="col-12">
+                        <label class="form-label">Employee <span class="required-star">*</span></label>
+                        <select name="employee_id" id="employeeSelect"
+                                class="form-select @error('employee_id') is-invalid @enderror"
+                                style="width:100%">
+                            <option value="">-- Koi employee select karein --</option>
+                            @foreach($employees as $emp)
+                                <option value="{{ $emp->id }}"
+                                        data-name="{{ $emp->first_name }} {{ $emp->last_name }}"
+                                        data-id="{{ $emp->employee_id }}"
+                                        data-dept="{{ $emp->department }}"
+                                        data-designation="{{ $emp->designation }}"
+                                        data-phone="{{ $emp->personal_phone }}"
+                                        data-email="{{ $emp->office_email ?? $emp->personal_email }}"
+                                        data-shift="{{ $emp->shift }}"
+                                        data-photo="{{ $emp->photo ? asset('storage/'.$emp->photo) : '' }}"
+                                        {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
+                                    {{ $emp->first_name }} {{ $emp->last_name }}
+                                    ({{ $emp->employee_id }} — {{ $emp->department }})
+                                </option>
+                            @endforeach
                         </select>
-                        @error('gender') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        @error('employee_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
+
+                    {{-- Employee Preview Card --}}
+                    <div class="col-12">
+                        <div id="emp-preview">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="emp-preview-avatar" id="prev-avatar">AB</div>
+                                <div>
+                                    <div style="font-size:14px;font-weight:600;color:#1e293b" id="prev-name">—</div>
+                                    <div style="font-size:12px;color:#6366f1" id="prev-designation">—</div>
+                                    <div style="font-size:11px;color:#94a3b8" id="prev-emp-id">—</div>
+                                </div>
+                                <div class="ms-auto text-end">
+                                    <div style="font-size:12px;color:#64748b"><i class="bi bi-building me-1"></i><span id="prev-dept">—</span></div>
+                                    <div style="font-size:12px;color:#64748b"><i class="bi bi-telephone me-1"></i><span id="prev-phone">—</span></div>
+                                    <div style="font-size:12px;color:#64748b"><i class="bi bi-clock me-1"></i><span id="prev-shift">—</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        {{-- Clinical Information --}}
+        <div class="form-card">
+            <div class="form-card-header">
+                <h6><i class="bi bi-clipboard2-pulse me-2 text-danger"></i>Clinical information</h6>
+            </div>
+            <div class="form-card-body">
+                <div class="row g-3">
 
                     <div class="col-md-6">
                         <label class="form-label">Specialization <span class="required-star">*</span></label>
@@ -89,87 +159,31 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">CNIC <span style="color:#94a3b8">(13 digits)</span></label>
-                        <input type="text" name="cnic"
-                               class="form-control @error('cnic') is-invalid @enderror"
-                               value="{{ old('cnic') }}" placeholder="3520112345678" maxlength="13">
-                        @error('cnic') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email"
-                               class="form-control @error('email') is-invalid @enderror"
-                               value="{{ old('email') }}" placeholder="doctor@hospital.com">
-                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label">Bio / About</label>
-                        <textarea name="bio" rows="3"
-                                  class="form-control @error('bio') is-invalid @enderror"
-                                  placeholder="Brief doctor profile, experience...">{{ old('bio') }}</textarea>
-                        @error('bio') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        {{-- Department & Shift --}}
-        <div class="form-card">
-            <div class="form-card-header">
-                <h6><i class="bi bi-building me-2 text-success"></i>Department & shift</h6>
-            </div>
-            <div class="form-card-body">
-                <div class="row g-3">
-
-                    <div class="col-md-6">
-                        <label class="form-label">Department <span class="required-star">*</span></label>
-                        <select name="department" class="form-select @error('department') is-invalid @enderror">
-                            <option value="">Select department</option>
-                            @foreach($departments as $dept)
-                                <option value="{{ $dept }}" {{ old('department') == $dept ? 'selected' : '' }}>
-                                    {{ $dept }}
+                        <label class="form-label">Doctor type <span class="required-star">*</span></label>
+                        <select name="doctor_type" class="form-select @error('doctor_type') is-invalid @enderror">
+                            @foreach(['Consultant','Medical Officer','House Officer','Visiting','Specialist'] as $type)
+                                <option value="{{ $type }}" {{ old('doctor_type','Medical Officer') == $type ? 'selected' : '' }}>
+                                    {{ $type }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('department') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        @error('doctor_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Shift <span class="required-star">*</span></label>
-                        <select name="shift" class="form-select @error('shift') is-invalid @enderror">
-                            <option value="Morning"  {{ old('shift','Morning') == 'Morning'  ? 'selected' : '' }}>Morning</option>
-                            <option value="Evening"  {{ old('shift') == 'Evening'  ? 'selected' : '' }}>Evening</option>
-                            <option value="Night"    {{ old('shift') == 'Night'    ? 'selected' : '' }}>Night</option>
-                            <option value="Full Day" {{ old('shift') == 'Full Day' ? 'selected' : '' }}>Full Day</option>
-                        </select>
-                        @error('shift') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label class="form-label">PMDC number</label>
+                        <input type="text" name="pmdc_number"
+                               class="form-control @error('pmdc_number') is-invalid @enderror"
+                               value="{{ old('pmdc_number') }}" placeholder="e.g. PMDC-12345">
+                        @error('pmdc_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Shift start time</label>
-                        <input type="time" name="shift_start"
-                               class="form-control @error('shift_start') is-invalid @enderror"
-                               value="{{ old('shift_start') }}">
-                        @error('shift_start') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Shift end time</label>
-                        <input type="time" name="shift_end"
-                               class="form-control @error('shift_end') is-invalid @enderror"
-                               value="{{ old('shift_end') }}">
-                        @error('shift_end') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Phone <span class="required-star">*</span></label>
-                        <input type="text" name="phone"
-                               class="form-control @error('phone') is-invalid @enderror"
-                               value="{{ old('phone') }}" placeholder="03xx-xxxxxxx">
-                        @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label class="form-label">Sub department</label>
+                        <input type="text" name="sub_department"
+                               class="form-control @error('sub_department') is-invalid @enderror"
+                               value="{{ old('sub_department') }}" placeholder="e.g. Interventional Cardiology">
+                        @error('sub_department') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6">
@@ -181,13 +195,67 @@
                     </div>
 
                     <div class="col-md-6">
+                        <label class="form-label">Avg. consultation (mins)</label>
+                        <input type="number" name="avg_consultation_mins"
+                               class="form-control @error('avg_consultation_mins') is-invalid @enderror"
+                               value="{{ old('avg_consultation_mins', 15) }}" min="5" max="120">
+                        @error('avg_consultation_mins') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-6">
                         <label class="form-label">Availability <span class="required-star">*</span></label>
                         <select name="availability" class="form-select @error('availability') is-invalid @enderror">
-                            <option value="Available" {{ old('availability','Available') == 'Available' ? 'selected' : '' }}>Available</option>
-                            <option value="On Leave"  {{ old('availability') == 'On Leave'  ? 'selected' : '' }}>On Leave</option>
-                            <option value="Off Duty"  {{ old('availability') == 'Off Duty'  ? 'selected' : '' }}>Off Duty</option>
+                            @foreach(['Available','In Consultation','On Leave','Off Duty'] as $av)
+                                <option value="{{ $av }}" {{ old('availability','Available') == $av ? 'selected' : '' }}>
+                                    {{ $av }}
+                                </option>
+                            @endforeach
                         </select>
                         @error('availability') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    {{-- Available Days --}}
+                    <div class="col-12">
+                        <label class="form-label">Available days</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $day)
+                                <div>
+                                    <input type="checkbox" name="available_days[]"
+                                           value="{{ $day }}" id="day_{{ $day }}"
+                                           class="day-check"
+                                           {{ in_array($day, old('available_days', ['Mon','Tue','Wed','Thu','Fri'])) ? 'checked' : '' }}>
+                                    <label for="day_{{ $day }}" class="day-label">{{ $day }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Accepts new patients --}}
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" name="accepts_new_patients" id="accepts_new_patients"
+                                   class="form-check-input" value="1"
+                                   {{ old('accepts_new_patients', true) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="accepts_new_patients" style="font-size:13px">
+                                Accepts new patients
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Bio / About</label>
+                        <textarea name="bio" rows="3"
+                                  class="form-control @error('bio') is-invalid @enderror"
+                                  placeholder="Brief doctor profile, experience...">{{ old('bio') }}</textarea>
+                        @error('bio') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Clinical notes</label>
+                        <textarea name="clinical_notes" rows="2"
+                                  class="form-control @error('clinical_notes') is-invalid @enderror"
+                                  placeholder="Internal clinical notes (not shown to patients)...">{{ old('clinical_notes') }}</textarea>
+                        @error('clinical_notes') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                 </div>
@@ -199,36 +267,17 @@
     {{-- RIGHT --}}
     <div class="col-12 col-lg-4">
 
-        {{-- Photo Upload --}}
-        <div class="form-card">
-            <div class="form-card-header">
-                <h6><i class="bi bi-image me-2 text-warning"></i>Doctor photo</h6>
-            </div>
-            <div class="form-card-body">
-                <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
-                    <img id="photoPreview" class="photo-preview" src="" alt="Preview">
-                    <i class="bi bi-camera" style="font-size:28px;color:#94a3b8;display:block;margin-bottom:6px"></i>
-                    <div style="font-size:13px;color:#64748b">Click to upload photo</div>
-                    <div style="font-size:11px;color:#94a3b8;margin-top:4px">JPG, PNG — max 2MB</div>
-                </div>
-                <input type="file" name="photo" id="photoInput"
-                       accept="image/jpg,image/jpeg,image/png"
-                       class="d-none @error('photo') is-invalid @enderror"
-                       onchange="previewPhoto(this)">
-                @error('photo') <div class="text-danger mt-1" style="font-size:11px">{{ $message }}</div> @enderror
-            </div>
-        </div>
-
-        {{-- Quick Info --}}
+        {{-- Info Card --}}
         <div class="form-card" style="border-color:#bfdbfe">
             <div class="form-card-header" style="background:#eff6ff">
                 <h6 style="color:#1d4ed8"><i class="bi bi-info-circle me-2"></i>Quick info</h6>
             </div>
             <div class="form-card-body" style="font-size:13px;color:#374151;line-height:2">
                 <div><i class="bi bi-check-circle text-success me-2"></i>Doctor ID auto-generated</div>
-                <div><i class="bi bi-check-circle text-success me-2"></i>Photo stored in storage/</div>
+                <div><i class="bi bi-check-circle text-success me-2"></i>Employee se naam, shift, photo milega</div>
+                <div><i class="bi bi-check-circle text-success me-2"></i>Sirf active employees dikhte hain</div>
+                <div><i class="bi bi-check-circle text-success me-2"></i>Ek employee — ek hi doctor record</div>
                 <div><i class="bi bi-check-circle text-success me-2"></i>Soft delete enabled</div>
-                <div><i class="bi bi-check-circle text-success me-2"></i>Used in patient assignment</div>
             </div>
         </div>
 
@@ -250,18 +299,58 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    function previewPhoto(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const preview = document.getElementById('photoPreview');
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-                preview.previousElementSibling.style.display = 'none';
-            };
-            reader.readAsDataURL(input.files[0]);
+$(document).ready(function () {
+
+    // Select2 init
+    $('#employeeSelect').select2({
+        placeholder: '-- Koi employee select karein --',
+        allowClear: true,
+        width: '100%',
+    });
+
+    // Employee preview
+    $('#employeeSelect').on('change', function () {
+        const sel = $(this).find(':selected');
+        const id  = sel.val();
+
+        if (!id) {
+            $('#emp-preview').hide();
+            return;
         }
+
+        const name        = sel.data('name');
+        const empId       = sel.data('id');
+        const dept        = sel.data('dept');
+        const designation = sel.data('designation');
+        const phone       = sel.data('phone');
+        const shift       = sel.data('shift');
+        const photo       = sel.data('photo');
+        const initials    = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+        $('#prev-name').text('Dr. ' + name);
+        $('#prev-designation').text(designation);
+        $('#prev-emp-id').text(empId);
+        $('#prev-dept').text(dept);
+        $('#prev-phone').text(phone || '—');
+        $('#prev-shift').text(shift || '—');
+
+        const avatar = $('#prev-avatar');
+        if (photo) {
+            avatar.html('<img src="' + photo + '" alt="">');
+        } else {
+            avatar.html(initials);
+            avatar.css({'background': '#dbeafe', 'color': '#1d4ed8'});
+        }
+
+        $('#emp-preview').show();
+    });
+
+    // Trigger agar old value ha
+    if ($('#employeeSelect').val()) {
+        $('#employeeSelect').trigger('change');
     }
+});
 </script>
 @endpush

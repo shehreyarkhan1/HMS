@@ -291,7 +291,14 @@
             <div class="kv-grid">
                 <div class="kv-item">
                     <div class="kv-label">Doctor</div>
-                    <div class="kv-value">{{ $appointment->doctor->name ?? '—' }}</div>
+                    <div class="kv-value">
+                        {{ $appointment->doctor?->name ?? '—' }}
+                        @if($appointment->doctor?->specialization)
+                            <div style="font-size:11px;color:#94a3b8;margin-top:2px">
+                                {{ $appointment->doctor->specialization }}
+                            </div>
+                        @endif
+                    </div>
                 </div>
                 <div class="kv-item">
                     <div class="kv-label">Date</div>

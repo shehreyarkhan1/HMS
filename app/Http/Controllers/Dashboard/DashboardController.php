@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\Employee;
 
 class DashboardController extends Controller
 {
@@ -33,38 +34,44 @@ class DashboardController extends Controller
         $appointmentChange = $appointment - $yesterdayCount;
 
         // ── Department Occupancy ──
-        // Har department mein aaj kitne active appointments hain
-        // Doctor table se departments nikalo, phir appointments count karo
-        $allDepartments = Doctor::whereNotNull('department')
+        // Doctor ke employee relationship se department nikalo
+        // Sirf Clinical departments consider karo
+        $allDepartments = Doctor::with('employee')
+            ->whereHas('employee', function($q) {
+                $q->where('department', 'like', 'Clinical — %')
+                  ->where('employment_status', 'Active');
+            })
             ->where('is_active', true)
-            ->pluck('department')
+            ->get()
+            ->pluck('employee.department')
             ->unique()
+            ->filter()
             ->values();
 
-        // Har department ka total doctor count (capacity)
-        // Aur aaj ki appointments count
         $departmentColors = [
-            'General' => '#1d4ed8',
-            'Cardiology' => '#ef4444',
-            'Pediatrics' => '#16a34a',
-            'Surgery' => '#d97706',
-            'Gynecology' => '#0f766e',
-            'Gynae' => '#0f766e',
-            'ICU' => '#dc2626',
-            'Orthopedics' => '#7c3aed',
-            'Neurology' => '#0891b2',
-            'Dermatology' => '#db2777',
-            'ENT' => '#65a30d',
-            'Urology' => '#ea580c',
+            'Clinical — General Medicine' => '#1d4ed8',
+            'Clinical — Cardiology' => '#ef4444',
+            'Clinical — Pediatrics' => '#16a34a',
+            'Clinical — Surgery' => '#d97706',
+            'Clinical — Gynecology' => '#0f766e',
+            'Clinical — ICU' => '#dc2626',
+            'Clinical — Orthopedics' => '#7c3aed',
+            'Clinical — Neurology' => '#0891b2',
+            'Clinical — Dermatology' => '#db2777',
+            'Clinical — ENT' => '#65a30d',
+            'Clinical — Urology' => '#ea580c',
         ];
 
         $departmentOccupancy = [];
 
         foreach ($allDepartments as $dept) {
-            // Is department ke doctors
-            $deptDoctorIds = Doctor::where('department', $dept)
-                ->where('is_active', true)
-                ->pluck('id');
+            // Is department ke employees jo doctors hain
+            $deptDoctorIds = Doctor::whereHas('employee', function($q) use ($dept) {
+                $q->where('department', $dept)
+                  ->where('employment_status', 'Active');
+            })
+            ->where('is_active', true)
+            ->pluck('id');
 
             // Aaj ki appointments in this department
             $todayAppts = Appointment::whereIn('doctor_id', $deptDoctorIds)
@@ -89,8 +96,11 @@ class DashboardController extends Controller
                 $percent = min(round(($monthAppts / $monthCapacity) * 100), 100);
             }
 
+            // Department name ko short banao (Clinical — hatao display ke liye)
+            $displayName = str_replace('Clinical — ', '', $dept);
+
             $departmentOccupancy[] = [
-                'name' => $dept,
+                'name' => $displayName,
                 'percent' => $percent,
                 'count' => $todayAppts,
                 'color' => $departmentColors[$dept] ?? '#6366f1',
@@ -100,13 +110,13 @@ class DashboardController extends Controller
         // Sort by percent descending
         usort($departmentOccupancy, fn($a, $b) => $b['percent'] <=> $a['percent']);
 
-        // Max 6 departments dikhao
+        // Max 6 departments dikhao (optional)
         // $departmentOccupancy = array_slice($departmentOccupancy, 0, 6);
 
         // ── Recent data ──
-        $recentPatients = Patient::with('doctor')->latest()->take(5)->get();
+        $recentPatients = Patient::with('doctor.employee')->latest()->take(5)->get();
 
-        $recentAppointments = Appointment::with('patient', 'doctor')
+        $recentAppointments = Appointment::with(['patient', 'doctor.employee'])
             ->whereDate('appointment_date', today())
             ->orderBy('appointment_time', 'asc')
             ->take(5)

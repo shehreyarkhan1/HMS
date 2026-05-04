@@ -68,12 +68,14 @@ class PrescriptionController extends Controller
             $patients = Patient::select('id', 'name', 'mrn')
                 ->orderBy('name')
                 ->get();
-
+                
             // Active Doctors
-            $doctors = Doctor::select('id', 'name')
+            $doctors = Doctor::with('employee')
                 ->where('is_active', true)
-                ->orderBy('name')
-                ->get();
+                ->get()
+                ->sortBy('employee.first_name');
+
+
 
             // Available Medicines
             $medicines = Medicine::select('id', 'name', 'generic_name', 'unit', 'sale_price')

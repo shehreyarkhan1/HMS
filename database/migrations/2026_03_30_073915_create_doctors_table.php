@@ -12,25 +12,52 @@ return new class extends Migration {
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
-            $table->string('doctor_id')->unique();        // DOC-00001
-            $table->string('name');
-            $table->string('specialization');             // Cardiology, General, etc
-            $table->string('qualification');              // MBBS, MD, FCPS etc
-            $table->string('phone');
-            $table->string('email')->unique()->nullable();
-            $table->string('cnic')->nullable()->unique();
-            $table->enum('gender', ['Male', 'Female', 'Other']);
-            $table->string('department');                 // Department name
+            $table->foreignId('employee_id')
+                ->unique()
+                ->constrained('employees')
+                ->cascadeOnDelete();
+
+            // ── DOCTOR ID ────────────────────────────────────────────
+            $table->string('doctor_id')->unique(); // DOC-00001
+
+            // ── CLINICAL INFORMATION ─────────────────────────────────
+            $table->string('specialization');
+            // Note: 'qualification' yahan rehne dein kyunki doctor ki medical degrees 
+            // employee ki generic education se different aur detail mein hoti hain.
+            $table->string('qualification');
+            $table->string('pmdc_number')->nullable();
+            $table->string('sub_department')->nullable();
+            $table->enum('doctor_type', [
+                'Consultant',
+                'Medical Officer',
+                'House Officer',
+                'Visiting',
+                'Specialist',
+            ])->default('Medical Officer');
+
+            // ── CONSULTATION ─────────────────────────────────────────
             $table->decimal('consultation_fee', 10, 2)->default(0);
-            $table->enum('availability', ['Available', 'On Leave', 'Off Duty'])->default('Available');
-            $table->enum('shift', ['Morning', 'Evening', 'Night', 'Full Day'])->default('Morning');
-            $table->time('shift_start')->nullable();
-            $table->time('shift_end')->nullable();
+            $table->integer('avg_consultation_mins')->default(15);
+            $table->enum('availability', [
+                'Available',
+                'In Consultation',
+                'On Leave',
+                'Off Duty',
+            ])->default('Available');
+
+            $table->json('available_days')->nullable(); // Maslan: ["Mon", "Wed", "Fri"]
+
+            // ── NOTES & STATUS ───────────────────────────────────────
             $table->text('bio')->nullable();
-            $table->string('photo')->nullable();          // photo path
+            $table->text('clinical_notes')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('accepts_new_patients')->default(true);
+
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('availability');
+            $table->index('is_active');
         });
     }
 

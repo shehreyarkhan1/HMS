@@ -9,12 +9,12 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use Carbon\Carbon;
 
-
 class AppointmentController extends Controller
 {
+    // ── Helper: doctors with employee loaded, sorted by employee first_name ──
     public function index(Request $request)
     {
-        $query = Appointment::with('patient', 'doctor')
+        $query = Appointment::with(['patient', 'doctor.employee'])
             ->orderBy('appointment_date', 'desc')
             ->orderBy('appointment_time', 'asc');
 
@@ -61,7 +61,10 @@ class AppointmentController extends Controller
             'cancelled' => Appointment::today()->byStatus('Cancelled')->count(),
         ];
 
-        $doctors = Doctor::orderBy('name')->get();
+        $doctors = Doctor::with('employee')
+            ->active()
+            ->orderBy('doctor_id')
+            ->get();
 
         return view('appointments.appointments_index', compact('appointments', 'stats', 'doctors'));
     }
@@ -71,7 +74,11 @@ class AppointmentController extends Controller
     // =============================================
     public function create(Request $request)
     {
-        $doctors = Doctor::orderBy('name')->get();
+        $doctors = Doctor::with('employee')
+            ->active()
+            ->available()
+            ->get();
+
         $patients = Patient::orderBy('name')->get();
 
         // Pre-fill patient if coming from patient profile
@@ -134,7 +141,7 @@ class AppointmentController extends Controller
     // =============================================
     public function show(Appointment $appointment)
     {
-        $appointment->load('patient', 'doctor');
+        $appointment->load(['patient', 'doctor.employee']);
         return view('appointments.appointments_show', compact('appointment'));
     }
 
@@ -143,8 +150,13 @@ class AppointmentController extends Controller
     // =============================================
     public function edit(Appointment $appointment)
     {
-        $doctors = Doctor::orderBy('name')->get();
+        $doctors = Doctor::with('employee')
+            ->active()
+            ->orderBy('doctor_id')
+            ->get();
+
         $patients = Patient::orderBy('name')->get();
+
         return view('appointments.appointments_edit', compact('appointment', 'doctors', 'patients'));
     }
 
@@ -244,7 +256,7 @@ class AppointmentController extends Controller
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
 
-        $query = Appointment::with('patient', 'doctor')
+        $query = Appointment::with(['patient', 'doctor.employee'])
             ->whereBetween('appointment_date', [$startDate, $endDate]);
 
         if ($doctorId) {
@@ -254,7 +266,10 @@ class AppointmentController extends Controller
         // Group by date string for easy calendar rendering
         $appointments = $query->get()->groupBy(fn($a) => $a->appointment_date->format('Y-m-d'));
 
-        $doctors = Doctor::orderBy('name')->get();
+        $doctors = Doctor::with('employee')
+            ->active()
+            ->orderBy('doctor_id')
+            ->get();
 
         return view('appointments.appointments_calendar', compact(
             'appointments',

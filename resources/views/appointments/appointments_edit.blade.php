@@ -188,7 +188,7 @@
                             @foreach($doctors as $d)
                                 <option value="{{ $d->id }}"
                                     {{ old('doctor_id', $appointment->doctor_id) == $d->id ? 'selected' : '' }}>
-                                    {{ $d->name }}
+                                    {{ $d->full_display }}
                                 </option>
                             @endforeach
                         </select>
@@ -218,7 +218,6 @@
 
                     <div class="col-md-4">
                         <div class="form-label-custom">Time</div>
-                        
                         <input type="time" name="appointment_time" id="appt_time"
                                class="form-control-custom @error('appointment_time') is-invalid @enderror"
                                value="{{ old('appointment_time', $appointment->appointment_time) }}">

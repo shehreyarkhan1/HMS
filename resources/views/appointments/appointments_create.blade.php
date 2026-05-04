@@ -120,7 +120,7 @@
                             @foreach($doctors as $d)
                                 <option value="{{ $d->id }}"
                                     {{ old('doctor_id') == $d->id ? 'selected' : '' }}>
-                                    {{ $d->name }}
+                                    {{ $d->full_display }}
                                 </option>
                             @endforeach
                         </select>

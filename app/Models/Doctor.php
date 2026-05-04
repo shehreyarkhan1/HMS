@@ -12,30 +12,29 @@ class Doctor extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'employee_id',    // <--- Yeh lazmi hona chahiye
         'doctor_id',
-        'name',
         'specialization',
         'qualification',
-        'phone',
-        'email',
-        'cnic',
-        'gender',
-        'department',
+        'pmdc_number',
         'consultation_fee',
         'availability',
-        'shift',
-        'shift_start',
-        'shift_end',
+        'doctor_type',
+        'sub_department',
+        'avg_consultation_mins',
+        'available_days',
         'bio',
-        'photo',
+        'clinical_notes',
+        'accepts_new_patients',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'consultation_fee' => 'decimal:2',
-    ];
 
+        'available_days' => 'array',
+    ];
     // ===== AUTO GENERATE DOCTOR ID =====
     protected static function boot()
     {
@@ -47,8 +46,56 @@ class Doctor extends Model
             $doctor->doctor_id = 'DOC-' . str_pad($number, 5, '0', STR_PAD_LEFT);
         });
     }
+    /**
+     * Doctor ka full name (employee se)
+     */
+    public function getNameAttribute()
+    {
+        return $this->employee
+            ? "{$this->employee->first_name} {$this->employee->last_name}"
+            : 'Unknown Doctor';
+    }
 
+    /**
+     * Display name with title: Dr. FirstName LastName
+     */
+    public function getDisplayNameAttribute()
+    {
+        return $this->employee
+            ? "Dr. {$this->employee->first_name} {$this->employee->last_name}"
+            : 'Unknown';
+    }
+
+    /**
+     * Full display: Dr. Name — Specialization
+     */
+    public function getFullDisplayAttribute()
+    {
+        return $this->employee
+            ? "Dr. {$this->employee->first_name} {$this->employee->last_name} — {$this->specialization}"
+            : 'Unknown';
+    }
     // ===== RELATIONSHIPS =====
+// Doctor ka name user table se aayega (agar linked user hai toh) — isliye accessor
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'id');
+    }
+
+    // Doctor ka email bhi user table se aayega (agar linked user hai toh) — isliye accessor
+    public function getEmailAttribute()
+    {
+        return $this->user?->email;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    //     public function user()
+// {
+//     return $this->hasOne(User::class);
+// }
     public function patients()
     {
         return $this->hasMany(Patient::class);

@@ -67,7 +67,12 @@ class LabOrderController extends Controller
     public function create(Request $request)
     {
         $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
-        $doctors = Doctor::orderBy('name')->get(['id', 'name']);
+        $doctors = Doctor::with('employee')
+            ->where('is_active', true)
+            ->join('employees', 'doctors.employee_id', '=', 'employees.id')
+            ->orderBy('employees.first_name')
+            ->select('doctors.*')
+            ->get();
         $tests = LabTest::with('category', 'sampleType')
             ->active()
             ->orderBy('name')
