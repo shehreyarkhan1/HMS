@@ -1,35 +1,34 @@
 <?php
 
-use App\Http\Controllers\Laboratory\LabTestCategoryController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Patient\PatientController;
-use App\Http\Controllers\Doctor\DoctorController;
 use App\Http\Controllers\Appointment\AppointmentController;
-use App\Http\Controllers\Ward\WardController;
-use App\Http\Controllers\Medicine\MedicineController;
-use App\Http\Controllers\Prescription\PrescriptionController;
+use App\Http\Controllers\Billing\BillingController;
+use App\Http\Controllers\BloodBank\BloodBankController;
+use App\Http\Controllers\BloodBank\BloodCrossmatchController;
+use App\Http\Controllers\BloodBank\BloodDonationController;
+use App\Http\Controllers\BloodBank\BloodDonorController;
+use App\Http\Controllers\BloodBank\BloodIssueController;
+use App\Http\Controllers\BloodBank\BloodRequestController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dispensing\DispensingController;
+use App\Http\Controllers\Doctor\DoctorController;
+use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Laboratory\LabOrderController;
-use App\Http\Controllers\Laboratory\LabTestController;
 use App\Http\Controllers\Laboratory\LabSampleTypeController;
+use App\Http\Controllers\Laboratory\LabTestCategoryController;
+use App\Http\Controllers\Laboratory\LabTestController;
+use App\Http\Controllers\Medicine\MedicineController;
+use App\Http\Controllers\OperationTheater\OtRoomController;
+use App\Http\Controllers\OperationTheater\OtScheduleController;
+use App\Http\Controllers\Patient\PatientController;
+use App\Http\Controllers\Prescription\PrescriptionController;
+use App\Http\Controllers\Radiology\RadiologyBodyPartController;
 use App\Http\Controllers\Radiology\RadiologyController;
 use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
-use App\Http\Controllers\Radiology\RadiologyBodyPartController;
 use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Employee\EmployeeController;
-use App\Http\Controllers\OperationTheater\OtScheduleController;
-use App\Http\Controllers\OperationTheater\OtRoomController;
-use App\Http\Controllers\BloodBank\BloodBankController;
-use App\Http\Controllers\BloodBank\BloodDonorController;
-use App\Http\Controllers\BloodBank\BloodDonationController;
-use App\Http\Controllers\BloodBank\BloodRequestController;
-use App\Http\Controllers\BloodBank\BloodIssueController;
-use App\Http\Controllers\BloodBank\BloodCrossmatchController;
-
-
-
+use App\Http\Controllers\Ward\WardController;
+use App\Http\Controllers\Billing\BillServiceChargeController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -40,8 +39,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
         ->name('users.toggle-status');
 });
-
-
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -73,7 +70,6 @@ Route::prefix('appointments')->name('appointments.')->group(function () {
     Route::get('/{appointment}/edit', [AppointmentController::class, 'edit'])->name('edit');
     Route::put('/{appointment}', [AppointmentController::class, 'update'])->name('update');
     Route::delete('/{appointment}', [AppointmentController::class, 'destroy'])->name('destroy');
-
 });
 
 // Bed actions
@@ -83,7 +79,6 @@ Route::post('wards/beds/{bed}/status', [WardController::class, 'changeBedStatus'
 
 // ✅ Baad mein resource
 Route::resource('wards', WardController::class);
-
 
 // Medicine management routes
 
@@ -106,8 +101,8 @@ Route::prefix('pharmacy')->name('pharmacy.')->group(function () {
 
     // Dispensing
     Route::resource('dispensings', DispensingController::class)->except(['edit', 'update', 'destroy'])->names('dispensings');
-    Route::post('dispensings/{dispensing}/mark-paid', [DispensingController::class, 'markPaid'])
-        ->name('dispensings.mark-paid');
+    // Route::post('dispensings/{dispensing}/mark-paid', [DispensingController::class, 'markPaid'])
+    //     ->name('dispensings.mark-paid');
 });
 
 // Laboratory routes
@@ -151,7 +146,6 @@ Route::prefix('lab')->name('lab.')->group(function () {
     Route::delete('sample-types/{labSampleType}', [LabSampleTypeController::class, 'destroy'])->name('sample-types.destroy');
     Route::post('sample-types/{labSampleType}/toggle', [LabSampleTypeController::class, 'toggleActive'])->name('sample-types.toggleActive');
 });
-
 
 Route::prefix('radiology')->name('radiology.')->group(function () {
 
@@ -212,7 +206,6 @@ Route::prefix('radiology')->name('radiology.')->group(function () {
 // Employee management routes
 Route::resource('employees', EmployeeController::class);
 
-
 // OT Room management routes
 Route::prefix('ot')->name('ot.')->group(function () {
     // ── OT SCHEDULES (Resource) ──────────────────────────────────────────
@@ -237,7 +230,6 @@ Route::prefix('ot')->name('ot.')->group(function () {
 
 // Blood Bank routes
 
-
 Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
 
     // ── DASHBOARD ────────────────────────────────────────────────────────
@@ -247,7 +239,7 @@ Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
     Route::resource('donors', BloodDonorController::class);
 
     // ── DONATIONS ────────────────────────────────────────────────────────
-    Route::get('donations', [BloodDonationController::class, 'index'])->name('donations.index'); 
+    Route::get('donations', [BloodDonationController::class, 'index'])->name('donations.index');
     Route::post('donations', [BloodDonationController::class, 'store'])->name('donations.store');
     Route::patch('donations/{donation}/screening', [BloodDonationController::class, 'updateScreening'])->name('donations.screening');
     Route::delete('donations/{donation}', [BloodDonationController::class, 'destroy'])->name('donations.destroy');
@@ -266,4 +258,50 @@ Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
     // ── CROSS-MATCH ───────────────────────────────────────────────────────
     Route::post('crossmatch', [BloodCrossmatchController::class, 'store'])->name('crossmatch.store');
     Route::patch('crossmatch/{crossmatch}/result', [BloodCrossmatchController::class, 'updateResult'])->name('crossmatch.result');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Billing & Invoice Routes
+|--------------------------------------------------------------------------
+| In web.php, include this file inside your auth middleware group:
+|
+|   require base_path('routes/billing.php');
+|
+| Or paste these routes directly inside your Route::middleware(['auth'])
+| group in web.php.
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('billing')->name('billing.')->group(function () {
+
+    // ── Main Billing CRUD ────────────────────────────────────────────
+    Route::get('/', [BillingController::class, 'index'])->name('index');
+    Route::get('/create', [BillingController::class, 'create'])->name('create');
+    Route::post('/', [BillingController::class, 'store'])->name('store');
+    Route::get('/{bill}', [BillingController::class, 'show'])->name('show');
+    Route::get('/{bill}/edit', [BillingController::class, 'edit'])->name('edit');
+    Route::put('/{bill}', [BillingController::class, 'update'])->name('update');
+
+    // ── Bill Actions ─────────────────────────────────────────────────
+    Route::post('/{bill}/finalize', [BillingController::class, 'finalize'])->name('finalize');
+    Route::post('/{bill}/payment', [BillingController::class, 'addPayment'])->name('payment');
+    Route::patch('/{bill}/cancel', [BillingController::class, 'cancel'])->name('cancel');
+    Route::get('/{bill}/print', [BillingController::class, 'printInvoice'])->name('print');
+
+    // ── AJAX Endpoints ───────────────────────────────────────────────
+    Route::get('/ajax/patient-search', [BillingController::class, 'patientSearch'])->name('ajax.patient-search');
+    Route::get('/patient/{patientId}/pending-services', [BillingController::class, 'pendingServices'])->name('pending-services');
+
+    // ── Service Charges Master Data ──────────────────────────────────
+    Route::prefix('service-charges')->name('service-charges.')->group(function () {
+        Route::get('/', [BillServiceChargeController::class, 'index'])->name('index');
+        Route::get('/create', [BillServiceChargeController::class, 'create'])->name('create');
+        Route::post('/', [BillServiceChargeController::class, 'store'])->name('store');
+        Route::get('/{charge}/edit', [BillServiceChargeController::class, 'edit'])->name('edit');
+        Route::put('/{charge}', [BillServiceChargeController::class, 'update'])->name('update');
+        Route::delete('/{charge}', [BillServiceChargeController::class, 'destroy'])->name('destroy');
+        Route::patch('/{charge}/toggle', [BillServiceChargeController::class, 'toggle'])->name('toggle');
+    });
+
 });

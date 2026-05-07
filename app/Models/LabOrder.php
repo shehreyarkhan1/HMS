@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 class LabOrder extends Model
 {
     use SoftDeletes;
@@ -40,7 +39,7 @@ class LabOrder extends Model
         static::creating(function ($order) {
             $last = static::withTrashed()->latest('id')->first();
             $num = $last ? ($last->id + 1) : 1;
-            $order->order_number = 'LAB-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+            $order->order_number = 'LAB-'.str_pad($num, 5, '0', STR_PAD_LEFT);
         });
     }
 
@@ -122,8 +121,7 @@ class LabOrder extends Model
             $q->where('order_number', 'like', "%$term%")
                 ->orWhereHas(
                     'patient',
-                    fn($p) =>
-                    $p->where('name', 'like', "%$term%")
+                    fn ($p) => $p->where('name', 'like', "%$term%")
                         ->orWhere('mrn', 'like', "%$term%")
                 );
         });
@@ -136,18 +134,31 @@ class LabOrder extends Model
     {
         $total = $this->items()->sum('final_price');
         $this->update(['total_amount' => $total]);
+        $this->syncPaymentStatus();
     }
 
     /** Update payment_status based on amounts */
+    /** Update payment_status based on amounts */
     public function syncPaymentStatus(): void
     {
-        $status = 'Unpaid';
-        if ($this->paid_amount >= $this->net_amount) {
-            $status = 'Paid';
-        } elseif ($this->paid_amount > 0) {
-            $status = 'Partial';
-        }
-        $this->update(['payment_status' => $status]);
-    }
+        $net = $this->net_amount; // total - discount
+        $paid = $this->paid_amount;
 
+        // Agar net amount zero hai (yani abhi tak tests add nahi hue ya free hai)
+        // to status "Unpaid" hi rehna chahiye jab tak billing na ho.
+        if ($net <= 0) {
+            $status = 'Unpaid';
+        } elseif ($paid >= $net) {
+            $status = 'Paid';
+        } elseif ($paid > 0) {
+            $status = 'Partial';
+        } else {
+            $status = 'Unpaid';
+        }
+
+        // Sirf tab update karein agar status waqai tabdeel ho raha ho
+        if ($this->payment_status !== $status) {
+            $this->update(['payment_status' => $status]);
+        }
+    }
 }

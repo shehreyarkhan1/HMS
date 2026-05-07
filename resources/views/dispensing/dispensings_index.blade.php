@@ -122,15 +122,7 @@
                                class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:12px">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            @if($dsp->payment_status !== 'Paid')
-                                <form method="POST" action="{{ route('pharmacy.dispensings.mark-paid', $dsp->id) }}">
-                                    @csrf
-                                    <button class="btn btn-sm btn-outline-success py-0 px-2"
-                                            style="font-size:12px" title="Mark Paid">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                </form>
-                            @endif
+                           
                         </div>
                     </td>
                 </tr>

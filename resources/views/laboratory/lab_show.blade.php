@@ -589,6 +589,7 @@
         </div>
 
         {{-- Right: Billing --}}
+         {{-- Right: Billing --}}
         <div class="col-lg-4">
             <div class="detail-card" style="position:sticky;top:20px">
                 <div class="detail-card-header">
@@ -596,89 +597,111 @@
                     <span class="pay-{{ $labOrder->payment_status }}">{{ $labOrder->payment_status }}</span>
                 </div>
                 <div class="detail-card-body">
+ 
+                    {{-- Amounts --}}
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px">
                         <span style="font-size:13px;color:#64748b">Subtotal</span>
-                        <span style="font-size:13px;font-weight:500">Rs
-                            {{ number_format($labOrder->total_amount, 0) }}</span>
+                        <span style="font-size:13px;font-weight:500">Rs. {{ number_format($labOrder->total_amount, 0) }}</span>
                     </div>
                     @if($labOrder->discount > 0)
-                        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                            <span style="font-size:13px;color:#64748b">Discount</span>
-                            <span style="font-size:13px;color:#dc2626">−Rs {{ number_format($labOrder->discount, 0) }}</span>
-                        </div>
-                    @endif
-                    <div
-                        style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;margin-bottom:10px">
-                        <span style="font-size:14px;font-weight:700;color:#1e293b">Net Amount</span>
-                        <span style="font-size:16px;font-weight:700;color:#1e293b">Rs
-                            {{ number_format($labOrder->net_amount, 0) }}</span>
-                    </div>
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                        <span style="font-size:13px;color:#64748b">Paid</span>
-                        <span style="font-size:13px;font-weight:500;color:#16a34a">Rs
-                            {{ number_format($labOrder->paid_amount, 0) }}</span>
+                        <span style="font-size:13px;color:#64748b">Discount</span>
+                        <span style="font-size:13px;color:#dc2626">−Rs. {{ number_format($labOrder->discount, 0) }}</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
-                        <span style="font-size:13px;color:#64748b">Balance</span>
-                        <span
-                            style="font-size:13px;font-weight:600;color:{{ $labOrder->balance > 0 ? '#dc2626' : '#16a34a' }}">
-                            Rs {{ number_format($labOrder->balance, 0) }}
+                    @endif
+                    <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;margin-bottom:10px">
+                        <span style="font-size:14px;font-weight:700;color:#1e293b">Net Amount</span>
+                        <span style="font-size:16px;font-weight:700;color:#1e293b">Rs. {{ number_format($labOrder->net_amount, 0) }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                        <span style="font-size:13px;color:#64748b">Paid</span>
+                        <span style="font-size:13px;font-weight:500;color:#16a34a">Rs. {{ number_format($labOrder->paid_amount, 0) }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+                        <span style="font-size:13px;color:#64748b">Balance Due</span>
+                        <span style="font-size:13px;font-weight:600;color:{{ $labOrder->balance > 0 ? '#dc2626' : '#16a34a' }}">
+                            Rs. {{ number_format($labOrder->balance, 0) }}
                         </span>
                     </div>
-
-                    {{-- Payment form --}}
-                    @if($labOrder->balance > 0)
-                        <form method="POST" action="{{ route('lab.orders.recordPayment', $labOrder->id) }}">
-                            @csrf
-                            <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-                                Record Payment
-                            </div>
-                            <div class="d-flex gap-2">
-                                <input type="number" name="paid_amount"
-                                    style="height:34px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;padding:0 10px;flex:1;background:#f8fafc"
-                                    placeholder="Amount Rs" min="1" max="{{ $labOrder->balance }}" required>
-                                <button type="submit" class="btn btn-sm btn-success"
-                                    style="height:34px;font-size:12px;white-space:nowrap">
-                                    <i class="bi bi-cash me-1"></i>Pay
-                                </button>
-                            </div>
-                        </form>
-                    @else
-                        <div
-                            style="text-align:center;padding:10px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#16a34a;font-weight:600">
-                            <i class="bi bi-check-circle me-2"></i>Fully Paid
+ 
+                    {{-- Payment Status Actions --}}
+                    @if($labOrder->payment_status === 'Paid')
+ 
+                        {{-- Fully Paid --}}
+                        <div style="text-align:center;padding:12px;background:#f0fdf4;border-radius:10px;font-size:13px;color:#16a34a;font-weight:600">
+                            <i class="bi bi-check-circle-fill me-2"></i>Fully Paid
                         </div>
+ 
+                    @else
+ 
+                        {{-- Not paid — show Create Bill or Go to Bill button --}}
+                        @php
+                            // Check if this lab order is already linked to a bill
+                            $linkedBill = \App\Models\BillItem::where('reference_type', 'lab_orders')
+                                ->where('reference_id', $labOrder->id)
+                                ->with('bill')
+                                ->first()?->bill;
+                        @endphp
+ 
+                        @if($linkedBill)
+                            {{-- Already has a bill --}}
+                            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-bottom:12px">
+                                <div style="font-size:12px;color:#1d4ed8;font-weight:600;margin-bottom:6px">
+                                    <i class="bi bi-receipt me-1"></i>Linked to Bill
+                                </div>
+                                <div style="font-size:13px;font-weight:700;color:#1e29348;font-family:monospace">
+                                    {{ $linkedBill->bill_number }}
+                                </div>
+                                <div style="font-size:11px;color:#64748b;margin-top:2px">
+                                    Status: {{ $linkedBill->payment_status }}
+                                </div>
+                            </div>
+                            <a href="{{ route('billing.show', $linkedBill) }}"
+                                class="btn btn-primary w-100" style="font-size:13px;height:38px">
+                                <i class="bi bi-receipt me-2"></i>View Bill & Pay
+                            </a>
+ 
+                        @else
+                            {{-- No bill yet — create one --}}
+                            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:#92400e">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Payment is collected via the <strong>Billing Module</strong>. Create a bill to record payment.
+                            </div>
+                            <a href="{{ route('billing.create', ['patient_id' => $labOrder->patient_id]) }}"
+                                class="btn btn-warning w-100 fw-semibold" style="font-size:13px;height:40px">
+                                <i class="bi bi-receipt me-2"></i>Create Bill for this Patient
+                            </a>
+                            <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:8px">
+                                Click "Load Pending Services" on the billing page<br>to auto-load this lab order.
+                            </div>
+                        @endif
+ 
                     @endif
-
+ 
                 </div>
             </div>
-
+ 
             {{-- Tests list summary --}}
-            <div class="detail-card">
+            <div class="detail-card" style="margin-top:20px">
                 <div class="detail-card-header">
                     <span><i class="bi bi-list-check me-2 text-primary"></i>Tests</span>
                 </div>
                 <div style="padding:0">
                     @foreach($labOrder->items as $item)
-                        <div
-                            style="padding:11px 18px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center">
-                            <div>
-                                <div style="font-size:13px;font-weight:500;color:#1e293b">
-                                    {{ $item->labTest->name }}
-                                </div>
-                                <div style="font-size:11px;color:#94a3b8">{{ $item->labTest->test_code }}</div>
-                            </div>
-                            <div style="text-align:right">
-                                <div style="font-size:12px;font-weight:600;color:#374151">
-                                    Rs {{ number_format($item->final_price, 0) }}
-                                </div>
-                                <span style="font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;
-                                                            background:{{ $item->status === 'Completed' ? '#dcfce7' : '#fef9c3' }};
-                                                            color:{{ $item->status === 'Completed' ? '#166534' : '#854d0e' }}">
-                                    {{ $item->status }}
-                                </span>
-                            </div>
+                    <div style="padding:11px 18px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <div style="font-size:13px;font-weight:500;color:#1e293b">{{ $item->labTest->name }}</div>
+                            <div style="font-size:11px;color:#94a3b8">{{ $item->labTest->test_code }}</div>
                         </div>
+                        <div style="text-align:right">
+                            <div style="font-size:12px;font-weight:600;color:#374151">Rs. {{ number_format($item->final_price, 0) }}</div>
+                            <span style="font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;
+                                background:{{ $item->status === 'Completed' ? '#dcfce7' : '#fef9c3' }};
+                                color:{{ $item->status === 'Completed' ? '#166534' : '#854d0e' }}">
+                                {{ $item->status }}
+                            </span>
+                        </div>
+                    </div>
                     @endforeach
                 </div>
             </div>

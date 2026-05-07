@@ -337,11 +337,18 @@ class RadiologyOrder extends Model
     /**
      * Sync payment status based on amounts
      */
-    public function syncPaymentStatus(): void
+    // ─────────────────────────────────────────────────
+    //  BUSINESS LOGIC METHODS
+    // ─────────────────────────────────────────────────
+
+    /**
+     * Sync total amounts based on items
+     */
+    public function syncTotal()
     {
         // Recalculate totals from items
-        $this->total_amount = $this->items->sum('price');
-        $this->net_amount = $this->total_amount - $this->discount;
+        $this->total_amount = $this->items()->sum('price');
+        $this->net_amount = max(0, $this->total_amount - $this->discount);
 
         // Set final_price for each item
         foreach ($this->items as $item) {
@@ -349,8 +356,20 @@ class RadiologyOrder extends Model
             $item->saveQuietly();
         }
 
+        $this->saveQuietly();
+
+        return $this;
+    }
+
+    /**
+     * Sync payment status based on amounts
+     */
+    public function syncPaymentStatus()
+    {
         // Determine payment status
-        if ($this->paid_amount == 0) {
+        if ($this->net_amount <= 0) {
+            $this->payment_status = 'Paid';
+        } elseif ($this->paid_amount == 0) {
             $this->payment_status = 'Unpaid';
         } elseif ($this->paid_amount >= $this->net_amount) {
             $this->payment_status = 'Paid';
@@ -360,6 +379,8 @@ class RadiologyOrder extends Model
         }
 
         $this->saveQuietly();
+
+        return $this;
     }
 
     // ─────────────────────────────────────────────────

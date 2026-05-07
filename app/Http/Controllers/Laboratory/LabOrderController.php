@@ -3,53 +3,45 @@
 namespace App\Http\Controllers\Laboratory;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Appointment;
+use App\Models\Doctor;
 use App\Models\LabOrder;
 use App\Models\LabOrderItem;
 use App\Models\LabResult;
 use App\Models\LabSample;
-use App\Models\Patient;
-use App\Models\Doctor;
 use App\Models\LabTest;
-use App\Models\Appointment;
+use App\Models\Patient;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 
 class LabOrderController extends Controller
 {
+    // ─────────────────────────────────────────────
+    //  INDEX
+    // ─────────────────────────────────────────────
     public function index(Request $request)
     {
         $query = LabOrder::with(['patient', 'doctor', 'items'])
             ->latest('order_date');
 
-        // Search
         if ($request->filled('search')) {
             $query->search($request->search);
         }
-
-        // Status filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
-        // Priority filter
         if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
         }
-
-        // Date filter
         if ($request->filled('date')) {
             $query->whereDate('order_date', $request->date);
         }
-
-        // Payment status filter
         if ($request->filled('payment_status')) {
             $query->where('payment_status', $request->payment_status);
         }
 
         $orders = $query->paginate(20)->withQueryString();
 
-        // Stats
         $stats = [
             'total' => LabOrder::whereDate('order_date', today())->count(),
             'pending' => LabOrder::whereDate('order_date', today())->where('status', 'Pending')->count(),
@@ -78,10 +70,8 @@ class LabOrderController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Group tests by category for the UI
         $testsByCategory = $tests->groupBy('category.name');
 
-        // Pre-fill from appointment if given
         $selectedPatient = null;
         $selectedDoctor = null;
         if ($request->filled('appointment_id')) {
@@ -93,11 +83,8 @@ class LabOrderController extends Controller
         }
 
         return view('laboratory.lab_create', compact(
-            'patients',
-            'doctors',
-            'testsByCategory',
-            'selectedPatient',
-            'selectedDoctor'
+            'patients', 'doctors', 'testsByCategory',
+            'selectedPatient', 'selectedDoctor'
         ));
     }
 
@@ -127,8 +114,8 @@ class LabOrderController extends Controller
                 'order_date' => $request->order_date,
                 'priority' => $request->priority,
                 'notes' => $request->notes,
-                'discount' => $request->discount ?? 0,
-                'paid_amount' => $request->paid_amount ?? 0,
+                'discount' => $request->discount ?? 0, // Order level discount
+                'paid_amount' => 0,
             ]);
 
             foreach ($request->tests as $testData) {
@@ -140,12 +127,12 @@ class LabOrderController extends Controller
                 ]);
             }
 
-            // Sync payment status
-            $order->syncPaymentStatus();
+            // ✅ YE DO LINE ZAROORI HAIN
+            $order->syncTotal();          // Pehle items ka total calculate karega
+            $order->syncPaymentStatus();  // Phir check karega ke paid hai ya nahi (Unpaid dikhayega)
         });
 
-        return redirect()->route('lab.orders.index')
-            ->with('success', 'Lab order created successfully.');
+        return redirect()->route('lab.orders.index')->with('success', 'Lab order created successfully.');
     }
 
     // ─────────────────────────────────────────────
@@ -188,11 +175,9 @@ class LabOrderController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            // Link items to this sample
             LabOrderItem::whereIn('id', $request->item_ids)
                 ->update(['lab_sample_id' => $sample->id]);
 
-            // Update order status
             $labOrder->update(['status' => 'Sample Collected']);
         });
 
@@ -215,11 +200,11 @@ class LabOrderController extends Controller
 
         DB::transaction(function () use ($request, $labOrder) {
             foreach ($request->results as $data) {
-                if (empty($data['result_value']))
+                if (empty($data['result_value'])) {
                     continue;
+                }
 
                 $item = LabOrderItem::find($data['item_id']);
-
                 $result = LabResult::updateOrCreate(
                     ['lab_order_item_id' => $item->id],
                     [
@@ -231,10 +216,8 @@ class LabOrderController extends Controller
                     ]
                 );
 
-                // Auto flag
                 $result->autoSetFlag();
 
-                // Mark item completed
                 $item->update([
                     'status' => 'Completed',
                     'completed_at' => now(),
@@ -242,16 +225,12 @@ class LabOrderController extends Controller
                 ]);
             }
 
-            // Check if all items are completed → update order status
-            $allDone = $labOrder->items()->where('status', '!=', 'Completed')
+            $allDone = $labOrder->items()
+                ->where('status', '!=', 'Completed')
                 ->where('status', '!=', 'Cancelled')
                 ->doesntExist();
 
-            if ($allDone) {
-                $labOrder->update(['status' => 'Completed']);
-            } else {
-                $labOrder->update(['status' => 'Processing']);
-            }
+            $labOrder->update(['status' => $allDone ? 'Completed' : 'Processing']);
         });
 
         return back()->with('success', 'Results saved successfully.');
@@ -269,23 +248,6 @@ class LabOrderController extends Controller
         ]);
 
         return back()->with('success', 'Result verified.');
-    }
-
-    // ─────────────────────────────────────────────
-    //  RECORD PAYMENT
-    // ─────────────────────────────────────────────
-    public function recordPayment(Request $request, LabOrder $labOrder)
-    {
-        $request->validate([
-            'paid_amount' => 'required|numeric|min:0',
-        ]);
-
-        $labOrder->update([
-            'paid_amount' => $labOrder->paid_amount + $request->paid_amount,
-        ]);
-        $labOrder->syncPaymentStatus();
-
-        return back()->with('success', 'Payment recorded.');
     }
 
     // ─────────────────────────────────────────────
@@ -315,4 +277,10 @@ class LabOrderController extends Controller
 
         return back()->with('success', 'Report marked as delivered.');
     }
+
+    // ─────────────────────────────────────────────
+    //  NOTE: recordPayment() REMOVED
+    //  Payment is now handled via Billing Module.
+    //  Go to: Billing → New Bill → Load Pending Services
+    // ─────────────────────────────────────────────
 }

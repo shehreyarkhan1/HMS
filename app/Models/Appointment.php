@@ -59,7 +59,12 @@ class Appointment extends Model
             ? Carbon::parse($this->appointment_time)->format('h:i A')
             : '—';
     }
-
+// Relationship: Ek appointment ke kai bill items ho sakte hain
+public function billItems()
+{
+    return $this->hasMany(BillItem::class, 'reference_id')
+                ->where('reference_type', 'appointments');
+}
     /** Is appointment today? */
     public function getIsTodayAttribute(): bool
     {

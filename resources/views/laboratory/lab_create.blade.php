@@ -174,40 +174,47 @@
                                 <label class="form-label-sm">Patient <span class="text-danger">*</span></label>
                                 <select name="patient_id" class="form-control-sm-custom" required>
                                     <option value="">Select patient...</option>
-                                    @foreach($patients as $patient)
+                                    @foreach ($patients as $patient)
                                         <option value="{{ $patient->id }}"
-                                            {{ (old('patient_id') == $patient->id || optional($selectedPatient)->id == $patient->id) ? 'selected' : '' }}>
+                                            {{ old('patient_id') == $patient->id || optional($selectedPatient)->id == $patient->id ? 'selected' : '' }}>
                                             {{ $patient->name }} — {{ $patient->mrn }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('patient_id') <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div> @enderror
+                                @error('patient_id')
+                                    <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-sm">Referring Doctor <span class="text-danger">*</span></label>
                                 <select name="doctor_id" class="form-control-sm-custom" required>
                                     <option value="">Select doctor...</option>
-                                    @foreach($doctors as $doctor)
+                                    @foreach ($doctors as $doctor)
                                         <option value="{{ $doctor->id }}"
-                                            {{ (old('doctor_id') == $doctor->id || optional($selectedDoctor)->id == $doctor->id) ? 'selected' : '' }}>
+                                            {{ old('doctor_id') == $doctor->id || optional($selectedDoctor)->id == $doctor->id ? 'selected' : '' }}>
                                             {{ $doctor->name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('doctor_id') <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div> @enderror
+                                @error('doctor_id')
+                                    <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label-sm">Order Date <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="order_date"
-                                    class="form-control-sm-custom"
+                                <input type="datetime-local" name="order_date" class="form-control-sm-custom"
                                     value="{{ old('order_date', now()->format('Y-m-d\TH:i')) }}" required>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label-sm">Priority <span class="text-danger">*</span></label>
                                 <select name="priority" class="form-control-sm-custom" required>
-                                    <option value="Routine" {{ old('priority','Routine') == 'Routine' ? 'selected' : '' }}>Routine</option>
-                                    <option value="Urgent" {{ old('priority') == 'Urgent' ? 'selected' : '' }}>Urgent (2-4 hrs)</option>
-                                    <option value="STAT" {{ old('priority') == 'STAT' ? 'selected' : '' }}>🚨 STAT (Immediate)</option>
+                                    <option value="Routine"
+                                        {{ old('priority', 'Routine') == 'Routine' ? 'selected' : '' }}>
+                                        Routine</option>
+                                    <option value="Urgent" {{ old('priority') == 'Urgent' ? 'selected' : '' }}>Urgent (2-4
+                                        hrs)</option>
+                                    <option value="STAT" {{ old('priority') == 'STAT' ? 'selected' : '' }}>🚨 STAT
+                                        (Immediate)</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
@@ -232,16 +239,15 @@
                             <input type="text" id="testSearch" class="form-control-sm-custom"
                                 placeholder="Search test by name or code..." autocomplete="off">
                             <div class="test-dropdown" id="testDropdown">
-                                @foreach($testsByCategory as $category => $tests)
-                                    <div style="padding:6px 14px;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;background:#f8fafc;letter-spacing:.06em">
+                                @foreach ($testsByCategory as $category => $tests)
+                                    <div
+                                        style="padding:6px 14px;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;background:#f8fafc;letter-spacing:.06em">
                                         {{ $category }}
                                     </div>
-                                    @foreach($tests as $test)
+                                    @foreach ($tests as $test)
                                         <div class="test-option" data-id="{{ $test->id }}"
-                                            data-name="{{ $test->name }}"
-                                            data-code="{{ $test->test_code }}"
-                                            data-price="{{ $test->price }}"
-                                            data-unit="{{ $test->unit }}"
+                                            data-name="{{ $test->name }}" data-code="{{ $test->test_code }}"
+                                            data-price="{{ $test->price }}" data-unit="{{ $test->unit }}"
                                             data-sample="{{ $test->sampleType?->name ?? '' }}"
                                             data-fasting="{{ $test->requires_fasting ? '1' : '0' }}"
                                             data-turnaround="{{ $test->turnaround_label }}">
@@ -249,8 +255,12 @@
                                                 <div class="test-option-name">{{ $test->name }}</div>
                                                 <div class="test-option-meta">
                                                     {{ $test->test_code }}
-                                                    @if($test->sampleType) · {{ $test->sampleType->name }} @endif
-                                                    @if($test->requires_fasting) · <span style="color:#d97706">Fasting</span> @endif
+                                                    @if ($test->sampleType)
+                                                        · {{ $test->sampleType->name }}
+                                                    @endif
+                                                    @if ($test->requires_fasting)
+                                                        · <span style="color:#d97706">Fasting</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="test-option-price">Rs {{ number_format($test->price, 0) }}</div>
@@ -267,7 +277,8 @@
                         </div>
 
                         <div id="testsTableWrapper" style="display:none">
-                            <table class="table selected-tests-table mb-0" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+                            <table class="table selected-tests-table mb-0"
+                                style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -301,6 +312,7 @@
                     </div>
                     <div class="form-section-body">
 
+                        {{-- Order Summary box --}}
                         <div class="total-box mb-3">
                             <div class="d-flex justify-content-between mb-1">
                                 <span style="font-size:13px;color:#64748b">Subtotal</span>
@@ -317,29 +329,33 @@
                             </div>
                         </div>
 
+                        {{-- Order-level discount --}}
                         <div class="mb-3">
                             <label class="form-label-sm">Order Discount (Rs)</label>
-                            <input type="number" name="discount" id="orderDiscount"
-                                class="form-control-sm-custom" value="0" min="0" step="1">
+                            <input type="number" name="discount" id="orderDiscount" class="form-control-sm-custom"
+                                value="0" min="0" step="1">
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label-sm">Paid Amount (Rs)</label>
-                            <input type="number" name="paid_amount" id="paidAmount"
-                                class="form-control-sm-custom" value="0" min="0" step="1">
+                        {{-- Info note --}}
+                        <div
+                            style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;margin-bottom:16px">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Payment will be collected via <strong>Billing Module</strong> after order creation.
                         </div>
 
-                        {{-- Fasting warning --}}
-                        <div id="fastingWarning" class="alert mb-3" style="display:none;background:#fefce8;border:1px solid #fde047;border-radius:8px;font-size:12px;color:#854d0e;padding:10px 14px">
+                        {{-- Fasting warning (Unique ID) --}}
+                        <div id="fastingWarning" class="alert mb-3"
+                            style="display:none;background:#fefce8;border:1px solid #fde047;border-radius:8px;font-size:12px;color:#854d0e;padding:10px 14px">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             <strong>Fasting required</strong> for one or more selected tests.
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100" style="height:40px;font-size:14px;font-weight:600">
+                        <button type="submit" class="btn btn-success w-100"
+                            style="height:40px;font-size:14px;font-weight:600">
                             <i class="bi bi-plus-circle me-2"></i>Create Lab Order
                         </button>
-                        <a href="{{ route('lab.orders.index') }}"
-                            class="btn btn-outline-secondary w-100 mt-2" style="height:38px;font-size:13px">
+                        <a href="{{ route('lab.orders.index') }}" class="btn btn-outline-secondary w-100 mt-2"
+                            style="height:38px;font-size:13px">
                             Cancel
                         </a>
 
@@ -357,92 +373,95 @@
 @endsection
 
 @push('scripts')
-<script>
-    const selectedTests = {};
+    <script>
+        const selectedTests = {};
 
-    // ── Search ──
-    const searchInput = document.getElementById('testSearch');
-    const dropdown    = document.getElementById('testDropdown');
-    const allOptions  = [...document.querySelectorAll('.test-option')];
+        // ── Search ──
+        const searchInput = document.getElementById('testSearch');
+        const dropdown = document.getElementById('testDropdown');
+        const allOptions = [...document.querySelectorAll('.test-option')];
 
-    searchInput.addEventListener('focus', () => dropdown.classList.add('show'));
-    searchInput.addEventListener('input', function () {
-        const q = this.value.toLowerCase();
+        searchInput.addEventListener('focus', () => dropdown.classList.add('show'));
+        searchInput.addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            allOptions.forEach(opt => {
+                const match = opt.dataset.name.toLowerCase().includes(q) ||
+                    opt.dataset.code.toLowerCase().includes(q);
+                opt.style.display = match ? '' : 'none';
+            });
+            // Show/hide category headers
+            document.querySelectorAll('.test-dropdown > div[style*="background:#f8fafc"]').forEach(header => {
+                const nextSibs = [];
+                let el = header.nextElementSibling;
+                while (el && !el.style.background?.includes('#f8fafc')) {
+                    if (el.classList.contains('test-option')) nextSibs.push(el);
+                    el = el.nextElementSibling;
+                }
+                header.style.display = nextSibs.some(o => o.style.display !== 'none') ? '' : 'none';
+            });
+            dropdown.classList.add('show');
+        });
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.test-search-box')) dropdown.classList.remove('show');
+        });
+
+        // ── Add test ──
         allOptions.forEach(opt => {
-            const match = opt.dataset.name.toLowerCase().includes(q) ||
-                          opt.dataset.code.toLowerCase().includes(q);
-            opt.style.display = match ? '' : 'none';
+            opt.addEventListener('click', () => {
+                const id = opt.dataset.id;
+                if (selectedTests[id]) return; // already added
+                selectedTests[id] = {
+                    id: id,
+                    name: opt.dataset.name,
+                    code: opt.dataset.code,
+                    price: parseFloat(opt.dataset.price),
+                    discount: 0,
+                    sample: opt.dataset.sample,
+                    fasting: opt.dataset.fasting === '1',
+                    turnaround: opt.dataset.turnaround,
+                };
+                renderTable();
+                searchInput.value = '';
+                dropdown.classList.remove('show');
+            });
         });
-        // Show/hide category headers
-        document.querySelectorAll('.test-dropdown > div[style*="background:#f8fafc"]').forEach(header => {
-            const nextSibs = [];
-            let el = header.nextElementSibling;
-            while (el && !el.style.background?.includes('#f8fafc')) {
-                if (el.classList.contains('test-option')) nextSibs.push(el);
-                el = el.nextElementSibling;
-            }
-            header.style.display = nextSibs.some(o => o.style.display !== 'none') ? '' : 'none';
-        });
-        dropdown.classList.add('show');
-    });
 
-    document.addEventListener('click', e => {
-        if (!e.target.closest('.test-search-box')) dropdown.classList.remove('show');
-    });
-
-    // ── Add test ──
-    allOptions.forEach(opt => {
-        opt.addEventListener('click', () => {
-            const id = opt.dataset.id;
-            if (selectedTests[id]) return; // already added
-            selectedTests[id] = {
-                id:        id,
-                name:      opt.dataset.name,
-                code:      opt.dataset.code,
-                price:     parseFloat(opt.dataset.price),
-                discount:  0,
-                sample:    opt.dataset.sample,
-                fasting:   opt.dataset.fasting === '1',
-                turnaround:opt.dataset.turnaround,
-            };
+        // ── Remove test ──
+        document.getElementById('testsTableBody').addEventListener('click', e => {
+            const btn = e.target.closest('.remove-test');
+            if (!btn) return;
+            delete selectedTests[btn.dataset.id];
             renderTable();
-            searchInput.value = '';
-            dropdown.classList.remove('show');
         });
-    });
 
-    // ── Remove test ──
-    document.getElementById('testsTableBody').addEventListener('click', e => {
-        const btn = e.target.closest('.remove-test');
-        if (!btn) return;
-        delete selectedTests[btn.dataset.id];
-        renderTable();
-    });
+        // ── Discount input ──
+        document.getElementById('testsTableBody').addEventListener('input', e => {
+            if (e.target.classList.contains('disc-input')) {
+                const id = e.target.dataset.id;
+                selectedTests[id].discount = parseFloat(e.target.value) || 0;
+                updateTotals();
+                updateHiddenInputs();
+            }
+        });
 
-    // ── Discount input ──
-    document.getElementById('testsTableBody').addEventListener('input', e => {
-        if (e.target.classList.contains('disc-input')) {
-            const id = e.target.dataset.id;
-            selectedTests[id].discount = parseFloat(e.target.value) || 0;
-            updateTotals();
-            updateHiddenInputs();
-        }
-    });
+        // ── Order level discount ──
+        document.getElementById('orderDiscount').addEventListener('input', updateTotals);
 
-    // ── Render ──
-    function renderTable() {
-        const tbody   = document.getElementById('testsTableBody');
-        const noMsg   = document.getElementById('noTestsMsg');
-        const wrapper = document.getElementById('testsTableWrapper');
-        const keys    = Object.keys(selectedTests);
+        // ── Render ──
+        function renderTable() {
+            const tbody = document.getElementById('testsTableBody');
+            const noMsg = document.getElementById('noTestsMsg');
+            const wrapper = document.getElementById('testsTableWrapper');
+            const keys = Object.keys(selectedTests);
 
-        noMsg.style.display   = keys.length ? 'none' : 'block';
-        wrapper.style.display = keys.length ? 'block' : 'none';
+            noMsg.style.display = keys.length ? 'none' : 'block';
+            wrapper.style.display = keys.length ? 'block' : 'none';
 
-        tbody.innerHTML = keys.map((id, i) => {
-            const t     = selectedTests[id];
-            const final = Math.max(0, t.price - t.discount);
-            return `
+            tbody.innerHTML = keys.map((id, i) => {
+                const t = selectedTests[id];
+                const final = Math.max(0, t.price - t.discount);
+                return `
             <tr>
                 <td style="color:#94a3b8">${i + 1}</td>
                 <td>
@@ -463,46 +482,52 @@
                     </button>
                 </td>
             </tr>`;
-        }).join('');
+            }).join('');
 
-        updateTotals();
-        updateHiddenInputs();
-        updateFastingWarning();
-    }
+            updateTotals();
+            updateHiddenInputs();
+            updateFastingWarning();
+        }
 
-    function updateTotals() {
-        let subtotal = 0, itemDisc = 0;
-        Object.values(selectedTests).forEach(t => {
-            subtotal += t.price;
-            itemDisc += t.discount;
-        });
-        const net = Math.max(0, subtotal - itemDisc);
-        document.getElementById('summarySubtotal').textContent    = 'Rs ' + subtotal.toLocaleString();
-        document.getElementById('summaryItemDiscount').textContent = '−Rs ' + itemDisc.toLocaleString();
-        document.getElementById('summaryTotal').textContent        = 'Rs ' + net.toLocaleString();
-    }
+        function updateTotals() {
+            let subtotal = 0,
+                itemDisc = 0;
+            Object.values(selectedTests).forEach(t => {
+                subtotal += t.price;
+                itemDisc += t.discount;
+            });
 
-    function updateHiddenInputs() {
-        const container = document.getElementById('hiddenInputs');
-        container.innerHTML = Object.values(selectedTests).map((t, i) => `
+            const orderDisc = parseFloat(document.getElementById('orderDiscount').value) || 0;
+            const totalDisc = itemDisc + orderDisc;
+            const net = Math.max(0, subtotal - totalDisc);
+
+            document.getElementById('summarySubtotal').textContent = 'Rs ' + subtotal.toLocaleString();
+            document.getElementById('summaryItemDiscount').textContent = '−Rs ' + totalDisc.toLocaleString();
+            document.getElementById('summaryTotal').textContent = 'Rs ' + net.toLocaleString();
+        }
+
+        function updateHiddenInputs() {
+            const container = document.getElementById('hiddenInputs');
+            container.innerHTML = Object.values(selectedTests).map((t, i) => `
             <input type="hidden" name="tests[${i}][id]"       value="${t.id}">
             <input type="hidden" name="tests[${i}][price]"    value="${t.price}">
             <input type="hidden" name="tests[${i}][discount]" value="${t.discount}">
         `).join('');
-    }
-
-    function updateFastingWarning() {
-        const hasFasting = Object.values(selectedTests).some(t => t.fasting);
-        document.getElementById('fastingWarning').style.display = hasFasting ? 'block' : 'none';
-    }
-
-    // ── Validate at submit ──
-    document.getElementById('orderForm').addEventListener('submit', function (e) {
-        if (Object.keys(selectedTests).length === 0) {
-            e.preventDefault();
-            alert('Please add at least one test.');
-            document.getElementById('testSearch').focus();
         }
-    });
-</script>
+
+        function updateFastingWarning() {
+            const hasFasting = Object.values(selectedTests).some(t => t.fasting);
+            const warningEl = document.getElementById('fastingWarning');
+            if (warningEl) warningEl.style.display = hasFasting ? 'block' : 'none';
+        }
+
+        // ── Validate at submit ──
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            if (Object.keys(selectedTests).length === 0) {
+                e.preventDefault();
+                alert('Please add at least one test.');
+                document.getElementById('testSearch').focus();
+            }
+        });
+    </script>
 @endpush

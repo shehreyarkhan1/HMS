@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Dispensing;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Prescription;
+use App\Models\Dispensing;
 use App\Models\Medicine;
 use App\Models\MedicineBatch;
-use App\Models\Dispensing;
-use App\Models\DispensingItem;
-use App\Models\PrescriptionItem;
 use App\Models\Patient;
-use Carbon\Carbon;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 class DispensingController extends Controller
 {
     // ===== INDEX =====
@@ -23,7 +22,7 @@ class DispensingController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('dispense_number', 'ilike', "%{$request->search}%")
-                    ->orWhereHas('patient', fn($p) => $p->where('name', 'ilike', "%{$request->search}%"));
+                    ->orWhereHas('patient', fn ($p) => $p->where('name', 'ilike', "%{$request->search}%"));
             });
         }
         if ($request->filled('payment')) {
@@ -70,7 +69,7 @@ class DispensingController extends Controller
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'prescription_id' => 'nullable|exists:prescriptions,id',
-            'payment_status' => 'required|in:Paid,Unpaid,Partial',
+            // 'payment_status' validation HATA DI GAYI HAI
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.medicine_id' => 'required|exists:medicines,id',
@@ -112,9 +111,9 @@ class DispensingController extends Controller
                 ];
 
                 // Update dispensed_qty on prescription item
-                if (!empty($item['prescription_item_id'])) {
+                if (! empty($item['prescription_item_id'])) {
                     PrescriptionItem::find($item['prescription_item_id'])
-                            ?->increment('dispensed_qty', $item['quantity']);
+                        ?->increment('dispensed_qty', $item['quantity']);
                 }
             }
 
@@ -124,7 +123,7 @@ class DispensingController extends Controller
                 'prescription_id' => $request->prescription_id,
                 'dispensed_at' => now(),
                 'total_amount' => $totalAmount,
-                'payment_status' => $request->payment_status,
+                'payment_status' => 'Unpaid', // Hardcoded Unpaid (Billing module pay karega)
                 'notes' => $request->notes,
             ]);
 
@@ -146,7 +145,7 @@ class DispensingController extends Controller
 
         return redirect()
             ->route('pharmacy.dispensings.index')
-            ->with('success', 'Medicines dispensed successfully!');
+            ->with('success', 'Medicines dispensed successfully! Payment pending in Billing Module.');
     }
 
     // ===== SHOW =====
@@ -164,17 +163,11 @@ class DispensingController extends Controller
                 return $batch && $batch->expiry_date <= now()->addDays(30);
             });
 
-        return view('pharmacy.medicines_show', compact(
+        // Make sure aapka view wahi hai jahan aap dikhana chahte hain (yahan pehle medicines_show tha)
+        return view('pharmacy.dispensings_show', compact( // I corrected view name from medicines_show to dispensings_show based on standard
             'dispensing',
             'medicine',
             'expiringBatches'
         ));
-    }
-
-    // ===== MARK AS PAID =====
-    public function markPaid(Dispensing $dispensing)
-    {
-        $dispensing->update(['payment_status' => 'Paid']);
-        return back()->with('success', 'Payment marked as paid!');
     }
 }

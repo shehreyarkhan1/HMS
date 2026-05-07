@@ -210,7 +210,7 @@
                 {{-- hidden inputs container --}}
                 <div id="hiddenInputs"></div>
 
-                <div class="total-bar mt-3">
+                <div class="total-bar mt-3 mb-3">
                     <div>
                         <div style="font-size:11px;color:#94a3b8">Sub-total</div>
                         <div style="font-size:18px;font-weight:700;color:#1e293b" id="subtotalDisplay">Rs 0</div>
@@ -218,28 +218,33 @@
                 </div>
 
                 <div class="row g-2 mt-1">
-                    <div class="col-6">
-                        <div class="field-label">Discount (Rs)</div>
+                    <div class="col-12">
+                        <div class="field-label">Order Discount (Rs)</div>
                         <input type="number" name="discount" id="discountInput"
                             class="form-control form-control-sm" min="0" step="1"
                             value="0" oninput="updateNetDisplay()">
                     </div>
-                    <div class="col-6">
-                        <div class="field-label">Paid (Rs)</div>
-                        <input type="number" name="paid_amount"
-                            class="form-control form-control-sm" min="0" step="1" value="0">
-                    </div>
-                    <div class="col-12">
+                    
+                    <div class="col-12 mt-2">
                         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:12px;color:#166534;font-weight:600">Net Amount</span>
+                            <span style="font-size:12px;color:#166534;font-weight:600">Total Amount</span>
                             <span style="font-size:16px;font-weight:700;color:#166534" id="netDisplay">Rs 0</span>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-3" id="submitBtn" disabled>
-                    <i class="bi bi-check-lg me-2"></i>Create Radiology Order
+                {{-- Info note for billing module --}}
+                <div class="mt-3 mb-3" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Payment will be collected via <strong>Billing Module</strong> after order creation.
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled style="height:40px;font-weight:600;">
+                    <i class="bi bi-plus-circle me-2"></i>Create Radiology Order
                 </button>
+                <a href="{{ route('radiology.orders.index') }}" class="btn btn-outline-secondary w-100 mt-2" style="height:38px;font-size:13px">
+                    Cancel
+                </a>
             </div>
         </div>
     </div>

@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Radiology;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\RadiologyExam;
+use App\Models\RadiologyImage;
+use App\Models\RadiologyModality;
 use App\Models\RadiologyOrder;
 use App\Models\RadiologyOrderItem;
 use App\Models\RadiologyReport;
-use App\Models\RadiologyConsent;
-use App\Models\RadiologyImage;
-use App\Models\RadiologyModality;
-use App\Models\RadiologyExam;
-use App\Models\RadiologyBodyPart;
-use App\Models\Patient;
-use App\Models\Doctor;
-use App\Models\Appointment;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RadiologyController extends Controller
@@ -37,7 +36,7 @@ class RadiologyController extends Controller
             $query->where('priority', $request->priority);
         }
         if ($request->filled('modality_id')) {
-            $query->whereHas('items.exam', fn($q) => $q->where('modality_id', $request->modality_id));
+            $query->whereHas('items.exam', fn ($q) => $q->where('modality_id', $request->modality_id));
         }
         if ($request->filled('date')) {
             $query->whereDate('order_date', $request->date);
@@ -76,11 +75,11 @@ class RadiologyController extends Controller
             ->select('doctors.*')
             ->get();
         $modalities = RadiologyModality::with('exams.bodyPart')->active()->orderBy('name')->get();
-        $examsByModality = $modalities->mapWithKeys(fn($m) => [
+        $examsByModality = $modalities->mapWithKeys(fn ($m) => [
             $m->id => [
                 'modality' => $m,
                 'exams' => $m->exams->where('is_active', true)->values(),
-            ]
+            ],
         ]);
 
         $selectedPatient = null;
@@ -119,7 +118,6 @@ class RadiologyController extends Controller
             'appointment_id' => 'nullable|exists:appointments,id',
             'scheduled_at' => 'nullable|date',
             'discount' => 'nullable|numeric|min:0',
-            'paid_amount' => 'nullable|numeric|min:0',
             'exams' => 'required|array|min:1',
             'exams.*.id' => 'required|exists:radiology_exams,id',
             'exams.*.price' => 'required|numeric|min:0',
@@ -138,7 +136,7 @@ class RadiologyController extends Controller
                 'clinical_indication' => $request->clinical_indication,
                 'notes' => $request->notes,
                 'discount' => $request->discount ?? 0,
-                'paid_amount' => $request->paid_amount ?? 0,
+                'paid_amount' => 0, // Hamesha 0 rahega, billing module se pay hoga
                 'status' => $request->scheduled_at ? 'Scheduled' : 'Pending',
             ]);
 
@@ -161,11 +159,13 @@ class RadiologyController extends Controller
                 ]);
             }
 
-            $order->syncPaymentStatus();
+            // ✅ YE DO LINE ZAROORI HAIN JAISE LAB MEIN KI THI
+            $order->syncTotal();          // Pehle items ka total calculate karega (Make sure Model mein ye function ho)
+            $order->syncPaymentStatus();  // Phir check karega ke paid hai ya nahi (Unpaid dikhayega)
         });
 
         return redirect()->route('radiology.orders.index')
-            ->with('success', 'Radiology order created successfully.');
+            ->with('success', 'Radiology order created successfully. Payment will be processed via Billing.');
     }
 
     // ─────────────────────────────────────────────
@@ -266,7 +266,7 @@ class RadiologyController extends Controller
                 ->doesntExist();
 
             $radiologyOrder->update([
-                'status' => $allScanned ? 'Scan Completed' : 'In Progress'
+                'status' => $allScanned ? 'Scan Completed' : 'In Progress',
             ]);
         });
 
@@ -317,7 +317,7 @@ class RadiologyController extends Controller
                 ->doesntExist();
 
             $radiologyOrder->update([
-                'status' => $allReported ? 'Reported' : 'Reporting'
+                'status' => $allReported ? 'Reported' : 'Reporting',
             ]);
         });
 
@@ -340,7 +340,7 @@ class RadiologyController extends Controller
             $order = $radiologyReport->orderItem->order;
 
             $allVerified = $order->items()
-                ->whereHas('report', fn($q) => $q->where('is_verified', false))
+                ->whereHas('report', fn ($q) => $q->where('is_verified', false))
                 ->doesntExist();
 
             if ($allVerified) {
@@ -379,27 +379,12 @@ class RadiologyController extends Controller
     }
 
     // ─────────────────────────────────────────────
-    //  RECORD PAYMENT
-    // ─────────────────────────────────────────────
-    public function recordPayment(Request $request, RadiologyOrder $radiologyOrder)
-    {
-        $request->validate([
-            'paid_amount' => 'required|numeric|min:0.01',
-        ]);
-
-        $radiologyOrder->increment('paid_amount', $request->paid_amount);
-        $radiologyOrder->syncPaymentStatus();
-
-        return back()->with('success', 'Payment recorded.');
-    }
-
-    // ─────────────────────────────────────────────
     //  DELIVER REPORT
     // ─────────────────────────────────────────────
     public function deliverReport(Request $request, RadiologyOrder $radiologyOrder)
     {
         abort_if(
-            !in_array($radiologyOrder->status, ['Verified', 'Reported']),
+            ! in_array($radiologyOrder->status, ['Verified', 'Reported']),
             403,
             'Report must be completed before delivery.'
         );
@@ -428,7 +413,7 @@ class RadiologyController extends Controller
             'status' => 'Scheduled',
         ]);
 
-        return back()->with('success', 'Order scheduled for ' . \Carbon\Carbon::parse($request->scheduled_at)->format('d M Y H:i'));
+        return back()->with('success', 'Order scheduled for '.Carbon::parse($request->scheduled_at)->format('d M Y H:i'));
     }
 
     // ─────────────────────────────────────────────

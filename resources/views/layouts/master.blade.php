@@ -518,17 +518,6 @@
                 </a>
             @endif
 
-            {{-- Finance --}}
-            <div class="nav-section-label">Finance</div>
-
-            @if (Route::has('billing.index'))
-                <a href="{{ route('billing.index') }}"
-                    class="nav-item {{ request()->routeIs('billing.*') ? 'active' : '' }}">
-                    <i class="bi bi-receipt"></i>
-                    Billing
-                </a>
-            @endif
-
             @if (Route::has('reports.index'))
                 <a href="{{ route('reports.index') }}"
                     class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
@@ -608,6 +597,15 @@
                 </a>
             @endif
 
+            
+            <div class="nav-section-label">Finance</div>
+            @if (Route::has('billing.index'))
+                <a href="{{ route('billing.index') }}"
+                    class="nav-item {{ request()->routeIs('billing.*') ? 'active' : '' }}">
+                    <i class="bi bi-currency-dollar"></i>
+                    Billing
+                </a>
+            @endif
 
             <div class="nav-section-label">User Management</div>
             @if (Route::has('admin.users.index'))

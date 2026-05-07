@@ -242,55 +242,65 @@
         </div>
     </div>
 
-    {{-- Right: Billing --}}
-
-    <div class="col-md-4">
-        <div class="info-card h-100">
-            <div class="info-card-title"><i class="bi bi-receipt text-primary"></i> Billing</div>
-            <div class="info-row">
-                <span class="info-label">Total Amount</span>
-                <span class="info-value">Rs {{ number_format($radiologyOrder->total_amount, 0) }}</span>
-            </div>
-            @if($radiologyOrder->discount > 0)
-                <div class="info-row">
-                    <span class="info-label">Discount</span>
-                    <span class="info-value" style="color:#dc2626">-Rs {{ number_format($radiologyOrder->discount, 0) }}</span>
-                </div>
-            @endif
-            <div class="info-row">
-                <span class="info-label">Net Amount</span>
-                <span class="info-value" style="font-size:15px">Rs {{ number_format($radiologyOrder->net_amount, 0) }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Paid</span>
-                <span class="info-value" style="color:#16a34a">Rs {{ number_format($radiologyOrder->paid_amount, 0) }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Balance</span>
-                <span class="info-value" style="color:{{ $radiologyOrder->balance_due > 0 ? '#dc2626' : '#16a34a' }}">
-                    Rs {{ number_format($radiologyOrder->balance_due, 0) }}
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Payment</span>
-                <span class="info-value">
-                    <span class="pay-{{ $radiologyOrder->payment_status }}">{{ $radiologyOrder->payment_status }}</span>
-                </span>
-            </div>
-
-            @if($radiologyOrder->balance_due > 0)
-                <form method="POST" action="{{ route('radiology.orders.recordPayment', $radiologyOrder->id) }}"
-                    class="mt-3 d-flex gap-2">
-                    @csrf
-                    <input type="number" name="paid_amount" placeholder="Amount (Rs)"
-                        class="form-control form-control-sm" min="1" step="1" style="font-size:13px">
-                    <button type="submit" class="btn btn-sm btn-outline-success px-3" style="font-size:12px;white-space:nowrap">
-                        <i class="bi bi-cash me-1"></i>Pay
-                    </button>
-                </form>
-            @endif
+   {{-- Right: Billing --}}
+<div class="col-md-4">
+    <div class="info-card h-100">
+        <div class="info-card-title"><i class="bi bi-receipt text-primary"></i> Billing</div>
+        
+        <div class="info-row">
+            <span class="info-label">Total Amount</span>
+            <span class="info-value">Rs {{ number_format($radiologyOrder->total_amount, 0) }}</span>
         </div>
+        
+        @if($radiologyOrder->discount > 0)
+            <div class="info-row">
+                <span class="info-label">Discount</span>
+                <span class="info-value" style="color:#dc2626">-Rs {{ number_format($radiologyOrder->discount, 0) }}</span>
+            </div>
+        @endif
+        
+        <div class="info-row">
+            <span class="info-label">Net Amount</span>
+            <span class="info-value" style="font-size:15px">Rs {{ number_format($radiologyOrder->net_amount, 0) }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Paid</span>
+            <span class="info-value" style="color:#16a34a">Rs {{ number_format($radiologyOrder->paid_amount, 0) }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Balance</span>
+            <span class="info-value" style="color:{{ $radiologyOrder->balance_due > 0 ? '#dc2626' : '#16a34a' }}">
+                Rs {{ number_format($radiologyOrder->balance_due, 0) }}
+            </span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Payment</span>
+            <span class="info-value">
+                <span class="pay-{{ $radiologyOrder->payment_status }}">{{ $radiologyOrder->payment_status }}</span>
+            </span>
+        </div>
+
+        {{-- Payment form hata diya gaya hai aur ye Info Message laga diya gaya hai --}}
+        @if($radiologyOrder->balance_due > 0)
+            <div class="mt-3 p-2 text-center" style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;">
+                <span style="font-size:12px;color:#92400e;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Pending payment will be collected via the <strong>Billing Module</strong>.
+                </span>
+            </div>
+            
+            {{-- Optional: Agar aap direct billing page pe bhejna chahte hain (uncomment if needed) --}}
+            {{-- 
+            <a href="{{ route('billing.create', ['patient_id' => $radiologyOrder->patient_id]) }}" class="btn btn-sm btn-outline-primary w-100 mt-2" style="font-size:12px">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Go to Billing
+            </a> 
+            --}}
+        @endif
     </div>
+</div>
 </div>
 
 {{-- ── Exam Items ── --}}
