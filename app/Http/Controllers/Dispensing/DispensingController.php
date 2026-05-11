@@ -150,24 +150,11 @@ class DispensingController extends Controller
 
     // ===== SHOW =====
     public function show(Dispensing $dispensing)
-    {
-        $dispensing->load('patient', 'prescription.doctor', 'items.medicine', 'items.batch');
+{
+    $dispensing->load('prescription.patient', 'prescription.doctor', 'prescription.items.medicine', 'prescription.dispensings');
 
-        // First medicine (assuming single or main)
-        $medicine = $dispensing->items->first()->medicine ?? null;
+    $prescription = $dispensing->prescription;
 
-        // Expiring batches (next 30 days)
-        $expiringBatches = $dispensing->items
-            ->pluck('batch')
-            ->filter(function ($batch) {
-                return $batch && $batch->expiry_date <= now()->addDays(30);
-            });
-
-        // Make sure aapka view wahi hai jahan aap dikhana chahte hain (yahan pehle medicines_show tha)
-        return view('prescription.prescription_show', compact( // I corrected view name from medicines_show to dispensings_show based on standard
-            'dispensing',
-            'medicine',
-            'expiringBatches'
-        ));
-    }
+    return view('prescription.prescriptions_show', compact('prescription'));
+}
 }

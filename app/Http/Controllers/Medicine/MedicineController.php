@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Medicine;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Medicine;
 use App\Models\MedicineBatch;
-use App\Models\PrescriptionItem;
-use App\Models\DispensingItem;
-use App\Models\Dispensing;
+use Illuminate\Http\Request;
 
 class MedicineController extends Controller
 {
@@ -55,30 +52,34 @@ class MedicineController extends Controller
 
     // ── STORE ──
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'generic_name' => 'nullable|string|max:150',
-            'brand' => 'nullable|string|max:100',
-            'category' => 'required|in:Tablet,Capsule,Syrup,Injection,Cream,Drops,Inhaler,Powder,Other',
-            'unit' => 'required|string|max:50',
-            'purchase_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'reorder_level' => 'required|integer|min:0',
-            'requires_prescription' => 'nullable|boolean',
-            'storage_condition' => 'nullable|string|max:100',
-            'description' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:150',
+        'generic_name' => 'nullable|string|max:150',
+        'brand' => 'nullable|string|max:100',
+        'category' => 'required|in:Tablet,Capsule,Syrup,Injection,Cream,Drops,Inhaler,Powder,Other',
+        'unit' => 'required|string|max:50',
+        'purchase_price' => 'required|numeric|min:0',
+        'sale_price' => 'required|numeric|min:0',
+        'reorder_level' => 'required|integer|min:0',
+        // requires_prescription hata do yahan se
+        'storage_condition' => 'nullable|string|max:100',
+        'description' => 'nullable|string',
+    ]);
 
-        $data = $request->all();
-        $data['requires_prescription'] = $request->has('requires_prescription');
+   Medicine::create([
+    ...$request->only([
+        'name', 'generic_name', 'brand', 'category', 'unit',
+        'purchase_price', 'sale_price', 'reorder_level',
+        'storage_condition', 'description'
+    ]),
+    'requires_prescription' => $request->boolean('requires_prescription'),
+]);
 
-        Medicine::create($data);
-
-        return redirect()
-            ->route('pharmacy.medicines.index')
-            ->with('success', 'Medicine added successfully!');
-    }
+    return redirect()
+        ->route('pharmacy.medicines.index')
+        ->with('success', 'Medicine added successfully!');
+}
 
     // ── SHOW ──
     public function show(Medicine $medicine)
@@ -88,6 +89,7 @@ class MedicineController extends Controller
             ->where('status', 'Active')
             ->where('expiry_date', '<=', now()->addDays(30))
             ->get();
+
         return view('pharmacy.medicines_show', compact('medicine', 'expiringBatches'));
     }
 
@@ -99,31 +101,35 @@ class MedicineController extends Controller
 
     // ── UPDATE ──
     public function update(Request $request, Medicine $medicine)
-    {
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'generic_name' => 'nullable|string|max:150',
-            'brand' => 'nullable|string|max:100',
-            'category' => 'required|in:Tablet,Capsule,Syrup,Injection,Cream,Drops,Inhaler,Powder,Other',
-            'unit' => 'required|string|max:50',
-            'purchase_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'reorder_level' => 'required|integer|min:0',
-            'requires_prescription' => 'nullable|boolean',
-            'storage_condition' => 'nullable|string|max:100',
-            'description' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:150',
+        'generic_name' => 'nullable|string|max:150',
+        'brand' => 'nullable|string|max:100',
+        'category' => 'required|in:Tablet,Capsule,Syrup,Injection,Cream,Drops,Inhaler,Powder,Other',
+        'unit' => 'required|string|max:50',
+        'purchase_price' => 'required|numeric|min:0',
+        'sale_price' => 'required|numeric|min:0',
+        'reorder_level' => 'required|integer|min:0',
+        // requires_prescription hata do yahan se bhi
+        'storage_condition' => 'nullable|string|max:100',
+        'description' => 'nullable|string',
+    ]);
 
-        $data = $request->except(['_token', '_method']);
-        $data['requires_prescription'] = $request->has('requires_prescription');
-        $data['is_active'] = $request->has('is_active');
+    $medicine->update([
+    ...$request->only([
+        'name', 'generic_name', 'brand', 'category', 'unit',
+        'purchase_price', 'sale_price', 'reorder_level',
+        'storage_condition', 'description'
+    ]),
+    'requires_prescription' => $request->boolean('requires_prescription'),
+    'is_active' => $request->boolean('is_active'),
+]);
 
-        $medicine->update($data);
-
-        return redirect()
-            ->route('pharmacy.medicines.show', $medicine->id)
-            ->with('success', 'Medicine updated successfully!');
-    }
+    return redirect()
+        ->route('pharmacy.medicines.show', $medicine->id)
+        ->with('success', 'Medicine updated successfully!');
+}
 
     // ── DESTROY ──
     public function destroy(Medicine $medicine)
@@ -132,6 +138,7 @@ class MedicineController extends Controller
             return back()->with('error', 'Cannot delete medicine with stock. Mark as inactive instead.');
         }
         $medicine->delete();
+
         return redirect()
             ->route('pharmacy.medicines.index')
             ->with('success', "Medicine '{$medicine->name}' removed.");
