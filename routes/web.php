@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Billing\BillingController;
+use App\Http\Controllers\Billing\BillServiceChargeController;
 use App\Http\Controllers\BloodBank\BloodBankController;
 use App\Http\Controllers\BloodBank\BloodCrossmatchController;
 use App\Http\Controllers\BloodBank\BloodDonationController;
@@ -27,7 +28,6 @@ use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Ward\WardController;
-use App\Http\Controllers\Billing\BillServiceChargeController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -101,8 +101,7 @@ Route::prefix('pharmacy')->name('pharmacy.')->group(function () {
 
     // Dispensing
     Route::resource('dispensings', DispensingController::class)->except(['edit', 'update', 'destroy'])->names('dispensings');
-    // Route::post('dispensings/{dispensing}/mark-paid', [DispensingController::class, 'markPaid'])
-    //     ->name('dispensings.mark-paid');
+
 });
 
 // Laboratory routes
@@ -272,36 +271,72 @@ Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
 | group in web.php.
 |--------------------------------------------------------------------------
 */
-
 Route::prefix('billing')->name('billing.')->group(function () {
 
     // ── Main Billing CRUD ────────────────────────────────────────────
     Route::get('/', [BillingController::class, 'index'])->name('index');
     Route::get('/create', [BillingController::class, 'create'])->name('create');
     Route::post('/', [BillingController::class, 'store'])->name('store');
-    Route::get('/{bill}', [BillingController::class, 'show'])->name('show');
-    Route::get('/{bill}/edit', [BillingController::class, 'edit'])->name('edit');
-    Route::put('/{bill}', [BillingController::class, 'update'])->name('update');
-
-    // ── Bill Actions ─────────────────────────────────────────────────
-    Route::post('/{bill}/finalize', [BillingController::class, 'finalize'])->name('finalize');
-    Route::post('/{bill}/payment', [BillingController::class, 'addPayment'])->name('payment');
-    Route::patch('/{bill}/cancel', [BillingController::class, 'cancel'])->name('cancel');
-    Route::get('/{bill}/print', [BillingController::class, 'printInvoice'])->name('print');
 
     // ── AJAX Endpoints ───────────────────────────────────────────────
-    Route::get('/ajax/patient-search', [BillingController::class, 'patientSearch'])->name('ajax.patient-search');
-    Route::get('/patient/{patientId}/pending-services', [BillingController::class, 'pendingServices'])->name('pending-services');
+    Route::get('/ajax/patient-search', [BillingController::class, 'patientSearch'])
+        ->name('ajax.patient-search');
+
+    Route::get('/patient/{patientId}/pending-services', [BillingController::class, 'pendingServices'])
+        ->name('pending-services');
 
     // ── Service Charges Master Data ──────────────────────────────────
     Route::prefix('service-charges')->name('service-charges.')->group(function () {
-        Route::get('/', [BillServiceChargeController::class, 'index'])->name('index');
-        Route::get('/create', [BillServiceChargeController::class, 'create'])->name('create');
-        Route::post('/', [BillServiceChargeController::class, 'store'])->name('store');
-        Route::get('/{charge}/edit', [BillServiceChargeController::class, 'edit'])->name('edit');
-        Route::put('/{charge}', [BillServiceChargeController::class, 'update'])->name('update');
-        Route::delete('/{charge}', [BillServiceChargeController::class, 'destroy'])->name('destroy');
-        Route::patch('/{charge}/toggle', [BillServiceChargeController::class, 'toggle'])->name('toggle');
+
+        Route::get('/', [BillServiceChargeController::class, 'index'])
+            ->name('index');
+
+        Route::get('/create', [BillServiceChargeController::class, 'create'])
+            ->name('create');
+
+        Route::post('/', [BillServiceChargeController::class, 'store'])
+            ->name('store');
+
+        Route::get('/{charge}/edit', [BillServiceChargeController::class, 'edit'])
+            ->name('edit');
+
+        Route::put('/{charge}', [BillServiceChargeController::class, 'update'])
+            ->name('update');
+
+        Route::delete('/{charge}', [BillServiceChargeController::class, 'destroy'])
+            ->name('destroy');
+
+        Route::patch('/{charge}/toggle', [BillServiceChargeController::class, 'toggle'])
+            ->name('toggle');
     });
 
+    // ── Dynamic Bill Routes LAST ─────────────────────────────────────
+    Route::get('/{bill}', [BillingController::class, 'show'])
+        ->whereNumber('bill')
+        ->name('show');
+
+    Route::get('/{bill}/edit', [BillingController::class, 'edit'])
+        ->whereNumber('bill')
+        ->name('edit');
+
+    Route::put('/{bill}', [BillingController::class, 'update'])
+        ->whereNumber('bill')
+        ->name('update');
+
+    // ── Bill Actions ─────────────────────────────────────────────────
+    Route::post('/{bill}/finalize', [BillingController::class, 'finalize'])
+        ->whereNumber('bill')
+        ->name('finalize');
+
+    Route::post('/{bill}/payment', [BillingController::class, 'addPayment'])
+        ->whereNumber('bill')
+        ->name('payment');
+
+    Route::patch('/{bill}/cancel', [BillingController::class, 'cancel'])
+        ->whereNumber('bill')
+        ->name('cancel');
+
+    Route::get('/{bill}/print', [BillingController::class, 'printInvoice'])
+        ->whereNumber('bill')
+        ->name('print');
 });

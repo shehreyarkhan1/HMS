@@ -164,7 +164,7 @@ class DispensingController extends Controller
             });
 
         // Make sure aapka view wahi hai jahan aap dikhana chahte hain (yahan pehle medicines_show tha)
-        return view('pharmacy.dispensings_show', compact( // I corrected view name from medicines_show to dispensings_show based on standard
+        return view('prescription.prescription_show', compact( // I corrected view name from medicines_show to dispensings_show based on standard
             'dispensing',
             'medicine',
             'expiringBatches'

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Billing;
 
 use App\Http\Controllers\Controller;
+use App\Models\BillServiceCharge;
 use Illuminate\Http\Request;
-use App\Models\Billing\BillServiceCharge;
 
 class BillServiceChargeController extends Controller
 {
@@ -12,12 +12,12 @@ class BillServiceChargeController extends Controller
     {
         $charges = BillServiceCharge::orderBy('category')->orderBy('name')->get();
 
-        return view('billing.service-charges.index', compact('charges'));
+        return view('billing.service_charge_index', compact('charges'));
     }
 
     public function create()
     {
-        return view('billing.service-charges.form');
+        return view('billing.service_charge_form');
     }
 
     public function store(Request $request)
@@ -45,7 +45,7 @@ class BillServiceChargeController extends Controller
 
     public function edit(BillServiceCharge $charge)
     {
-        return view('billing.service-charges.form', compact('charge'));
+        return view('billing.service_charge_form', compact('charge')); // service_charge_form not service_charges_form
     }
 
     public function update(Request $request, BillServiceCharge $charge)

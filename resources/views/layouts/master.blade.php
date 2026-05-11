@@ -347,7 +347,8 @@
             {{-- Main --}}
             <div class="nav-section-label">Main</div>
             @if (Route::has('dashboard'))
-                <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}"
+                    class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="bi bi-grid-1x2"></i>
                     Dashboard
                 </a>
@@ -384,7 +385,8 @@
             @endif
 
             @if (Route::has('staff.index'))
-                <a href="{{ route('staff.index') }}" class="nav-item {{ request()->routeIs('staff.*') ? 'active' : '' }}">
+                <a href="{{ route('staff.index') }}"
+                    class="nav-item {{ request()->routeIs('staff.*') ? 'active' : '' }}">
                     <i class="bi bi-person-workspace"></i>
                     Staff / HR
                 </a>
@@ -394,7 +396,8 @@
             <div class="nav-section-label">Clinical</div>
 
             @if (Route::has('wards.index'))
-                <a href="{{ route('wards.index') }}" class="nav-item {{ request()->routeIs('wards.*') ? 'active' : '' }}">
+                <a href="{{ route('wards.index') }}"
+                    class="nav-item {{ request()->routeIs('wards.*') ? 'active' : '' }}">
                     <i class="bi bi-building"></i>
                     Wards & Beds
                 </a>
@@ -407,7 +410,7 @@
                 <a href="{{ route('pharmacy.medicines.index') }}"
                     class="nav-item {{ request()->routeIs('pharmacy.medicines.*') ? 'active' : '' }}">
                     <i class="bi bi-capsule"></i>
-                    Add Medicines
+                    Medicines Inventory
                 </a>
             @endif
 
@@ -419,6 +422,7 @@
                 </a>
             @endif
 
+
             @if (Route::has('pharmacy.prescriptions.create'))
                 <a href="{{ route('pharmacy.prescriptions.create') }}"
                     class="nav-item {{ request()->routeIs('pharmacy.prescriptions.create') ? 'active' : '' }}">
@@ -426,7 +430,14 @@
                     New Prescription
                 </a>
             @endif
-
+            @if (Route::has('pharmacy.dispensings.index'))
+                <a href="{{ route('pharmacy.dispensings.index') }}"
+                    class="nav-item {{ request()->routeIs('pharmacy.dispensings.*') ? 'active' : '' }}">
+                    <i class="bi bi-bag-check"></i>
+                    Dispensing
+                </a>
+            @else
+            @endif
             {{-- Laboratory --}}
             <div class="nav-section-label">Laboratory</div>
 
@@ -569,7 +580,6 @@
                     <i class="bi bi-people-fill"></i>
                     Blood Donors
                 </a>
-            
             @endif
             @if (Route::has('blood-bank.donations.index'))
                 <a href="{{ route('blood-bank.donations.index') }}"
@@ -584,7 +594,6 @@
                     <i class="bi bi-droplet"></i>
                     Blood Requests
                 </a>
-            
             @endif
 
 
@@ -597,13 +606,20 @@
                 </a>
             @endif
 
-            
+
             <div class="nav-section-label">Finance</div>
             @if (Route::has('billing.index'))
                 <a href="{{ route('billing.index') }}"
                     class="nav-item {{ request()->routeIs('billing.*') ? 'active' : '' }}">
                     <i class="bi bi-currency-dollar"></i>
                     Billing
+                </a>
+            @endif
+            @if (Route::has('billing.service-charges.index'))
+                <a href="{{ route('billing.service-charges.index') }}"
+                    class="nav-item {{ request()->routeIs('billing.service-charges.*') ? 'active' : '' }}">
+                    <i class="bi bi-list-task"></i>
+                    Service Charges
                 </a>
             @endif
 
@@ -629,7 +645,8 @@
                 {{-- Logout form: data-turbo="false" kyunke logout full page request chahti hai --}}
                 <form method="POST" action="{{ route('logout') }}" data-turbo="false">
                     @csrf
-                    <button type="submit" class="nav-item w-100 border-0 bg-transparent text-start" style="color:#ef4444">
+                    <button type="submit" class="nav-item w-100 border-0 bg-transparent text-start"
+                        style="color:#ef4444">
                         <i class="bi bi-box-arrow-left" style="color:#ef4444"></i>
                         Logout
                     </button>
@@ -686,14 +703,14 @@
         <div class="page-content">
 
             {{-- Flash Messages --}}
-            @if(session('success'))
+            @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                     <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                     <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -718,7 +735,7 @@
         // SIDEBAR SCROLL PERSISTENCE
         // Turbo navigation par sidebar scroll position preserve karo
         // ================================================================
-        (function () {
+        (function() {
             const SCROLL_KEY = 'sidebarScrollPos';
             const scrollArea = document.getElementById('sidebarScrollArea');
 
@@ -741,7 +758,7 @@
             }
 
             // Har nav-item click par position save karo
-            document.addEventListener('click', function (e) {
+            document.addEventListener('click', function(e) {
                 const navItem = e.target.closest('.nav-item');
                 if (navItem && scrollArea) {
                     sessionStorage.setItem(SCROLL_KEY, scrollArea.scrollTop);
@@ -754,10 +771,10 @@
         // ACTIVE NAV ITEM — Turbo navigation par highlight update karo
         // (Sidebar permanent hai isliye manually active class update karni hai)
         // ================================================================
-        document.addEventListener('turbo:load', function () {
+        document.addEventListener('turbo:load', function() {
             const currentPath = window.location.pathname;
 
-            document.querySelectorAll('.nav-item[href]').forEach(function (link) {
+            document.querySelectorAll('.nav-item[href]').forEach(function(link) {
                 link.classList.remove('active');
                 // Exact match ya sub-path match
                 const href = link.getAttribute('href');
@@ -771,10 +788,10 @@
         // ================================================================
         // BOOTSTRAP ALERTS — Turbo par auto-dismiss karo
         // ================================================================
-        document.addEventListener('turbo:load', function () {
+        document.addEventListener('turbo:load', function() {
             const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function (alert) {
-                setTimeout(function () {
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
                     const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
                     if (bsAlert) bsAlert.close();
                 }, 4000);
