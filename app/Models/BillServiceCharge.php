@@ -12,9 +12,11 @@ class BillServiceCharge extends Model
         'name',
         'code',
         'category',
+        'blood_component',  // ← yeh add karo
         'default_price',
         'description',
         'is_active',
+
     ];
 
     protected $casts = [

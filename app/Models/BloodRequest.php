@@ -73,6 +73,11 @@ class BloodRequest extends Model
     {
         return $this->hasMany(BloodIssue::class);
     }
+    public function billItems()
+    {
+        return $this->hasMany(BillItem::class, 'reference_id')
+            ->where('reference_type', 'blood_requests');
+    }
 
     public function urgencyColor(): string
     {

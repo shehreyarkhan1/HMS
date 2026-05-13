@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+
 class BillingController extends Controller
 {
     public function index(Request $request)
@@ -31,7 +32,7 @@ class BillingController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('bill_number', 'like', "%$s%")
-                    ->orWhereHas('patient', fn ($p) => $p->where('name', 'like', "%$s%")
+                    ->orWhereHas('patient', fn($p) => $p->where('name', 'like', "%$s%")
                         ->orWhere('mrn', 'like', "%$s%")
                         ->orWhere('phone', 'like', "%$s%"));
             });
@@ -262,16 +263,16 @@ class BillingController extends Controller
     }
 
     // ─── ADD PAYMENT ──────────────────────────────────────────────────
-     public function addPayment(Request $request, Bill $bill)
+    public function addPayment(Request $request, Bill $bill)
     {
         if ($bill->isCancelled()) {
             return back()->with('error', 'Cannot record payment on a cancelled bill.');
         }
- 
+
         if ($bill->isDraft()) {
             return back()->with('error', 'Please finalize the bill before recording payment.');
         }
- 
+
         $request->validate([
             'amount'           => 'required|numeric|min:0.01|max:' . ($bill->due_amount + 0.01),
             'payment_method'   => 'required|in:Cash,Card,Bank Transfer,Cheque,Insurance,Online',
@@ -279,9 +280,9 @@ class BillingController extends Controller
             'reference_number' => 'nullable|string|max:100',
             'notes'            => 'nullable|string',
         ]);
- 
+
         DB::transaction(function () use ($request, $bill) {
- 
+
             // 1. Create payment record
             BillPayment::create([
                 'payment_number'   => BillPayment::generatePaymentNumber(),
@@ -293,26 +294,26 @@ class BillingController extends Controller
                 'reference_number' => $request->reference_number,
                 'notes'            => $request->notes,
             ]);
- 
+
             // 2. Recalculate bill totals
             $totalPaid  = $bill->fresh()->payments()->sum('amount');
             $dueAmount  = max(0, $bill->net_amount - $totalPaid);
- 
+
             $paymentStatus = 'Partial';
             if ($dueAmount <= 0)   $paymentStatus = 'Paid';
             elseif ($totalPaid <= 0) $paymentStatus = 'Unpaid';
- 
+
             $bill->update([
                 'paid_amount'    => $totalPaid,
                 'due_amount'     => $dueAmount,
                 'payment_status' => $paymentStatus,
             ]);
- 
+
             // 3. ✅ Sync payment_status back to source modules
             //    (lab_orders, radiology_orders, dispensings)
             $bill->refresh()->syncSourcePayments();
         });
- 
+
         return redirect()->route('billing.show', $bill)
             ->with('success', 'Payment of Rs. ' . number_format($request->amount, 2) . ' recorded successfully.');
     }
@@ -343,7 +344,7 @@ class BillingController extends Controller
         ]);
 
         return redirect()->route('billing.index')
-            ->with('success', 'Bill #'.$bill->bill_number.' has been cancelled.');
+            ->with('success', 'Bill #' . $bill->bill_number . ' has been cancelled.');
     }
 
     // ─── AJAX: PATIENT SEARCH ─────────────────────────────────────────
@@ -385,7 +386,7 @@ class BillingController extends Controller
         foreach ($appointments as $app) {
             $services[] = [
                 'service_type' => 'Consultation',
-                'description' => 'Consultation Fee: Dr. '.($app->doctor->employee->first_name ?? 'Doctor'),
+                'description' => 'Consultation Fee: Dr. ' . ($app->doctor->employee->first_name ?? 'Doctor'),
                 'reference_type' => 'appointments',
                 'reference_id' => $app->id,
                 'quantity' => 1,
@@ -447,7 +448,7 @@ class BillingController extends Controller
         foreach ($radOrders as $order) {
             $services[] = [
                 'service_type' => 'Radiology',
-                'description' => 'Radiology Order #'.$order->order_number,
+                'description' => 'Radiology Order #' . $order->order_number,
                 'reference_type' => 'radiology_orders',
                 'reference_id' => $order->id,
                 'quantity' => 1,
@@ -464,7 +465,7 @@ class BillingController extends Controller
         foreach ($dispensings as $disp) {
             $services[] = [
                 'service_type' => 'Pharmacy',
-                'description' => 'Pharmacy Dispensing #'.$disp->dispense_number,
+                'description' => 'Pharmacy Dispensing #' . $disp->dispense_number,
                 'reference_type' => 'dispensings',
                 'reference_id' => $disp->id,
                 'quantity' => 1,
@@ -474,23 +475,30 @@ class BillingController extends Controller
         }
 
         // 6. Blood Bank (Blood Requests)
+        // 6. Blood Bank — array mapping hatao, direct DB se fetch karo
         $bloodRequests = BloodRequest::where('patient_id', $patientId)
             ->where('status', 'Fulfilled')
-            // Is mein bhi 'is_billed' check hona chahiye
+            ->whereDoesntHave('billItems', function ($query) {
+                $query->where('reference_type', 'blood_requests');
+            })
             ->get();
 
         foreach ($bloodRequests as $req) {
+            // Component ke naam se exact match — no spelling risk
+            $charge = BillServiceCharge::where('blood_component', $req->component)
+                ->where('is_active', 1)
+                ->first();
+
             $services[] = [
-                'service_type' => 'Blood Bank',
-                'description' => 'Blood Issue: '.$req->blood_group.' ('.$req->component.')',
+                'service_type'   => 'Blood Bank',
+                'description'    => 'Blood Issue: ' . $req->blood_group . ' (' . $req->component . ')',
                 'reference_type' => 'blood_requests',
-                'reference_id' => $req->id,
-                'quantity' => $req->units_approved,
-                'unit_price' => 500, // Aap default price yahan set kar sakte hain
-                'discount' => 0,
+                'reference_id'   => $req->id,
+                'quantity'       => $req->units_approved,
+                'unit_price'     => $charge?->default_price ?? 0,
+                'discount'       => 0,
             ];
         }
-
         return $services;
     }
 }

@@ -228,7 +228,7 @@
                                 <tr>
                                     <th style="width:130px">Type</th>
                                     <th>Description</th>
-                                    <th style="width:65px">Qty</th>
+                                    <th style="width:100px">Qty</th>
                                     <th style="width:110px">Unit Price</th>
                                     <th style="width:100px">Discount</th>
                                     <th style="width:110px;text-align:right">Total</th>
