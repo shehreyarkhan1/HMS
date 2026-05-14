@@ -60,7 +60,7 @@ class PatientController extends Controller
             'phone' => 'required|string|max:15',
             'emergency_contact' => 'nullable|string|max:15',
             'emergency_relation' => 'nullable|string|max:50',
-            'cnic' => 'nullable|string|size:13|unique:patients,cnic',
+            'cnic' => 'nullable|digits:13|unique:patients,cnic',
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:50',
             'patient_type' => 'required|in:OPD,IPD,Emergency',

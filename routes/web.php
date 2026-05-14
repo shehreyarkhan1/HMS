@@ -248,7 +248,8 @@ Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
     Route::post('requests', [BloodRequestController::class, 'store'])->name('requests.store');
     Route::get('requests/{request}', [BloodRequestController::class, 'show'])->name('requests.show');
     Route::patch('requests/{request}/status', [BloodRequestController::class, 'updateStatus'])->name('requests.status');
-    Route::delete('requests/{request}', [BloodRequestController::class, 'destroy'])->name('requests.destroy');
+    Route::delete('requests/{bloodRequest}', [BloodRequestController::class, 'destroy'])
+    ->name('requests.destroy');
 
     // ── BLOOD ISSUE (TRANSFUSION) ────────────────────────────────────────
     Route::post('issues', [BloodIssueController::class, 'store'])->name('issues.store');

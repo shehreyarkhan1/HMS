@@ -33,7 +33,7 @@ class BloodRequestController extends Controller
 
         $requests = $query
             ->orderByRaw("
-        CASE 
+        CASE
             WHEN urgency = 'Emergency' THEN 1
             WHEN urgency = 'Urgent' THEN 2
             WHEN urgency = 'Routine' THEN 3
