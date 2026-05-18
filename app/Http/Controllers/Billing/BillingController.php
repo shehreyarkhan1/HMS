@@ -23,12 +23,12 @@ use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
+    // ─── INDEX ────────────────────────────────────────────────────────
     public function index(Request $request)
     {
         $query = Bill::with(['patient', 'createdBy'])
             ->orderBy('created_at', 'desc');
 
-        // Filters
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(function ($q) use ($s) {
@@ -61,7 +61,6 @@ class BillingController extends Controller
 
         $bills = $query->paginate(20)->withQueryString();
 
-        // Dashboard stats
         $stats = [
             'today_bills' => Bill::whereDate('bill_date', today())->count(),
             'today_collected' => BillPayment::whereDate('payment_date', today())->sum('amount'),
@@ -80,9 +79,9 @@ class BillingController extends Controller
         $patients = Patient::orderBy('name')->get(['id', 'mrn', 'name', 'phone', 'patient_type']);
         $serviceCharges = BillServiceCharge::active()->orderBy('category')->orderBy('name')->get();
 
-        // If patient pre-selected (e.g. from patient profile)
         $selectedPatient = null;
         $pendingServices = [];
+
         if ($request->filled('patient_id')) {
             $selectedPatient = Patient::find($request->patient_id);
             if ($selectedPatient) {
@@ -114,7 +113,10 @@ class BillingController extends Controller
             'items.*.reference_id' => 'nullable|integer',
         ]);
 
-        DB::transaction(function () use ($request) {
+        // FIX: $createdBill reference se closure ke bahar pass karo
+        $createdBill = null;
+
+        DB::transaction(function () use ($request, &$createdBill) {
             $bill = Bill::create([
                 'bill_number' => Bill::generateBillNumber(),
                 'patient_id' => $request->patient_id,
@@ -133,7 +135,6 @@ class BillingController extends Controller
                 'payment_status' => 'Unpaid',
             ]);
 
-            // Create items
             foreach ($request->items as $item) {
                 BillItem::create([
                     'bill_id' => $bill->id,
@@ -147,18 +148,16 @@ class BillingController extends Controller
                 ]);
             }
 
-            // Set discount_by if discount applied
             if ($request->discount_amount > 0) {
                 $bill->update(['discount_by' => Auth::id()]);
             }
 
-            // Recalculate totals
             $bill->recalculateTotals();
 
-            $this->bill = $bill;
+            $createdBill = $bill;
         });
 
-        return redirect()->route('billing.show', $this->bill ?? Bill::latest()->first())
+        return redirect()->route('billing.show', $createdBill)
             ->with('success', 'Bill created successfully. Review and finalize when ready.');
     }
 
@@ -193,6 +192,7 @@ class BillingController extends Controller
                 ->with('error', 'Only Draft bills can be edited.');
         }
 
+        // FIX: store() jaisi full items validation
         $request->validate([
             'bill_date' => 'required|date',
             'bill_type' => 'required|in:OPD,IPD,Emergency',
@@ -201,6 +201,13 @@ class BillingController extends Controller
             'tax_amount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
+            'items.*.service_type' => 'required|string',
+            'items.*.description' => 'required|string|max:255',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.reference_type' => 'nullable|string',
+            'items.*.reference_id' => 'nullable|integer',
         ]);
 
         DB::transaction(function () use ($request, $bill) {
@@ -214,8 +221,8 @@ class BillingController extends Controller
                 'discount_by' => ($request->discount_amount > 0) ? Auth::id() : null,
             ]);
 
-            // Replace all items
             $bill->items()->delete();
+
             foreach ($request->items as $item) {
                 BillItem::create([
                     'bill_id' => $bill->id,
@@ -237,28 +244,23 @@ class BillingController extends Controller
     }
 
     // ─── FINALIZE ─────────────────────────────────────────────────────
-    // ─── FINALIZE ─────────────────────────────────────────────────────
     public function finalize(Bill $bill)
     {
-        // 1. Check karein ke bill pehle se finalize toh nahi?
         if (! $bill->isDraft()) {
             return redirect()->route('billing.show', $bill)
                 ->with('error', 'Only Draft bills can be finalized.');
         }
 
-        // 2. Check karein ke bill mein koi item add hai bhi ya nahi?
         if ($bill->items()->count() === 0) {
             return redirect()->route('billing.show', $bill)
                 ->with('error', 'Cannot finalize a bill with no items.');
         }
 
-        // 3. Bill status update karein
         $bill->update([
             'status' => 'Finalized',
             'finalized_at' => now(),
         ]);
 
-        // Ab baqi modules (Lab, Pharmacy etc) tab update honge jab payment add hogi.
         return redirect()->route('billing.show', $bill)
             ->with('success', 'Bill has been finalized. You can now record payments.');
     }
@@ -284,7 +286,6 @@ class BillingController extends Controller
 
         DB::transaction(function () use ($request, $bill) {
 
-            // 1. Create payment record
             BillPayment::create([
                 'payment_number' => BillPayment::generatePaymentNumber(),
                 'bill_id' => $bill->id,
@@ -296,7 +297,6 @@ class BillingController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            // 2. Recalculate bill totals
             $totalPaid = $bill->fresh()->payments()->sum('amount');
             $dueAmount = max(0, $bill->net_amount - $totalPaid);
 
@@ -313,8 +313,9 @@ class BillingController extends Controller
                 'payment_status' => $paymentStatus,
             ]);
 
-            // 3. ✅ Sync payment_status back to source modules
-            //    (lab_orders, radiology_orders, dispensings)
+            // Sync payment status to all linked source modules
+            // (lab_orders, radiology_orders, dispensings, death_certificates,
+            //  mortuary_records, blood_requests, appointments, beds)
             $bill->refresh()->syncSourcePayments();
         });
 
@@ -355,6 +356,7 @@ class BillingController extends Controller
     public function patientSearch(Request $request)
     {
         $q = $request->get('q', '');
+
         $patients = Patient::where('name', 'like', "%$q%")
             ->orWhere('mrn', 'like', "%$q%")
             ->orWhere('phone', 'like', "%$q%")
@@ -372,13 +374,12 @@ class BillingController extends Controller
         return response()->json($services);
     }
 
-    // ─── PRIVATE HELPER ───────────────────────────────────────────────
+    // ─── PRIVATE: GET PENDING SERVICES ────────────────────────────────
     private function getPendingServices(int $patientId): array
     {
         $services = [];
 
-        // 1. Doctor Consultation Fee (From Appointments)
-        // Hum wo appointments uthayenge jo 'Completed' hain lekin jin ka bill abhi tak nahi bana
+        // 1. Appointments — completed, not yet billed
         $appointments = Appointment::where('patient_id', $patientId)
             ->where('status', 'Completed')
             ->whereDoesntHave('billItems', function ($query) {
@@ -399,20 +400,14 @@ class BillingController extends Controller
             ];
         }
 
-        // 2. Bed Charges (From IPD / Beds)
-        // Agar patient admitted hai, to admission date se aaj tak ke din calculate karein
+        // 2. Bed Charges — currently occupied
         $bed = Bed::where('patient_id', $patientId)
             ->where('status', 'Occupied')
             ->with('ward')
             ->first();
 
         if ($bed && $bed->admitted_at) {
-            $admittedAt = Carbon::parse($bed->admitted_at);
-            $today = now();
-            $days = $admittedAt->diffInDays($today);
-            if ($days == 0) {
-                $days = 1;
-            } // Kam az kam ek din ka charge
+            $days = max(1, Carbon::parse($bed->admitted_at)->diffInDays(now()));
 
             $services[] = [
                 'service_type' => 'Bed Charges',
@@ -425,7 +420,7 @@ class BillingController extends Controller
             ];
         }
 
-        // 3. Unpaid Lab Orders (Aapka Pehla wala Code)
+        // 3. Lab Orders — unpaid, not cancelled
         $labOrders = LabOrder::where('patient_id', $patientId)
             ->where('payment_status', '!=', 'Paid')
             ->whereNotIn('status', ['Cancelled'])
@@ -438,12 +433,12 @@ class BillingController extends Controller
                 'reference_type' => 'lab_orders',
                 'reference_id' => $order->id,
                 'quantity' => 1,
-                'unit_price' => $order->total_amount - $order->discount, // Asli dues
+                'unit_price' => max(0, ($order->total_amount ?? 0) - ($order->discount ?? 0)),
                 'discount' => 0,
             ];
         }
 
-        // 4. Unpaid Radiology Orders (Aapka Pehla wala Code)
+        // 4. Radiology Orders — unpaid, not cancelled
         $radOrders = RadiologyOrder::where('patient_id', $patientId)
             ->where('payment_status', '!=', 'Paid')
             ->whereNotIn('status', ['Cancelled'])
@@ -456,12 +451,12 @@ class BillingController extends Controller
                 'reference_type' => 'radiology_orders',
                 'reference_id' => $order->id,
                 'quantity' => 1,
-                'unit_price' => $order->net_amount - $order->paid_amount,
+                'unit_price' => max(0, ($order->net_amount ?? 0) - ($order->paid_amount ?? 0)),
                 'discount' => 0,
             ];
         }
 
-        // 5. Unpaid Pharmacy (Aapka Pehla wala Code)
+        // 5. Pharmacy Dispensings — unpaid
         $dispensings = Dispensing::where('patient_id', $patientId)
             ->where('payment_status', '!=', 'Paid')
             ->get();
@@ -473,13 +468,12 @@ class BillingController extends Controller
                 'reference_type' => 'dispensings',
                 'reference_id' => $disp->id,
                 'quantity' => 1,
-                'unit_price' => $disp->total_amount,
+                'unit_price' => $disp->total_amount ?? 0,
                 'discount' => 0,
             ];
         }
 
-        // 6. Blood Bank (Blood Requests)
-        // 6. Blood Bank — array mapping hatao, direct DB se fetch karo
+        // 6. Blood Bank — fulfilled, not yet billed
         $bloodRequests = BloodRequest::where('patient_id', $patientId)
             ->where('status', 'Fulfilled')
             ->whereDoesntHave('billItems', function ($query) {
@@ -488,7 +482,6 @@ class BillingController extends Controller
             ->get();
 
         foreach ($bloodRequests as $req) {
-            // Component ke naam se exact match — no spelling risk
             $charge = BillServiceCharge::where('blood_component', $req->component)
                 ->where('is_active', 1)
                 ->first();
@@ -503,12 +496,14 @@ class BillingController extends Controller
                 'discount' => 0,
             ];
         }
-        // 7. Mortuary — Death Certificate Fee
+
+        // 7. Death Certificate Fee — unpaid, not already billed
         $deathCertificates = DeathCertificate::whereHas('mortuaryRecord', function ($q) use ($patientId) {
             $q->where('patient_id', $patientId);
         })
             ->where('fee_charged', '>', 0)
             ->where('fee_paid', false)
+            ->whereNull('bill_id')
             ->whereDoesntHave('billItems', function ($query) {
                 $query->where('reference_type', 'death_certificates');
             })
@@ -526,9 +521,9 @@ class BillingController extends Controller
             ];
         }
 
-        // 8. Mortuary — Body Storage Charges (per day)
+        // 8. Mortuary Body Storage Charges — not yet billed
         $mortuaryRecord = MortuaryRecord::where('patient_id', $patientId)
-            ->whereNotNull('locker_number')         // Locker assign hua ho
+            ->whereNotNull('locker_number')
             ->whereDoesntHave('billItems', function ($query) {
                 $query->where('reference_type', 'mortuary_records');
             })
@@ -555,18 +550,5 @@ class BillingController extends Controller
         }
 
         return $services;
-    }
-
-    // ─── syncMortuaryPayments ─────────────────────────────────────────
-    private function syncMortuaryPayments(Bill $bill): void
-    {
-        foreach ($bill->items as $item) {
-
-            // Death Certificate — fee_paid = true
-            if ($item->reference_type === 'death_certificates' && $item->reference_id) {
-                DeathCertificate::where('id', $item->reference_id)
-                    ->update(['fee_paid' => true]);
-            }
-        }
     }
 }

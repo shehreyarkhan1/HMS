@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Appointment;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
@@ -105,9 +105,22 @@ class AppointmentController extends Controller
             'notes' => 'nullable|string',
             'follow_up_date' => 'nullable|date|after:appointment_date',
         ]);
+        // ✅ Patient status check
+        $patient = Patient::findOrFail($validated['patient_id']);
 
+        if ($patient->status === 'Deceased') {
+            return back()
+                ->withInput()
+                ->withErrors(['patient_id' => 'Cannot book appointment for a deceased patient.']);
+        }
+
+        if ($patient->status === 'Discharged') {
+            return back()
+                ->withInput()
+                ->withErrors(['patient_id' => 'Cannot book appointment for a discharged patient.']);
+        }
         // Doctor availability conflict check
-        if (!empty($validated['doctor_id']) && !empty($validated['appointment_time'])) {
+        if (! empty($validated['doctor_id']) && ! empty($validated['appointment_time'])) {
             $conflict = Appointment::hasConflict(
                 $validated['doctor_id'],
                 $validated['appointment_date'],
@@ -122,7 +135,7 @@ class AppointmentController extends Controller
         }
 
         // Auto-generate token for OPD
-        if ($validated['type'] === 'OPD' && !empty($validated['doctor_id'])) {
+        if ($validated['type'] === 'OPD' && ! empty($validated['doctor_id'])) {
             $validated['token_number'] = Appointment::nextToken(
                 $validated['doctor_id'],
                 $validated['appointment_date']
@@ -142,6 +155,7 @@ class AppointmentController extends Controller
     public function show(Appointment $appointment)
     {
         $appointment->load(['patient', 'doctor.employee']);
+
         return view('appointments.appointments_show', compact('appointment'));
     }
 
@@ -181,7 +195,7 @@ class AppointmentController extends Controller
         ]);
 
         // Conflict check (exclude current appointment)
-        if (!empty($validated['doctor_id']) && !empty($validated['appointment_time'])) {
+        if (! empty($validated['doctor_id']) && ! empty($validated['appointment_time'])) {
             $conflict = Appointment::hasConflict(
                 $validated['doctor_id'],
                 $validated['appointment_date'],
@@ -197,7 +211,7 @@ class AppointmentController extends Controller
         }
 
         // Auto-set consulted_at when status → In-Progress
-        if ($validated['status'] === 'In-Progress' && !$appointment->consulted_at) {
+        if ($validated['status'] === 'In-Progress' && ! $appointment->consulted_at) {
             $validated['consulted_at'] = now();
         }
 
@@ -231,7 +245,7 @@ class AppointmentController extends Controller
 
         $data = ['status' => $request->status];
 
-        if ($request->status === 'In-Progress' && !$appointment->consulted_at) {
+        if ($request->status === 'In-Progress' && ! $appointment->consulted_at) {
             $data['consulted_at'] = now();
         }
 
@@ -264,7 +278,7 @@ class AppointmentController extends Controller
         }
 
         // Group by date string for easy calendar rendering
-        $appointments = $query->get()->groupBy(fn($a) => $a->appointment_date->format('Y-m-d'));
+        $appointments = $query->get()->groupBy(fn ($a) => $a->appointment_date->format('Y-m-d'));
 
         $doctors = Doctor::with('employee')
             ->active()
@@ -296,7 +310,7 @@ class AppointmentController extends Controller
             ->whereDate('appointment_date', $request->date)
             ->whereNotIn('status', ['Cancelled', 'No-show'])
             ->pluck('appointment_time')
-            ->map(fn($t) => Carbon::parse($t)->format('H:i'))
+            ->map(fn ($t) => Carbon::parse($t)->format('H:i'))
             ->toArray();
 
         return response()->json([

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Patient;
 use App\Models\Appointment;
+use App\Models\BillPayment;
 use App\Models\Doctor;
 use App\Models\Employee;
+use App\Models\Patient;
 
 class DashboardController extends Controller
 {
@@ -33,13 +34,20 @@ class DashboardController extends Controller
         $yesterdayCount = Appointment::whereDate('appointment_date', today()->subDay())->count();
         $appointmentChange = $appointment - $yesterdayCount;
 
+        $todayRevenue = BillPayment::whereDate('created_at', today())->where('amount', '>', 0)->sum('amount');
+        $monthRevenue = BillPayment::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('amount', '>', 0)->sum('amount');
+        $totalRevenue = BillPayment::where('amount', '>', 0)->sum('amount');
+        // ── Employee distribution by department ──
+
         // ── Department Occupancy ──
         // Doctor ke employee relationship se department nikalo
         // Sirf Clinical departments consider karo
         $allDepartments = Doctor::with('employee')
-            ->whereHas('employee', function($q) {
+            ->whereHas('employee', function ($q) {
                 $q->where('department', 'like', 'Clinical — %')
-                  ->where('employment_status', 'Active');
+                    ->where('employment_status', 'Active');
             })
             ->where('is_active', true)
             ->get()
@@ -66,12 +74,12 @@ class DashboardController extends Controller
 
         foreach ($allDepartments as $dept) {
             // Is department ke employees jo doctors hain
-            $deptDoctorIds = Doctor::whereHas('employee', function($q) use ($dept) {
+            $deptDoctorIds = Doctor::whereHas('employee', function ($q) use ($dept) {
                 $q->where('department', $dept)
-                  ->where('employment_status', 'Active');
+                    ->where('employment_status', 'Active');
             })
-            ->where('is_active', true)
-            ->pluck('id');
+                ->where('is_active', true)
+                ->pluck('id');
 
             // Aaj ki appointments in this department
             $todayAppts = Appointment::whereIn('doctor_id', $deptDoctorIds)
@@ -108,7 +116,7 @@ class DashboardController extends Controller
         }
 
         // Sort by percent descending
-        usort($departmentOccupancy, fn($a, $b) => $b['percent'] <=> $a['percent']);
+        usort($departmentOccupancy, fn ($a, $b) => $b['percent'] <=> $a['percent']);
 
         // Max 6 departments dikhao (optional)
         // $departmentOccupancy = array_slice($departmentOccupancy, 0, 6);
@@ -129,6 +137,7 @@ class DashboardController extends Controller
             'appointmentChange',
             'departmentOccupancy',
             'recentPatients',
+            'todayRevenue', 'monthRevenue', 'totalRevenue',
             'recentAppointments'
         ));
     }

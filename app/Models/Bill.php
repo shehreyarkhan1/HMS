@@ -18,18 +18,19 @@ class Bill extends Model
     ];
 
     protected $casts = [
-        'bill_date' => 'date',
-        'finalized_at' => 'datetime',
-        'cancelled_at' => 'datetime',
-        'subtotal' => 'decimal:2',
+        'bill_date'     => 'date',
+        'finalized_at'  => 'datetime',
+        'cancelled_at'  => 'datetime',
+        'subtotal'      => 'decimal:2',
         'discount_amount' => 'decimal:2',
-        'tax_amount' => 'decimal:2',
-        'net_amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
-        'due_amount' => 'decimal:2',
+        'tax_amount'    => 'decimal:2',
+        'net_amount'    => 'decimal:2',
+        'paid_amount'   => 'decimal:2',
+        'due_amount'    => 'decimal:2',
     ];
 
     // ─── Relationships ────────────────────────────────────────────────
+
     public function patient()
     {
         return $this->belongsTo(Patient::class);
@@ -56,6 +57,7 @@ class Bill extends Model
     }
 
     // ─── Scopes ───────────────────────────────────────────────────────
+
     public function scopeDraft($q)
     {
         return $q->where('status', 'Draft');
@@ -71,7 +73,8 @@ class Bill extends Model
         return $q->where('payment_status', 'Unpaid');
     }
 
-    // ─── Helpers ──────────────────────────────────────────────────────
+    // ─── Status Helpers ───────────────────────────────────────────────
+
     public function isDraft(): bool
     {
         return $this->status === 'Draft';
@@ -92,10 +95,11 @@ class Bill extends Model
         return $this->payment_status === 'Paid';
     }
 
-    // ─── Recalculate totals ───────────────────────────────────────────
+    // ─── Recalculate Totals ───────────────────────────────────────────
+
     public function recalculateTotals(): void
     {
-        $subtotal = $this->items()->sum('total_price');
+        $subtotal  = $this->items()->sum('total_price');
         $netAmount = max(0, $subtotal - $this->discount_amount + $this->tax_amount);
         $dueAmount = max(0, $netAmount - $this->paid_amount);
 
@@ -107,78 +111,192 @@ class Bill extends Model
         }
 
         $this->update([
-            'subtotal' => $subtotal,
-            'net_amount' => $netAmount,
-            'due_amount' => $dueAmount,
+            'subtotal'       => $subtotal,
+            'net_amount'     => $netAmount,
+            'due_amount'     => $dueAmount,
             'payment_status' => $paymentStatus,
         ]);
     }
 
-    // ─── Sync payment status back to source modules ───────────────────
+    // ─── Sync Payment Status Back to Source Modules ───────────────────
     /**
-     * After a payment is recorded on this bill, update the payment_status
-     * of linked source records (lab_orders, radiology_orders, dispensings).
+     * Called after every payment is recorded on this bill.
      *
-     * This keeps the original module's payment_status in sync so that
-     * Lab, Radiology, Pharmacy views show correct payment info.
+     * Updates the payment_status (and related fields) of every linked
+     * source record so that Lab, Radiology, Pharmacy, Blood Bank,
+     * Mortuary, and Appointment views always show the correct state.
+     *
+     * Modules covered:
+     *   1. lab_orders        → payment_status, paid_amount
+     *   2. radiology_orders  → payment_status, paid_amount
+     *   3. dispensings       → payment_status, paid_amount
+     *   4. death_certificates→ fee_paid, bill_id
+     *   5. mortuary_records  → billing_status
+     *   6. blood_requests    → payment_status
+     *   7. appointments      → payment_status
+     *   8. beds              → billing_status (IPD bed charges)
      */
     public function syncSourcePayments(): void
     {
-        // Map reference_type → Model class
-        $modelMap = [
-            'lab_orders' => LabOrder::class,
-            'radiology_orders' => RadiologyOrder::class,
-            'dispensings' => Dispensing::class,
-        ];
+        $isPaid    = $this->payment_status === 'Paid';
+        $isPartial = $this->payment_status === 'Partial';
 
-        // Get all items that have a reference to a source record
+        // Load all linked items once — avoid N+1
         $linkedItems = $this->items()
             ->whereNotNull('reference_type')
             ->whereNotNull('reference_id')
             ->get(['reference_type', 'reference_id']);
 
-        // Group by reference_type → reference_id (deduplicate)
+        if ($linkedItems->isEmpty()) {
+            return;
+        }
+
         $grouped = $linkedItems->groupBy('reference_type');
 
         foreach ($grouped as $refType => $items) {
-            if (! isset($modelMap[$refType])) {
-                continue;
-            }
 
-            $modelClass = $modelMap[$refType];
-            $ids = $items->pluck('reference_id')->unique();
+            $ids = $items->pluck('reference_id')->unique()->filter()->values();
 
-            foreach ($ids as $refId) {
-                $record = $modelClass::find($refId);
-                if (! $record) {
-                    continue;
-                }
+            switch ($refType) {
 
-                // Update payment_status to match this bill's payment_status
-                $updateData = ['payment_status' => $this->payment_status];
+                // ── 1. Lab Orders ─────────────────────────────────────
+                case 'lab_orders':
+                    foreach ($ids as $id) {
+                        $record = LabOrder::find($id);
+                        if (! $record) {
+                            continue;
+                        }
 
-                // If fully paid, mark paid_amount = net/total amount
-                if ($this->payment_status === 'Paid') {
-                    $netCol = match ($refType) {
-                        'lab_orders' => 'total_amount',
-                        'radiology_orders' => 'net_amount',
-                        'dispensings' => 'total_amount',
-                        default => null,
-                    };
-                    if ($netCol && isset($record->$netCol)) {
-                        $updateData['paid_amount'] = $record->$netCol;
+                        $record->update([
+                            'payment_status' => $this->payment_status,
+                            'paid_amount'    => $isPaid
+                                ? ($record->total_amount ?? 0)
+                                : $record->paid_amount,
+                        ]);
                     }
-                }
+                    break;
 
-                $record->update($updateData);
+                // ── 2. Radiology Orders ───────────────────────────────
+                case 'radiology_orders':
+                    foreach ($ids as $id) {
+                        $record = RadiologyOrder::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'payment_status' => $this->payment_status,
+                            'paid_amount'    => $isPaid
+                                ? ($record->net_amount ?? 0)
+                                : $record->paid_amount,
+                        ]);
+                    }
+                    break;
+
+                // ── 3. Pharmacy Dispensings ───────────────────────────
+                case 'dispensings':
+                    foreach ($ids as $id) {
+                        $record = Dispensing::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'payment_status' => $this->payment_status,
+                            'paid_amount'    => $isPaid
+                                ? ($record->total_amount ?? 0)
+                                : $record->paid_amount,
+                        ]);
+                    }
+                    break;
+
+                // ── 4. Death Certificates ─────────────────────────────
+                // fee_paid sirf tab true hogi jab bill fully Paid ho.
+                // bill_id hamesha link karo (even on partial) for traceability.
+                case 'death_certificates':
+                    foreach ($ids as $id) {
+                        $record = DeathCertificate::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'bill_id'  => $this->id,
+                            'fee_paid' => $isPaid,
+                        ]);
+                    }
+                    break;
+
+                // ── 5. Mortuary Records ───────────────────────────────
+                // Body storage charges — track karo ke bill ho gaya
+                case 'mortuary_records':
+                    foreach ($ids as $id) {
+                        $record = MortuaryRecord::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'billing_status' => $isPaid ? 'Paid' : ($isPartial ? 'Partial' : 'Billed'),
+                        ]);
+                    }
+                    break;
+
+                // ── 6. Blood Requests ─────────────────────────────────
+                case 'blood_requests':
+                    foreach ($ids as $id) {
+                        $record = BloodRequest::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'payment_status' => $this->payment_status,
+                        ]);
+                    }
+                    break;
+
+                // ── 7. Appointments (Consultation Fee) ───────────────
+                case 'appointments':
+                    foreach ($ids as $id) {
+                        $record = Appointment::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'payment_status' => $this->payment_status,
+                        ]);
+                    }
+                    break;
+
+                // ── 8. Beds (IPD Bed Charges) ─────────────────────────
+                // billing_status track karo — bed release logic alag hai
+                case 'beds':
+                    foreach ($ids as $id) {
+                        $record = Bed::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+
+                        $record->update([
+                            'billing_status' => $isPaid ? 'Paid' : ($isPartial ? 'Partial' : 'Billed'),
+                        ]);
+                    }
+                    break;
+
+                // ── Unknown reference types — silently skip ───────────
+                default:
+                    break;
             }
         }
     }
 
-    // ─── Generate bill number ─────────────────────────────────────────
+    // ─── Static Helpers ───────────────────────────────────────────────
+
     public static function generateBillNumber(): string
     {
-        $year = date('Y');
+        $year  = date('Y');
         $count = self::whereYear('created_at', $year)->withTrashed()->count() + 1;
 
         return 'BILL-'.$year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);

@@ -214,7 +214,7 @@
                 @php $pg = $patientGrowth; @endphp
                 <div class="stat-change {{ $pg >= 0 ? 'text-success' : 'text-danger' }}">
                     <i class="bi bi-arrow-{{ $pg >= 0 ? 'up' : 'down' }}-short"></i>
-                    @if($pg == 0)
+                    @if ($pg == 0)
                         No change this month
                     @else
                         {{ $pg > 0 ? '+' : '' }}{{ $pg }}% this month
@@ -234,7 +234,7 @@
                 @php $ac = $appointmentChange; @endphp
                 <div class="stat-change {{ $ac >= 0 ? 'text-success' : 'text-danger' }}">
                     <i class="bi bi-arrow-{{ $ac >= 0 ? 'up' : 'down' }}-short"></i>
-                    @if($ac == 0)
+                    @if ($ac == 0)
                         Same as yesterday
                     @else
                         {{ $ac > 0 ? '+' : '' }}{{ $ac }} from yesterday
@@ -257,22 +257,54 @@
             </div>
         </div>
 
-        {{-- Today's Revenue --}}
+        {{-- Revenue Card --}}
         <div class="col-6 col-xl-3">
             <div class="stat-card">
-                <div class="stat-icon-box" style="background:#fffbeb">
-                    <i class="bi bi-cash-stack" style="color:#d97706"></i>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="stat-icon-box" style="background:#fffbeb">
+                        <i class="bi bi-cash-stack" style="color:#d97706"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label mb-0">Revenue</div>
+                        <small class="text-muted" style="font-size:11px">Today · Month · Total</small>
+                    </div>
                 </div>
-                <div class="stat-label">Today's revenue</div>
-                <div class="stat-value">{{ $todayRevenue ?? 'Rs 84k' }}</div>
-                <div class="stat-change text-success">
-                    <i class="bi bi-arrow-up-short"></i> +12% vs avg
+
+                <div class="d-flex align-items-stretch gap-2">
+
+                    {{-- Today --}}
+                    <div class="flex-fill text-center px-1">
+                        <div class="text-muted" style="font-size:11px">Today</div>
+                        <div class="fw-semibold" style="font-size:15px">
+                            Rs {{ number_format($todayRevenue) }}
+                        </div>
+                    </div>
+
+                    <div style="width:1px; background:#e5e7eb; align-self:stretch"></div>
+
+                    {{-- This Month --}}
+                    <div class="flex-fill text-center px-1">
+                        <div class="text-muted" style="font-size:11px">{{ now()->format('M') }}</div>
+                        <div class="fw-semibold" style="font-size:15px">
+                            Rs {{ number_format($monthRevenue) }}
+                        </div>
+                    </div>
+
+                    <div style="width:1px; background:#e5e7eb; align-self:stretch"></div>
+
+                    {{-- Total --}}
+                    <div class="flex-fill text-center px-1">
+                        <div class="text-muted" style="font-size:11px">Total</div>
+                        <div class="fw-semibold" style="font-size:15px">
+                            Rs {{ number_format($totalRevenue) }}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-
     </div>
-    {{-- END STATS ROW --}}
+    {{-- END STATS ROW }}
 
 
     {{-- ===== MIDDLE ROW ===== --}}
@@ -285,7 +317,7 @@
                     <span class="card-section-title">
                         <i class="bi bi-calendar2-week me-2 text-primary"></i>Today's appointments
                     </span>
-                    @if(Route::has('appointments.index'))
+                    @if (Route::has('appointments.index'))
                         <a href="{{ route('appointments.index') }}" class="text-primary text-decoration-none"
                             style="font-size:12px">
                             View all
@@ -295,51 +327,52 @@
 
                 <div class="p-0">
                     @forelse($recentAppointments as $appt)
-                                @php
-                                    $avatarColors = [
-                                        'OPD' => ['bg' => '#dbeafe', 'color' => '#1d4ed8'],
-                                        'IPD' => ['bg' => '#dcfce7', 'color' => '#166534'],
-                                        'Emergency' => ['bg' => '#fee2e2', 'color' => '#991b1b'],
-                                        'Follow-up' => ['bg' => '#f3e8ff', 'color' => '#7e22ce'],
-                                    ];
-                                    $c = $avatarColors[$appt->type] ?? ['bg' => '#f1f5f9', 'color' => '#475569'];
-                                    $badgeClass = 'badge-' . str_replace(' ', '-', $appt->status);
-                                @endphp
+                        @php
+                            $avatarColors = [
+                                'OPD' => ['bg' => '#dbeafe', 'color' => '#1d4ed8'],
+                                'IPD' => ['bg' => '#dcfce7', 'color' => '#166534'],
+                                'Emergency' => ['bg' => '#fee2e2', 'color' => '#991b1b'],
+                                'Follow-up' => ['bg' => '#f3e8ff', 'color' => '#7e22ce'],
+                            ];
+                            $c = $avatarColors[$appt->type] ?? ['bg' => '#f1f5f9', 'color' => '#475569'];
+                            $badgeClass = 'badge-' . str_replace(' ', '-', $appt->status);
+                        @endphp
 
-                                <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid #f1f5f9">
+                        <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid #f1f5f9">
 
-                                    <span style="font-size:12px;color:#94a3b8;min-width:52px;flex-shrink:0">
-                                        {{ $appt->appointment_time
-                        ? \Carbon\Carbon::parse($appt->appointment_time)->format('h:i A')
-                        : '—' }}
-                                    </span>
+                            <span style="font-size:12px;color:#94a3b8;min-width:52px;flex-shrink:0">
+                                {{ $appt->appointment_time ? \Carbon\Carbon::parse($appt->appointment_time)->format('h:i A') : '—' }}
+                            </span>
 
-                                    <div class="appt-avatar" style="background:{{ $c['bg'] }};color:{{ $c['color'] }}">
-                                        {{ $appt->patient->initials ?? '??' }}
-                                    </div>
+                            <div class="appt-avatar" style="background:{{ $c['bg'] }};color:{{ $c['color'] }}">
+                                {{ $appt->patient->initials ?? '??' }}
+                            </div>
 
-                                    <div class="flex-grow-1" style="min-width:0">
-                                        <div style="font-size:13px;font-weight:500;color:#1e293b;
+                            <div class="flex-grow-1" style="min-width:0">
+                                <div
+                                    style="font-size:13px;font-weight:500;color:#1e293b;
                                                         white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                            {{ $appt->patient->name ?? '—' }}
-                                        </div>
-                                        <div style="font-size:12px;color:#94a3b8;
-                                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                            {{ $appt->type }}
-                                            @if($appt->doctor)
-                                                &nbsp;·&nbsp;{{ $appt->doctor->name }}
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <span class="badge-status {{ $badgeClass }}" style="flex-shrink:0">
-                                        {{ $appt->status }}
-                                    </span>
+                                    {{ $appt->patient->name ?? '—' }}
                                 </div>
+                                <div
+                                    style="font-size:12px;color:#94a3b8;
+                                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                    {{ $appt->type }}
+                                    @if ($appt->doctor)
+                                        &nbsp;·&nbsp;{{ $appt->doctor->name }}
+                                    @endif
+                                </div>
+                            </div>
+
+                            <span class="badge-status {{ $badgeClass }}" style="flex-shrink:0">
+                                {{ $appt->status }}
+                            </span>
+                        </div>
 
                     @empty
                         <div class="text-center py-5" style="color:#94a3b8;font-size:13px">
-                            <i class="bi bi-calendar-x" style="font-size:32px;display:block;margin-bottom:8px;opacity:.5"></i>
+                            <i class="bi bi-calendar-x"
+                                style="font-size:32px;display:block;margin-bottom:8px;opacity:.5"></i>
                             No appointments today
                         </div>
                     @endforelse
@@ -358,12 +391,15 @@
                 </div>
                 <div class="p-4">
 
-                    @if(count($departmentOccupancy) > 0)
-                        @foreach($departmentOccupancy as $dept)
+                    @if (count($departmentOccupancy) > 0)
+                        @foreach ($departmentOccupancy as $dept)
                             @php
-                                $barClass = $dept['percent'] >= 80
-                                    ? 'bar-high'
-                                    : ($dept['percent'] >= 50 ? 'bar-medium' : 'bar-low');
+                                $barClass =
+                                    $dept['percent'] >= 80
+                                        ? 'bar-high'
+                                        : ($dept['percent'] >= 50
+                                            ? 'bar-medium'
+                                            : 'bar-low');
                             @endphp
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div style="min-width:90px;font-size:13px;color:#374151;
@@ -402,11 +438,11 @@
                                 High (80%+)
                             </span>
                         </div>
-
                     @else
                         {{-- Koi doctor/department nahi yet --}}
                         <div class="text-center py-4" style="color:#94a3b8;font-size:13px">
-                            <i class="bi bi-building" style="font-size:28px;display:block;margin-bottom:6px;opacity:.5"></i>
+                            <i class="bi bi-building"
+                                style="font-size:28px;display:block;margin-bottom:6px;opacity:.5"></i>
                             No department data available
                         </div>
                     @endif
@@ -425,8 +461,9 @@
             <span class="card-section-title">
                 <i class="bi bi-people me-2 text-primary"></i>Recent patients
             </span>
-            @if(Route::has('patients.index'))
-                <a href="{{ route('patients.index') }}" class="text-primary text-decoration-none" style="font-size:12px">
+            @if (Route::has('patients.index'))
+                <a href="{{ route('patients.index') }}" class="text-primary text-decoration-none"
+                    style="font-size:12px">
                     View all
                 </a>
             @endif
@@ -491,11 +528,13 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.bar-fill').forEach(bar => {
                 const w = bar.style.width;
                 bar.style.width = '0%';
-                setTimeout(() => { bar.style.width = w; }, 200);
+                setTimeout(() => {
+                    bar.style.width = w;
+                }, 200);
             });
         });
     </script>
