@@ -21,6 +21,8 @@ return new class extends Migration
                 'Bed Charges',
                 'OT Charges',
                 'Blood Bank',
+                'Death Certificate Fee',
+                'Mortuary storage',
                 'Service',
                 'Other'
             ])->default('Service');

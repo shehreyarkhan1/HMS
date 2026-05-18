@@ -632,7 +632,23 @@
                 </a>
             @endif
 
+            <div class="nav-section-label">Mortuary</div>
 
+            @if (Route::has('mortuary.index'))
+                <a href="{{ route('mortuary.index') }}"
+                    class="nav-item {{ request()->routeIs('mortuary.*') ? 'active' : '' }}">
+                    <i class="bi bi-journal-medical"></i>
+                    Mortuary Records
+                </a>
+            @endif
+
+            @if (Route::has('mortuary.create'))
+                <a href="{{ route('mortuary.create') }}"
+                    class="nav-item {{ request()->routeIs('mortuary.create') ? 'active' : '' }}">
+                    <i class="bi bi-plus-circle"></i>
+                    New Record
+                </a>
+            @endif
 
 
 

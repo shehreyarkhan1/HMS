@@ -341,25 +341,73 @@
             border-top: 1px solid #f1f5f9;
         }
 
-        .badge-consultation { background: #E1F5EE; color: #085041; }
-        .badge-laboratory   { background: #E6F1FB; color: #0C447C; }
-        .badge-procedure    { background: #FAEEDA; color: #633806; }
-        .badge-radiology    { background: #EEEDFE; color: #3C3489; }
-        .badge-pharmacy     { background: #FCEBEB; color: #791F1F; }
-        .badge-default      { background: #f1f5f9; color: #475569; }
+        .badge-consultation {
+            background: #E1F5EE;
+            color: #085041;
+        }
+
+        .badge-laboratory {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        .badge-procedure {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .badge-radiology {
+            background: #EEEDFE;
+            color: #3C3489;
+        }
+
+        .badge-pharmacy {
+            background: #FCEBEB;
+            color: #791F1F;
+        }
+
+        .badge-default {
+            background: #f1f5f9;
+            color: #475569;
+        }
 
         /* ── Load Pending Button Animation ── */
         @keyframes btnPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.18); }
-            50%       { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.18);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+            }
         }
+
         @keyframes borderGlow {
-            0%, 100% { border-color: #e2e8f0; }
-            50%       { border-color: #93c5fd; }
+
+            0%,
+            100% {
+                border-color: #e2e8f0;
+            }
+
+            50% {
+                border-color: #93c5fd;
+            }
         }
+
         @keyframes dotPing {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.4; transform: scale(0.7); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.7);
+            }
         }
 
         .load-pending-btn {
@@ -404,7 +452,8 @@
         /* ── Patient Dropdown — HIGH z-index, fixed position ── */
         #patientDropdown {
             display: none;
-            position: fixed; /* fixed taake kisi bhi overflow se na ruke */
+            position: fixed;
+            /* fixed taake kisi bhi overflow se na ruke */
             z-index: 9999;
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -461,9 +510,17 @@
 
         /* ── Scroll highlight on Bill Items card ── */
         @keyframes highlightPulse {
-            0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0.3); }
-            50%  { box-shadow: 0 0 0 6px rgba(59,130,246,0.1); }
-            100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.1);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
         }
 
         .bill-items-highlight {
@@ -515,14 +572,11 @@
                                 <div style="position:relative">
                                     <div style="position:relative">
                                         <i class="bi bi-search"
-                                           style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;pointer-events:none"></i>
-                                        <input type="text"
-                                               id="patientSearch"
-                                               class="form-control-clean"
-                                               style="padding-left:30px"
-                                               placeholder="Search by name, MRN, or phone..."
-                                               value="{{ $selectedPatient ? $selectedPatient->name . ' — ' . $selectedPatient->mrn : '' }}"
-                                               autocomplete="off">
+                                            style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;pointer-events:none"></i>
+                                        <input type="text" id="patientSearch" class="form-control-clean"
+                                            style="padding-left:30px" placeholder="Search by name, MRN, or phone..."
+                                            value="{{ $selectedPatient ? $selectedPatient->name . ' — ' . $selectedPatient->mrn : '' }}"
+                                            autocomplete="off">
                                     </div>
 
                                     {{-- Dropdown — position fixed, JS se coordinates set honge --}}
@@ -612,8 +666,7 @@
                 <div class="card-section mb-4">
                     <div class="p-4">
                         <div class="form-label-sm">Notes / Remarks</div>
-                        <textarea name="notes" class="form-control-clean" rows="2"
-                            placeholder="Optional internal notes...">{{ old('notes') }}</textarea>
+                        <textarea name="notes" class="form-control-clean" rows="2" placeholder="Optional internal notes...">{{ old('notes') }}</textarea>
                     </div>
                 </div>
 
@@ -647,7 +700,8 @@
                                     onclick='quickAdd(@json($charge))'>
                                     <div class="quick-svc-info">
                                         <span class="quick-svc-name">{{ $charge->name }}</span>
-                                        <span class="quick-svc-price">Rs. {{ number_format($charge->default_price, 0) }}</span>
+                                        <span class="quick-svc-price">Rs.
+                                            {{ number_format($charge->default_price, 0) }}</span>
                                     </div>
                                     <div class="svc-add-circle">
                                         <i class="bi bi-plus"></i>
@@ -781,7 +835,10 @@
             function scrollToBillItems() {
                 const card = document.getElementById('billItemsCard');
                 if (!card) return;
-                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                card.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
                 // Highlight animation
                 card.classList.remove('bill-items-highlight');
                 void card.offsetWidth; // reflow to restart animation
@@ -878,29 +935,32 @@
                     sub += parseFloat(el.textContent.replace(/Rs\. |,/g, '').trim()) || 0;
                 });
                 const disc = parseFloat(document.getElementById('discountAmount')?.value) || 0;
-                const tax  = parseFloat(document.getElementById('taxAmount')?.value) || 0;
-                const net  = Math.max(0, Math.round((sub - disc + tax) * 100) / 100);
+                const tax = parseFloat(document.getElementById('taxAmount')?.value) || 0;
+                const net = Math.max(0, Math.round((sub - disc + tax) * 100) / 100);
                 const items = document.getElementById('itemsBody').children.length;
 
                 document.getElementById('summarySubtotal').textContent = formatCurrency(sub);
-                document.getElementById('summaryItems').textContent    = items;
+                document.getElementById('summaryItems').textContent = items;
                 document.getElementById('summaryDiscount').textContent = '− ' + formatCurrency(disc);
-                document.getElementById('summaryTax').textContent      = '+ ' + formatCurrency(tax);
-                document.getElementById('summaryNet').textContent      = formatCurrency(net);
+                document.getElementById('summaryTax').textContent = '+ ' + formatCurrency(tax);
+                document.getElementById('summaryNet').textContent = formatCurrency(net);
             }
 
             function quickAdd(c) {
                 addItemRow({
                     service_type: c.category === 'Consultation' ? 'Consultation' : 'Service',
-                    description:  c.name,
-                    quantity:     1,
-                    unit_price:   parseFloat(c.default_price) || 0,
-                    discount:     0
+                    description: c.name,
+                    quantity: 1,
+                    unit_price: parseFloat(c.default_price) || 0,
+                    discount: 0
                 });
                 scrollToBillItems();
             }
 
             // ─── Load Pending Services ─────────────────────────────────────
+            // ─── Loaded items track karne ke liye ─────────────────────────
+            const loadedRefs = new Set();
+
             function loadPendingServices() {
                 const pid = document.getElementById('patientId')?.value;
                 if (!pid) {
@@ -908,57 +968,98 @@
                     return;
                 }
 
-                const btn = event?.currentTarget || event?.target;
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Loading...';
+                const btn = document.querySelector('.load-pending-btn');
+
+                // Already loaded check
+                if (btn.dataset.loaded === pid) {
+                    alert('Pending services already loaded for this patient.');
+                    return;
                 }
+
+                // Button loading state
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Loading...';
 
                 fetch(`/billing/patient/${pid}/pending-services`)
                     .then(r => r.json())
                     .then(list => {
                         if (!list || list.length === 0) {
                             alert('No pending unpaid services found for this patient.');
+                            // Button reset
+                            btn.disabled = false;
+                            btn.innerHTML =
+                                '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
                             return;
                         }
-                        list.forEach(s => addItemRow({
-                            service_type:   s.service_type   || 'Service',
-                            description:    s.description    || s.name || '',
-                            reference_type: s.reference_type || '',
-                            reference_id:   s.reference_id   || '',
-                            quantity:       parseFloat(s.quantity)   || 1,
-                            unit_price:     parseFloat(s.unit_price) || 0,
-                            discount:       parseFloat(s.discount)   || 0
-                        }));
-                        // Services load hone ke baad scroll karo
+
+                        let added = 0;
+                        let skipped = 0;
+
+                        list.forEach(s => {
+                            // Duplicate check — reference_type + reference_id se
+                            const refKey = `${s.reference_type}_${s.reference_id}`;
+
+                            if (s.reference_type && s.reference_id && loadedRefs.has(refKey)) {
+                                skipped++;
+                                return; // skip duplicate
+                            }
+
+                            // Set mein add karo
+                            if (s.reference_type && s.reference_id) {
+                                loadedRefs.add(refKey);
+                            }
+
+                            addItemRow({
+                                service_type: s.service_type || 'Service',
+                                description: s.description || s.name || '',
+                                reference_type: s.reference_type || '',
+                                reference_id: s.reference_id || '',
+                                quantity: parseFloat(s.quantity) || 1,
+                                unit_price: parseFloat(s.unit_price) || 0,
+                                discount: parseFloat(s.discount) || 0,
+                            });
+                            added++;
+                        });
+
+                        // Button — loaded state (dobara click nahi hoga)
+                        btn.dataset.loaded = pid; // is patient ke liye loaded mark karo
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1 text-success"></i>Services Loaded';
+                        btn.style.background = '#f0fdf4';
+                        btn.style.borderColor = '#86efac';
+                        btn.style.color = '#15803d';
+                        btn.style.animation = 'none';
+
+                        if (skipped > 0) {
+                            console.info(`${skipped} duplicate service(s) skipped.`);
+                        }
+
                         scrollToBillItems();
                     })
                     .catch(err => {
                         console.error('Load error:', err);
                         alert('Could not load services. Please add items manually.');
-                    })
-                    .finally(() => {
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
-                        }
+                        // Error pe reset
+                        btn.disabled = false;
+                        btn.innerHTML =
+                            '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
                     });
             }
 
             // ─── Patient Live Search ───────────────────────────────────────
             let searchTimeout = null;
-            const searchInput  = document.getElementById('patientSearch');
-            const dropdown     = document.getElementById('patientDropdown');
+            const searchInput = document.getElementById('patientSearch');
+            const dropdown = document.getElementById('patientDropdown');
 
             // Dropdown ko input ke bilkul neeche position karna — fixed coordinates
             function positionDropdown() {
                 const rect = searchInput.getBoundingClientRect();
-                dropdown.style.top    = (rect.bottom + 4) + 'px';
-                dropdown.style.left   = rect.left + 'px';
-                dropdown.style.width  = rect.width + 'px';
+                dropdown.style.top = (rect.bottom + 4) + 'px';
+                dropdown.style.left = rect.left + 'px';
+                dropdown.style.width = rect.width + 'px';
             }
 
-            searchInput.addEventListener('input', function () {
+            searchInput.addEventListener('input', function() {
                 const q = this.value.trim();
 
                 if (document.getElementById('patientId').value) {
@@ -1019,7 +1120,9 @@
             // Scroll ya resize pe bhi dropdown reposition karo
             window.addEventListener('scroll', () => {
                 if (dropdown.style.display !== 'none') positionDropdown();
-            }, { passive: true });
+            }, {
+                passive: true
+            });
 
             window.addEventListener('resize', () => {
                 if (dropdown.style.display !== 'none') positionDropdown();
@@ -1032,7 +1135,9 @@
                 document.getElementById('patientBadge').style.display = 'flex';
                 dropdown.style.display = 'none';
 
-                // Patient select hone ke baad Bill Items section mein scroll karo
+                // ← Patient change hone par button reset karo
+                resetLoadBtn();
+
                 setTimeout(() => scrollToBillItems(), 150);
             }
 
@@ -1040,10 +1145,13 @@
                 document.getElementById('patientId').value = '';
                 document.getElementById('patientBadge').style.display = 'none';
                 if (clearInput) searchInput.value = '';
+
+                // ← Patient clear hone par button reset karo
+                resetLoadBtn();
             }
 
             // Click bahar — dropdown band karo
-            document.addEventListener('click', function (e) {
+            document.addEventListener('click', function(e) {
                 if (!e.target.closest('#patientSearch') && !e.target.closest('#patientDropdown')) {
                     dropdown.style.display = 'none';
                 }
@@ -1060,10 +1168,24 @@
 
             document.addEventListener('DOMContentLoaded', () => {
                 const discInput = document.getElementById('discountAmount');
-                const taxInput  = document.getElementById('taxAmount');
+                const taxInput = document.getElementById('taxAmount');
                 if (discInput) discInput.addEventListener('input', recalcSummary);
-                if (taxInput)  taxInput.addEventListener('input', recalcSummary);
+                if (taxInput) taxInput.addEventListener('input', recalcSummary);
             });
+
+            function resetLoadBtn() {
+                const btn = document.querySelector('.load-pending-btn');
+                if (!btn) return;
+                btn.disabled = false;
+                btn.dataset.loaded = ''; // loaded flag clear
+                btn.innerHTML =
+                    '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.style.animation = '';
+                loadedRefs.clear(); // track set bhi clear karo
+            }
         </script>
     @endpush
 

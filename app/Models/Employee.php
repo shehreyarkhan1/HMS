@@ -249,17 +249,19 @@ class Employee extends Model
         return $query->where('employment_type', $type);
     }
 
-    public function scopeSearch($query, string $term)
-    {
-        return $query->where(function ($q) use ($term) {
-            $q->where('first_name', 'ilike', "%$term%")
-                ->orWhere('last_name', 'ilike', "%$term%")
-                ->orWhere('employee_id', 'ilike', "%$term%")
-                ->orWhere('cnic', 'like', "%$term%")
-                ->orWhere('designation', 'ilike', "%$term%")
-                ->orWhere('department', 'ilike', "%$term%");
-        });
-    }
+   public function scopeSearch($query, string $term)
+{
+    $operator = config('database.default') === 'pgsql' ? 'ilike' : 'like';
+
+    return $query->where(function ($q) use ($term, $operator) {
+        $q->where('first_name', $operator, "%$term%")
+            ->orWhere('last_name', $operator, "%$term%")
+            ->orWhere('employee_id', $operator, "%$term%")
+            ->orWhere('cnic', 'like', "%$term%")
+            ->orWhere('designation', $operator, "%$term%")
+            ->orWhere('department', $operator, "%$term%");
+    });
+}
 
     public function scopeContractExpiringSoon($query)
     {

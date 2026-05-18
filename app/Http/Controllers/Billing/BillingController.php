@@ -10,15 +10,16 @@ use App\Models\BillItem;
 use App\Models\BillPayment;
 use App\Models\BillServiceCharge;
 use App\Models\BloodRequest;
+use App\Models\DeathCertificate;
 use App\Models\Dispensing;
 use App\Models\LabOrder;
+use App\Models\MortuaryRecord;
 use App\Models\Patient;
 use App\Models\RadiologyOrder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
 
 class BillingController extends Controller
 {
@@ -32,7 +33,7 @@ class BillingController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('bill_number', 'like', "%$s%")
-                    ->orWhereHas('patient', fn($p) => $p->where('name', 'like', "%$s%")
+                    ->orWhereHas('patient', fn ($p) => $p->where('name', 'like', "%$s%")
                         ->orWhere('mrn', 'like', "%$s%")
                         ->orWhere('phone', 'like', "%$s%"));
             });
@@ -274,38 +275,41 @@ class BillingController extends Controller
         }
 
         $request->validate([
-            'amount'           => 'required|numeric|min:0.01|max:' . ($bill->due_amount + 0.01),
-            'payment_method'   => 'required|in:Cash,Card,Bank Transfer,Cheque,Insurance,Online',
-            'payment_date'     => 'required|date|before_or_equal:today',
+            'amount' => 'required|numeric|min:0.01|max:'.($bill->due_amount + 0.01),
+            'payment_method' => 'required|in:Cash,Card,Bank Transfer,Cheque,Insurance,Online',
+            'payment_date' => 'required|date|before_or_equal:today',
             'reference_number' => 'nullable|string|max:100',
-            'notes'            => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($request, $bill) {
 
             // 1. Create payment record
             BillPayment::create([
-                'payment_number'   => BillPayment::generatePaymentNumber(),
-                'bill_id'          => $bill->id,
-                'received_by'      => Auth::id(),
-                'amount'           => $request->amount,
-                'payment_method'   => $request->payment_method,
-                'payment_date'     => $request->payment_date,
+                'payment_number' => BillPayment::generatePaymentNumber(),
+                'bill_id' => $bill->id,
+                'received_by' => Auth::id(),
+                'amount' => $request->amount,
+                'payment_method' => $request->payment_method,
+                'payment_date' => $request->payment_date,
                 'reference_number' => $request->reference_number,
-                'notes'            => $request->notes,
+                'notes' => $request->notes,
             ]);
 
             // 2. Recalculate bill totals
-            $totalPaid  = $bill->fresh()->payments()->sum('amount');
-            $dueAmount  = max(0, $bill->net_amount - $totalPaid);
+            $totalPaid = $bill->fresh()->payments()->sum('amount');
+            $dueAmount = max(0, $bill->net_amount - $totalPaid);
 
             $paymentStatus = 'Partial';
-            if ($dueAmount <= 0)   $paymentStatus = 'Paid';
-            elseif ($totalPaid <= 0) $paymentStatus = 'Unpaid';
+            if ($dueAmount <= 0) {
+                $paymentStatus = 'Paid';
+            } elseif ($totalPaid <= 0) {
+                $paymentStatus = 'Unpaid';
+            }
 
             $bill->update([
-                'paid_amount'    => $totalPaid,
-                'due_amount'     => $dueAmount,
+                'paid_amount' => $totalPaid,
+                'due_amount' => $dueAmount,
                 'payment_status' => $paymentStatus,
             ]);
 
@@ -315,7 +319,7 @@ class BillingController extends Controller
         });
 
         return redirect()->route('billing.show', $bill)
-            ->with('success', 'Payment of Rs. ' . number_format($request->amount, 2) . ' recorded successfully.');
+            ->with('success', 'Payment of Rs. '.number_format($request->amount, 2).' recorded successfully.');
     }
 
     // ─── PRINT / INVOICE ──────────────────────────────────────────────
@@ -344,7 +348,7 @@ class BillingController extends Controller
         ]);
 
         return redirect()->route('billing.index')
-            ->with('success', 'Bill #' . $bill->bill_number . ' has been cancelled.');
+            ->with('success', 'Bill #'.$bill->bill_number.' has been cancelled.');
     }
 
     // ─── AJAX: PATIENT SEARCH ─────────────────────────────────────────
@@ -386,7 +390,7 @@ class BillingController extends Controller
         foreach ($appointments as $app) {
             $services[] = [
                 'service_type' => 'Consultation',
-                'description' => 'Consultation Fee: Dr. ' . ($app->doctor->employee->first_name ?? 'Doctor'),
+                'description' => 'Consultation Fee: Dr. '.($app->doctor->employee->first_name ?? 'Doctor'),
                 'reference_type' => 'appointments',
                 'reference_id' => $app->id,
                 'quantity' => 1,
@@ -429,13 +433,13 @@ class BillingController extends Controller
 
         foreach ($labOrders as $order) {
             $services[] = [
-                'service_type'   => 'Lab',
-                'description'    => 'Lab Order #' . $order->order_number,
+                'service_type' => 'Lab',
+                'description' => 'Lab Order #'.$order->order_number,
                 'reference_type' => 'lab_orders',
-                'reference_id'   => $order->id,
-                'quantity'       => 1,
-                'unit_price'     => $order->total_amount - $order->discount, // Asli dues
-                'discount'       => 0,
+                'reference_id' => $order->id,
+                'quantity' => 1,
+                'unit_price' => $order->total_amount - $order->discount, // Asli dues
+                'discount' => 0,
             ];
         }
 
@@ -448,7 +452,7 @@ class BillingController extends Controller
         foreach ($radOrders as $order) {
             $services[] = [
                 'service_type' => 'Radiology',
-                'description' => 'Radiology Order #' . $order->order_number,
+                'description' => 'Radiology Order #'.$order->order_number,
                 'reference_type' => 'radiology_orders',
                 'reference_id' => $order->id,
                 'quantity' => 1,
@@ -465,7 +469,7 @@ class BillingController extends Controller
         foreach ($dispensings as $disp) {
             $services[] = [
                 'service_type' => 'Pharmacy',
-                'description' => 'Pharmacy Dispensing #' . $disp->dispense_number,
+                'description' => 'Pharmacy Dispensing #'.$disp->dispense_number,
                 'reference_type' => 'dispensings',
                 'reference_id' => $disp->id,
                 'quantity' => 1,
@@ -490,15 +494,79 @@ class BillingController extends Controller
                 ->first();
 
             $services[] = [
-                'service_type'   => 'Blood Bank',
-                'description'    => 'Blood Issue: ' . $req->blood_group . ' (' . $req->component . ')',
+                'service_type' => 'Blood Bank',
+                'description' => 'Blood Issue: '.$req->blood_group.' ('.$req->component.')',
                 'reference_type' => 'blood_requests',
-                'reference_id'   => $req->id,
-                'quantity'       => $req->units_approved,
-                'unit_price'     => $charge?->default_price ?? 0,
-                'discount'       => 0,
+                'reference_id' => $req->id,
+                'quantity' => $req->units_approved,
+                'unit_price' => $charge?->default_price ?? 0,
+                'discount' => 0,
             ];
         }
+        // 7. Mortuary — Death Certificate Fee
+        $deathCertificates = DeathCertificate::whereHas('mortuaryRecord', function ($q) use ($patientId) {
+            $q->where('patient_id', $patientId);
+        })
+            ->where('fee_charged', '>', 0)
+            ->where('fee_paid', false)
+            ->whereDoesntHave('billItems', function ($query) {
+                $query->where('reference_type', 'death_certificates');
+            })
+            ->get();
+
+        foreach ($deathCertificates as $cert) {
+            $services[] = [
+                'service_type' => 'Service',
+                'description' => 'Death Certificate Fee — '.$cert->certificate_number.' ('.$cert->purpose.')',
+                'reference_type' => 'death_certificates',
+                'reference_id' => $cert->id,
+                'quantity' => $cert->total_copies,
+                'unit_price' => $cert->fee_charged,
+                'discount' => 0,
+            ];
+        }
+
+        // 8. Mortuary — Body Storage Charges (per day)
+        $mortuaryRecord = MortuaryRecord::where('patient_id', $patientId)
+            ->whereNotNull('locker_number')         // Locker assign hua ho
+            ->whereDoesntHave('billItems', function ($query) {
+                $query->where('reference_type', 'mortuary_records');
+            })
+            ->first();
+
+        if ($mortuaryRecord) {
+            $charge = BillServiceCharge::where('name', 'like', '%Mortuary%')
+                ->where('is_active', 1)
+                ->first();
+
+            if ($charge) {
+                $days = max(1, $mortuaryRecord->days_in_mortuary);
+
+                $services[] = [
+                    'service_type' => 'Service',
+                    'description' => 'Mortuary Storage — '.$mortuaryRecord->mortuary_id.' ('.$days.' day(s))',
+                    'reference_type' => 'mortuary_records',
+                    'reference_id' => $mortuaryRecord->id,
+                    'quantity' => $days,
+                    'unit_price' => $charge->default_price,
+                    'discount' => 0,
+                ];
+            }
+        }
+
         return $services;
+    }
+
+    // ─── syncMortuaryPayments ─────────────────────────────────────────
+    private function syncMortuaryPayments(Bill $bill): void
+    {
+        foreach ($bill->items as $item) {
+
+            // Death Certificate — fee_paid = true
+            if ($item->reference_type === 'death_certificates' && $item->reference_id) {
+                DeathCertificate::where('id', $item->reference_id)
+                    ->update(['fee_paid' => true]);
+            }
+        }
     }
 }

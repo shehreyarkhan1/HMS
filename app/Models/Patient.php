@@ -45,7 +45,7 @@ class Patient extends Model
             if (empty($patient->mrn)) {
                 // Latest patient fetch kar rahe hain chahe wo delete ho chuka ho (withTrashed)
                 $lastPatient = static::withTrashed()->latest('id')->first();
-                
+
                 if (!$lastPatient) {
                     $number = 1;
                 } else {
@@ -53,7 +53,7 @@ class Patient extends Model
                     $lastNumber = (int) str_replace('MRN-', '', $lastPatient->mrn);
                     $number = $lastNumber + 1;
                 }
-                
+
                 $patient->mrn = 'MRN-' . str_pad($number, 5, '0', STR_PAD_LEFT);
             }
         });
@@ -85,7 +85,9 @@ class Patient extends Model
     {
         return $this->date_of_birth ? $this->date_of_birth->age : null;
     }
-
+public function mortuaryRecord() {
+    return $this->hasOne(\App\Models\MortuaryRecord::class);
+}
     // Name ke initials nikalne ke liye (e.g. Ahmed Ali -> AA)
     public function getInitialsAttribute()
     {
