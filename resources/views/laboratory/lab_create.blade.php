@@ -171,16 +171,7 @@
                     <div class="form-section-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-sm">Patient <span class="text-danger">*</span></label>
-                                <select name="patient_id" class="form-control-sm-custom" required>
-                                    <option value="">Select patient...</option>
-                                    @foreach ($patients as $patient)
-                                        <option value="{{ $patient->id }}"
-                                            {{ old('patient_id') == $patient->id || optional($selectedPatient)->id == $patient->id ? 'selected' : '' }}>
-                                            {{ $patient->name }} — {{ $patient->mrn }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <x-patient-search :patients="$selectedPatient" />
                                 @error('patient_id')
                                     <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
                                 @enderror
@@ -208,8 +199,7 @@
                             <div class="col-md-4">
                                 <label class="form-label-sm">Priority <span class="text-danger">*</span></label>
                                 <select name="priority" class="form-control-sm-custom" required>
-                                    <option value="Routine"
-                                        {{ old('priority', 'Routine') == 'Routine' ? 'selected' : '' }}>
+                                    <option value="Routine" {{ old('priority', 'Routine') == 'Routine' ? 'selected' : '' }}>
                                         Routine</option>
                                     <option value="Urgent" {{ old('priority') == 'Urgent' ? 'selected' : '' }}>Urgent (2-4
                                         hrs)</option>

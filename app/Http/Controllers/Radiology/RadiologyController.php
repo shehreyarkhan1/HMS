@@ -67,7 +67,7 @@ class RadiologyController extends Controller
     // ─────────────────────────────────────────────
     public function create(Request $request)
     {
-        $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
+        // $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
         $doctors = Doctor::with('employee')
             ->where('is_active', true)
             ->join('employees', 'doctors.employee_id', '=', 'employees.id')
@@ -94,7 +94,7 @@ class RadiologyController extends Controller
         }
 
         return view('radiology.radiology_create', compact(
-            'patients',
+            // 'patients',
             'doctors',
             'examsByModality',
             'selectedPatient',

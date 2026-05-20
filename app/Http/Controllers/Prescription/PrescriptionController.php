@@ -65,10 +65,10 @@ class PrescriptionController extends Controller
     {
         try {
             // Patients
-            $patients = Patient::select('id', 'name', 'mrn')
-                ->orderBy('name')
-                ->get();
-                
+            // $patients = Patient::select('id', 'name', 'mrn')
+            //     ->orderBy('name')
+            //     ->get();
+
             // Active Doctors
             $doctors = Doctor::with('employee')
                 ->where('is_active', true)
@@ -96,7 +96,7 @@ class PrescriptionController extends Controller
             }
 
             return view('prescription.prescriptions_create', compact(
-                'patients',
+
                 'doctors',
                 'medicines',
                 'selectedPatient'

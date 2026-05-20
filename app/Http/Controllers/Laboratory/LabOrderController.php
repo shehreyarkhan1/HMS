@@ -58,7 +58,7 @@ class LabOrderController extends Controller
     // ─────────────────────────────────────────────
     public function create(Request $request)
     {
-        $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
+        // $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
         $doctors = Doctor::with('employee')
             ->where('is_active', true)
             ->join('employees', 'doctors.employee_id', '=', 'employees.id')
@@ -83,7 +83,7 @@ class LabOrderController extends Controller
         }
 
         return view('laboratory.lab_create', compact(
-            'patients', 'doctors', 'testsByCategory',
+            'doctors', 'testsByCategory',
             'selectedPatient', 'selectedDoctor'
         ));
     }

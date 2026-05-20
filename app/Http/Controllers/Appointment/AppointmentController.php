@@ -79,14 +79,14 @@ class AppointmentController extends Controller
             ->available()
             ->get();
 
-        $patients = Patient::orderBy('name')->get();
+        // $patients = Patient::orderBy('name')->get();
 
         // Pre-fill patient if coming from patient profile
         $selectedPatient = $request->filled('patient_id')
             ? Patient::find($request->patient_id)
             : null;
 
-        return view('appointments.appointments_create', compact('doctors', 'patients', 'selectedPatient'));
+        return view('appointments.appointments_create', compact('doctors', 'selectedPatient'));
     }
 
     // =============================================
@@ -169,9 +169,10 @@ class AppointmentController extends Controller
             ->orderBy('doctor_id')
             ->get();
 
-        $patients = Patient::orderBy('name')->get();
+        $selectedPatient = $appointment->patient; // ← YEH ADD KARO
 
-        return view('appointments.appointments_edit', compact('appointment', 'doctors', 'patients'));
+        return view('appointments.appointments_edit', compact('appointment', 'doctors', 'selectedPatient'));
+
     }
 
     // =============================================
