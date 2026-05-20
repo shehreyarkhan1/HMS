@@ -357,11 +357,20 @@ class BillingController extends Controller
     {
         $q = $request->get('q', '');
 
-        $patients = Patient::where('name', 'like', "%$q%")
-            ->orWhere('mrn', 'like', "%$q%")
-            ->orWhere('phone', 'like', "%$q%")
-            ->limit(10)
-            ->get(['id', 'mrn', 'name', 'phone', 'patient_type']);
+        $query = Patient::where(function ($query) use ($q) {
+            $query->where('name', 'like', "%$q%")
+                ->orWhere('mrn', 'like', "%$q%")
+                ->orWhere('phone', 'like', "%$q%");
+        });
+
+        // Optional status filter — OT: "Active,Admitted", default: sab
+        if ($request->filled('status')) {
+            $statuses = explode(',', $request->status);
+            $query->whereIn('status', $statuses);
+        }
+
+        $patients = $query->limit(10)
+            ->get(['id', 'mrn', 'name', 'phone', 'patient_type', 'status']);
 
         return response()->json($patients);
     }

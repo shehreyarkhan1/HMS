@@ -88,7 +88,7 @@ class OtScheduleController extends Controller
 
     public function create()
     {
-        $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        // $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
 
         // 1. Surgeons: Inhein bhi filter karein taake sirf 'Surgery' department wale aayen
         $surgeons = Doctor::with('employee')
@@ -115,12 +115,16 @@ class OtScheduleController extends Controller
             ->orderBy('first_name')
             ->get();
 
+    $selectedPatient = null; // ← ADD KARO
+
         return view('operationtheater.operation_create', compact(
-            'patients',
+
             'surgeons',
             'anesthesiologists',
             'rooms',
-            'employees'
+            'employees',
+            'selectedPatient' // ← ADD KARO
+
         ));
     }
 
@@ -210,7 +214,9 @@ class OtScheduleController extends Controller
 
         $ot->load('teamMembers');
 
-        $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        // $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+
+    $selectedPatient = $ot->patient; // ← ADD KARO
         $surgeons = Doctor::with('employee')
             ->where('is_active', true)
             ->whereHas('employee', function ($q) {
@@ -230,7 +236,7 @@ class OtScheduleController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        return view('operationtheater.operation_edit', compact('ot', 'patients', 'surgeons', 'anesthesiologists', 'rooms', 'employees'));
+        return view('operationtheater.operation_edit', compact('ot', 'selectedPatient', 'surgeons', 'anesthesiologists', 'rooms', 'employees'));
     }
 
     // ── UPDATE ───────────────────────────────────────────────────────────

@@ -561,7 +561,7 @@
                         <div class="row g-3">
 
                             {{-- Patient Search --}}
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="form-label-sm">Patient <span style="color:#dc2626">*</span></div>
 
                                 {{-- Hidden input jo actual patient_id submit karega --}}
