@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\OperationTheater;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\OtSchedule;
-use App\Models\OtRoom;
-use App\Models\Patient;
+use App\Models\BillServiceCharge;
 use App\Models\Doctor;
 use App\Models\Employee;
-use App\Models\OtTeam;
+use App\Models\OtRoom;
+use App\Models\OtSchedule;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OtScheduleController extends Controller
@@ -34,8 +33,7 @@ class OtScheduleController extends Controller
                     ->orWhere('diagnosis', 'like', "%$search%")
                     ->orWhereHas(
                         'patient',
-                        fn($q) =>
-                        $q->where('name', 'like', "%$search%")
+                        fn ($q) => $q->where('name', 'like', "%$search%")
                             ->orWhere('mrn', 'like', "%$search%")
                     );
             });
@@ -88,43 +86,30 @@ class OtScheduleController extends Controller
 
     public function create()
     {
-        // $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
-
-        // 1. Surgeons: Inhein bhi filter karein taake sirf 'Surgery' department wale aayen
         $surgeons = Doctor::with('employee')
             ->where('is_active', true)
-            ->whereHas('employee', function ($q) {
-                $q->where('department', 'LIKE', '%Surgery%');
-            })->get();
+            ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Surgery%'))
+            ->get();
 
-        // 2. Anesthesiologists: Ismein LIKE use karein dash ke masle se bachne ke liye
         $anesthesiologists = Doctor::with('employee')
             ->where('is_active', true)
-            ->whereHas('employee', function ($q) {
-                // Hum 'Anesthesia' lafz ko search kar rahe hain
-                $q->where('department', 'LIKE', '%Anesthesia%');
-            })->get();
+            ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Anesthesia%'))
+            ->get();
 
         $rooms = OtRoom::where('status', 'Available')->orderBy('room_code')->get();
 
-        // Nursing staff
         $employees = Employee::where(function ($query) {
             $query->where('department', 'LIKE', '%Anesthesia%')
                 ->orWhere('department', 'LIKE', '%Nursing%');
-        })
-            ->orderBy('first_name')
-            ->get();
+        })->orderBy('first_name')->get();
 
-    $selectedPatient = null; // ← ADD KARO
+        $selectedPatient = null;
+        $defaultCharges = $this->getDefaultOtCharges(); // ← ADD
 
         return view('operationtheater.operation_create', compact(
-
-            'surgeons',
-            'anesthesiologists',
-            'rooms',
-            'employees',
-            'selectedPatient' // ← ADD KARO
-
+            'surgeons', 'anesthesiologists', 'rooms', 'employees',
+            'selectedPatient',
+            'defaultCharges'   // ← ADD
         ));
     }
 
@@ -152,6 +137,10 @@ class OtScheduleController extends Controller
             'pre_op_assessment_done' => 'boolean',
             'pre_op_assessment_notes' => 'nullable|string',
             'notes' => 'nullable|string',
+            'surgeon_fee' => 'nullable|numeric|min:0',
+            'anesthesia_fee' => 'nullable|numeric|min:0',
+            'ot_room_charges' => 'nullable|numeric|min:0',
+            'consumables_charges' => 'nullable|numeric|min:0',
 
             // Team members (array)
             'team' => 'nullable|array',
@@ -171,9 +160,9 @@ class OtScheduleController extends Controller
             ));
 
             // Save team members
-            if (!empty($validated['team'])) {
+            if (! empty($validated['team'])) {
                 foreach ($validated['team'] as $member) {
-                    if (!empty($member['doctor_id']) || !empty($member['employee_id'])) {
+                    if (! empty($member['doctor_id']) || ! empty($member['employee_id'])) {
                         $schedule->teamMembers()->create($member);
                     }
                 }
@@ -210,40 +199,41 @@ class OtScheduleController extends Controller
 
     public function edit(OtSchedule $ot)
     {
-        abort_if(!$ot->isEditable(), 403, 'This surgery record cannot be edited.');
+        abort_if(! $ot->isEditable(), 403, 'This surgery record cannot be edited.');
 
         $ot->load('teamMembers');
 
-        // $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        $selectedPatient = $ot->patient;
+        $defaultCharges = $this->getDefaultOtCharges(); // ← ADD
 
-    $selectedPatient = $ot->patient; // ← ADD KARO
         $surgeons = Doctor::with('employee')
             ->where('is_active', true)
-            ->whereHas('employee', function ($q) {
-                $q->where('department', 'LIKE', '%Surgery%');
-            })->get();
+            ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Surgery%'))
+            ->get();
+
         $anesthesiologists = Doctor::with('employee')
             ->where('is_active', true)
-            ->whereHas('employee', function ($q) {
-                // Hum 'Anesthesia' lafz ko search kar rahe hain
-                $q->where('department', 'LIKE', '%Anesthesia%');
-            })->get();
+            ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Anesthesia%'))
+            ->get();
+
         $rooms = OtRoom::active()->orderBy('room_code')->get();
         $employees = Employee::where(function ($query) {
             $query->where('department', 'LIKE', '%Anesthesia%')
                 ->orWhere('department', 'LIKE', '%Nursing%');
-        })
-            ->orderBy('first_name')
-            ->get();
+        })->orderBy('first_name')->get();
 
-        return view('operationtheater.operation_edit', compact('ot', 'selectedPatient', 'surgeons', 'anesthesiologists', 'rooms', 'employees'));
+        return view('operationtheater.operation_edit', compact(
+            'ot', 'selectedPatient', 'surgeons', 'anesthesiologists',
+            'rooms', 'employees',
+            'defaultCharges'   // ← ADD
+        ));
     }
 
     // ── UPDATE ───────────────────────────────────────────────────────────
 
     public function update(Request $request, OtSchedule $ot)
     {
-        abort_if(!$ot->isEditable(), 403, 'This surgery record cannot be edited.');
+        abort_if(! $ot->isEditable(), 403, 'This surgery record cannot be edited.');
 
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
@@ -272,6 +262,10 @@ class OtScheduleController extends Controller
             'cancellation_reason' => 'nullable|string|max:500',
             'rescheduled_date' => 'nullable|date',
             'notes' => 'nullable|string',
+            'surgeon_fee' => 'nullable|numeric|min:0',
+            'anesthesia_fee' => 'nullable|numeric|min:0',
+            'ot_room_charges' => 'nullable|numeric|min:0',
+            'consumables_charges' => 'nullable|numeric|min:0',
 
             'team' => 'nullable|array',
             'team.*.role' => 'required|string',
@@ -292,9 +286,9 @@ class OtScheduleController extends Controller
 
             // Sync team
             $ot->teamMembers()->delete();
-            if (!empty($validated['team'])) {
+            if (! empty($validated['team'])) {
                 foreach ($validated['team'] as $member) {
-                    if (!empty($member['doctor_id']) || !empty($member['employee_id'])) {
+                    if (! empty($member['doctor_id']) || ! empty($member['employee_id'])) {
                         $ot->teamMembers()->create($member);
                     }
                 }
@@ -338,10 +332,10 @@ class OtScheduleController extends Controller
 
         $data = ['status' => $request->status];
 
-        if ($request->status === 'In-Progress' && !$ot->actual_start_time) {
+        if ($request->status === 'In-Progress' && ! $ot->actual_start_time) {
             $data['actual_start_time'] = now();
         }
-        if ($request->status === 'Completed' && !$ot->actual_end_time) {
+        if ($request->status === 'Completed' && ! $ot->actual_end_time) {
             $data['actual_end_time'] = now();
         }
 
@@ -366,5 +360,20 @@ class OtScheduleController extends Controller
         if ($activeCount === 0) {
             OtRoom::find($roomId)?->update(['status' => 'Available']);
         }
+    }
+
+    private function getDefaultOtCharges(): array
+    {
+        $charges = BillServiceCharge::where('category', 'OT Charges')
+            ->where('is_active', 1)
+            ->get()
+            ->keyBy('ot_type');
+
+        return [
+            'surgeon_fee' => $charges->get('surgeon_fee')?->default_price ?? 0,
+            'anesthesia_fee' => $charges->get('anesthesia_fee')?->default_price ?? 0,
+            'ot_room_charges' => $charges->get('ot_room')?->default_price ?? 0,
+            'consumables_charges' => $charges->get('ot_consumables')?->default_price ?? 0,
+        ];
     }
 }

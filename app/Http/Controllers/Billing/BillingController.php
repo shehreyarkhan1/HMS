@@ -14,6 +14,7 @@ use App\Models\DeathCertificate;
 use App\Models\Dispensing;
 use App\Models\LabOrder;
 use App\Models\MortuaryRecord;
+use App\Models\OtSchedule;
 use App\Models\Patient;
 use App\Models\RadiologyOrder;
 use Carbon\Carbon;
@@ -553,6 +554,72 @@ class BillingController extends Controller
                     'reference_id' => $mortuaryRecord->id,
                     'quantity' => $days,
                     'unit_price' => $charge->default_price,
+                    'discount' => 0,
+                ];
+            }
+        }
+        // 9. OT / Surgery Charges — directly from OtSchedule columns
+        $otSchedules = OtSchedule::where('patient_id', $patientId)
+            ->where('status', 'Completed')
+            ->where('billing_status', 'Unbilled')
+            ->whereDoesntHave('billItems', function ($query) {
+                $query->where('reference_type', 'ot_schedules');
+            })
+            ->with(['surgeon.employee', 'otRoom'])
+            ->get();
+
+        foreach ($otSchedules as $ot) {
+            $surgeonName = trim(
+                ($ot->surgeon->employee->first_name ?? '').' '.
+                ($ot->surgeon->employee->last_name ?? '')
+            ) ?: 'Surgeon';
+            $roomName = $ot->otRoom->name ?? 'OT Room';
+            $hours = max(1, (int) ceil(
+                ($ot->actual_duration_mins ?? $ot->estimated_duration_mins) / 60
+            ));
+
+            // 1. Surgeon Fee — directly from ot_schedules table
+            $services[] = [
+                'service_type' => 'OT Charges',
+                'description' => "Surgeon Fee: Dr. {$surgeonName} ({$ot->surgery_id})",
+                'reference_type' => 'ot_schedules',
+                'reference_id' => $ot->id,
+                'quantity' => 1,
+                'unit_price' => (float) $ot->surgeon_fee,
+                'discount' => 0,
+            ];
+
+            // 2. Anesthesia Fee — directly from ot_schedules table
+            $services[] = [
+                'service_type' => 'OT Charges',
+                'description' => "Anesthesia Fee ({$ot->anesthesia_type}) — {$ot->surgery_id}",
+                'reference_type' => 'ot_schedules',
+                'reference_id' => $ot->id,
+                'quantity' => 1,
+                'unit_price' => (float) $ot->anesthesia_fee,
+                'discount' => 0,
+            ];
+
+            // 3. OT Room Charges — per hour, directly from ot_schedules table
+            $services[] = [
+                'service_type' => 'OT Charges',
+                'description' => "OT Room: {$roomName} ({$ot->surgery_id})",
+                'reference_type' => 'ot_schedules',
+                'reference_id' => $ot->id,
+                'quantity' => $hours,
+                'unit_price' => (float) $ot->ot_room_charges,
+                'discount' => 0,
+            ];
+
+            // 4. Consumables — sirf tab add karo jab > 0
+            if ($ot->consumables_charges > 0) {
+                $services[] = [
+                    'service_type' => 'OT Charges',
+                    'description' => "OT Consumables — {$ot->surgery_id}",
+                    'reference_type' => 'ot_schedules',
+                    'reference_id' => $ot->id,
+                    'quantity' => 1,
+                    'unit_price' => (float) $ot->consumables_charges,
                     'discount' => 0,
                 ];
             }

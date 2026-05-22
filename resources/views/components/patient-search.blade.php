@@ -19,7 +19,7 @@
     'name' => 'patient_id',
     'required' => true,
     'label' => 'Patient',
-    'filter'=>null, // future use: filter by status/type if needed
+    'filter' => null, // future use: filter by status/type if needed
 ])
 
 @php
@@ -308,7 +308,9 @@
             showMsg('hourglass-split', 'Searching...');
 
             searchTimeout = setTimeout(function() {
-                fetch('/billing/ajax/patient-search?q=' + encodeURIComponent(q) + '@if($filter)&status={{ $filter }}@endif')
+                fetch('/billing/ajax/patient-search?q=' + encodeURIComponent(q) +
+                        '@if ($filter)&status={{ $filter }}@endif'
+                        )
                     .then(r => r.json())
                     .then(function(patients) {
                         if (!patients.length) {

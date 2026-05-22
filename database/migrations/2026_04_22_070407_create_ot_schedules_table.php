@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -103,6 +104,11 @@ return new class extends Migration {
             $table->string('postpone_reason')->nullable();
             $table->string('cancellation_reason')->nullable();
             $table->date('rescheduled_date')->nullable();
+            $table->enum('billing_status', ['Unbilled', 'Billed', 'Partial', 'Paid'])->default('Unbilled');
+            $table->decimal('surgeon_fee', 10, 2)->default(0);
+            $table->decimal('anesthesia_fee', 10, 2)->default(0);
+            $table->decimal('ot_room_charges', 10, 2)->default(0);
+            $table->decimal('consumables_charges', 10, 2)->default(0);
 
             // ── BOOKED BY ────────────────────────────────────────────
             $table->foreignId('booked_by')

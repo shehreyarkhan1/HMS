@@ -996,8 +996,8 @@
                         let skipped = 0;
 
                         list.forEach(s => {
-                            // Duplicate check — reference_type + reference_id se
-                            const refKey = `${s.reference_type}_${s.reference_id}`;
+                            // OT items sab ka same reference_id hota hai — description bhi add karo
+                            const refKey = `${s.reference_type}_${s.reference_id}_${s.description}`;
 
                             if (s.reference_type && s.reference_id && loadedRefs.has(refKey)) {
                                 skipped++;

@@ -278,7 +278,72 @@
                         </div>
                     </div>
                 </div>
-
+                {{-- ── OT CHARGES ─────────────────────────────────────────────────── --}}
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-currency-rupee"></i>
+                        OT Charges
+                        <span style="font-size:11px;color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">
+                            — billing mein automatically load honge
+                        </span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Surgeon Fee</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="font-size:13px">Rs.</span>
+                                <input type="number" name="surgeon_fee" class="form-control"
+                                    value="{{ old('surgeon_fee', $defaultCharges['surgeon_fee']) }}" min="0"
+                                    step="0.01" placeholder="0.00">
+                            </div>
+                            @error('surgeon_fee')
+                                <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Anesthesia Fee</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="font-size:13px">Rs.</span>
+                                <input type="number" name="anesthesia_fee" class="form-control"
+                                    value="{{ old('anesthesia_fee', $defaultCharges['anesthesia_fee']) }}" min="0"
+                                    step="0.01" placeholder="0.00">
+                            </div>
+                            @error('anesthesia_fee')
+                                <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">OT Room Charges</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="font-size:13px">Rs.</span>
+                                <input type="number" name="ot_room_charges" class="form-control"
+                                    value="{{ old('ot_room_charges', $defaultCharges['ot_room_charges']) }}"
+                                    min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            @error('ot_room_charges')
+                                <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Consumables</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="font-size:13px">Rs.</span>
+                                <input type="number" name="consumables_charges" class="form-control"
+                                    value="{{ old('consumables_charges', $defaultCharges['consumables_charges']) }}"
+                                    min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            @error('consumables_charges')
+                                <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    {{-- Live total --}}
+                    <div class="mt-3 p-2 rounded d-flex justify-content-between align-items-center"
+                        style="background:#f8fafc;border:1px solid #e2e8f0">
+                        <span style="font-size:12px;color:#94a3b8">Estimated Total OT Cost</span>
+                        <strong id="ot-total" style="font-size:16px;color:#6366f1">Rs. 0.00</strong>
+                    </div>
+                </div>
                 {{-- OT Team --}}
                 <div class="form-section">
                     <div class="section-title">
@@ -473,5 +538,23 @@
                     this.closest('.team-row').remove();
                 });
         });
+
+        // ── OT Charges live total ──────────────────────────────────────────────
+        (function() {
+            const fields = ['surgeon_fee', 'anesthesia_fee', 'ot_room_charges', 'consumables_charges'];
+            const totalEl = document.getElementById('ot-total');
+
+            function recalc() {
+                const total = fields.reduce((sum, name) => {
+                    return sum + (parseFloat(document.querySelector(`[name="${name}"]`)?.value) || 0);
+                }, 0);
+                totalEl.textContent = 'Rs. ' + total.toLocaleString('en-PK', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+            fields.forEach(name => document.querySelector(`[name="${name}"]`)?.addEventListener('input', recalc));
+            recalc();
+        })();
     </script>
 @endpush

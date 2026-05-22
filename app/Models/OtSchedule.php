@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OtSchedule extends Model
 {
@@ -43,6 +43,11 @@ class OtSchedule extends Model
         'postpone_reason',
         'cancellation_reason',
         'rescheduled_date',
+        'billing_status',        // ← already tha, confirm
+        'surgeon_fee',           // ← NEW
+        'anesthesia_fee',        // ← NEW
+        'ot_room_charges',       // ← NEW
+        'consumables_charges',   // ← NEW
         'booked_by',
         'notes',
     ];
@@ -55,6 +60,10 @@ class OtSchedule extends Model
         'rescheduled_date' => 'date',
         'consent_obtained' => 'boolean',
         'pre_op_assessment_done' => 'boolean',
+        'surgeon_fee' => 'decimal:2',  // ← NEW
+        'anesthesia_fee' => 'decimal:2',  // ← NEW
+        'ot_room_charges' => 'decimal:2',  // ← NEW
+        'consumables_charges' => 'decimal:2',  // ← NEW
     ];
 
     // ── AUTO-GENERATE SURGERY ID ─────────────────────────────────────────
@@ -65,7 +74,7 @@ class OtSchedule extends Model
             if (empty($schedule->surgery_id)) {
                 $latest = static::withTrashed()->latest('id')->first();
                 $next = $latest ? ((int) substr($latest->surgery_id, 4)) + 1 : 1;
-                $schedule->surgery_id = 'SRG-' . str_pad($next, 5, '0', STR_PAD_LEFT);
+                $schedule->surgery_id = 'SRG-'.str_pad($next, 5, '0', STR_PAD_LEFT);
             }
         });
     }
@@ -101,6 +110,13 @@ class OtSchedule extends Model
     {
         return $this->hasMany(OtTeam::class);
     }
+    // OtSchedule.php model ke andar
+
+    public function billItems(): MorphMany
+    {
+        // 'reference' wahi naam hai jo BillItem model mein morphTo() ke liye use hua hai
+        return $this->morphMany(BillItem::class, 'reference');
+    }
 
     // ── COMPUTED ATTRIBUTES ──────────────────────────────────────────────
 
@@ -109,6 +125,7 @@ class OtSchedule extends Model
         if ($this->actual_start_time && $this->actual_end_time) {
             return (int) $this->actual_start_time->diffInMinutes($this->actual_end_time);
         }
+
         return null;
     }
 
@@ -119,6 +136,13 @@ class OtSchedule extends Model
             ->format('H:i');
     }
 
+    public function getTotalOtCostAttribute(): float
+    {
+        return (float) $this->surgeon_fee
+            + (float) $this->anesthesia_fee
+            + (float) $this->ot_room_charges
+            + (float) $this->consumables_charges;
+    }
     // ── HELPERS ──────────────────────────────────────────────────────────
 
     public function statusColor(): string

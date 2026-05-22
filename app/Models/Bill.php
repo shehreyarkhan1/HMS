@@ -18,15 +18,15 @@ class Bill extends Model
     ];
 
     protected $casts = [
-        'bill_date'     => 'date',
-        'finalized_at'  => 'datetime',
-        'cancelled_at'  => 'datetime',
-        'subtotal'      => 'decimal:2',
+        'bill_date' => 'date',
+        'finalized_at' => 'datetime',
+        'cancelled_at' => 'datetime',
+        'subtotal' => 'decimal:2',
         'discount_amount' => 'decimal:2',
-        'tax_amount'    => 'decimal:2',
-        'net_amount'    => 'decimal:2',
-        'paid_amount'   => 'decimal:2',
-        'due_amount'    => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'net_amount' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
+        'due_amount' => 'decimal:2',
     ];
 
     // ─── Relationships ────────────────────────────────────────────────
@@ -99,7 +99,7 @@ class Bill extends Model
 
     public function recalculateTotals(): void
     {
-        $subtotal  = $this->items()->sum('total_price');
+        $subtotal = $this->items()->sum('total_price');
         $netAmount = max(0, $subtotal - $this->discount_amount + $this->tax_amount);
         $dueAmount = max(0, $netAmount - $this->paid_amount);
 
@@ -111,9 +111,9 @@ class Bill extends Model
         }
 
         $this->update([
-            'subtotal'       => $subtotal,
-            'net_amount'     => $netAmount,
-            'due_amount'     => $dueAmount,
+            'subtotal' => $subtotal,
+            'net_amount' => $netAmount,
+            'due_amount' => $dueAmount,
             'payment_status' => $paymentStatus,
         ]);
     }
@@ -138,7 +138,7 @@ class Bill extends Model
      */
     public function syncSourcePayments(): void
     {
-        $isPaid    = $this->payment_status === 'Paid';
+        $isPaid = $this->payment_status === 'Paid';
         $isPartial = $this->payment_status === 'Partial';
 
         // Load all linked items once — avoid N+1
@@ -169,14 +169,14 @@ class Bill extends Model
 
                         $record->update([
                             'payment_status' => $this->payment_status,
-                            'paid_amount'    => $isPaid
+                            'paid_amount' => $isPaid
                                 ? ($record->total_amount ?? 0)
                                 : $record->paid_amount,
                         ]);
                     }
                     break;
 
-                // ── 2. Radiology Orders ───────────────────────────────
+                    // ── 2. Radiology Orders ───────────────────────────────
                 case 'radiology_orders':
                     foreach ($ids as $id) {
                         $record = RadiologyOrder::find($id);
@@ -186,14 +186,14 @@ class Bill extends Model
 
                         $record->update([
                             'payment_status' => $this->payment_status,
-                            'paid_amount'    => $isPaid
+                            'paid_amount' => $isPaid
                                 ? ($record->net_amount ?? 0)
                                 : $record->paid_amount,
                         ]);
                     }
                     break;
 
-                // ── 3. Pharmacy Dispensings ───────────────────────────
+                    // ── 3. Pharmacy Dispensings ───────────────────────────
                 case 'dispensings':
                     foreach ($ids as $id) {
                         $record = Dispensing::find($id);
@@ -203,16 +203,16 @@ class Bill extends Model
 
                         $record->update([
                             'payment_status' => $this->payment_status,
-                            'paid_amount'    => $isPaid
+                            'paid_amount' => $isPaid
                                 ? ($record->total_amount ?? 0)
                                 : $record->paid_amount,
                         ]);
                     }
                     break;
 
-                // ── 4. Death Certificates ─────────────────────────────
-                // fee_paid sirf tab true hogi jab bill fully Paid ho.
-                // bill_id hamesha link karo (even on partial) for traceability.
+                    // ── 4. Death Certificates ─────────────────────────────
+                    // fee_paid sirf tab true hogi jab bill fully Paid ho.
+                    // bill_id hamesha link karo (even on partial) for traceability.
                 case 'death_certificates':
                     foreach ($ids as $id) {
                         $record = DeathCertificate::find($id);
@@ -221,14 +221,14 @@ class Bill extends Model
                         }
 
                         $record->update([
-                            'bill_id'  => $this->id,
+                            'bill_id' => $this->id,
                             'fee_paid' => $isPaid,
                         ]);
                     }
                     break;
 
-                // ── 5. Mortuary Records ───────────────────────────────
-                // Body storage charges — track karo ke bill ho gaya
+                    // ── 5. Mortuary Records ───────────────────────────────
+                    // Body storage charges — track karo ke bill ho gaya
                 case 'mortuary_records':
                     foreach ($ids as $id) {
                         $record = MortuaryRecord::find($id);
@@ -242,7 +242,7 @@ class Bill extends Model
                     }
                     break;
 
-                // ── 6. Blood Requests ─────────────────────────────────
+                    // ── 6. Blood Requests ─────────────────────────────────
                 case 'blood_requests':
                     foreach ($ids as $id) {
                         $record = BloodRequest::find($id);
@@ -256,7 +256,7 @@ class Bill extends Model
                     }
                     break;
 
-                // ── 7. Appointments (Consultation Fee) ───────────────
+                    // ── 7. Appointments (Consultation Fee) ───────────────
                 case 'appointments':
                     foreach ($ids as $id) {
                         $record = Appointment::find($id);
@@ -270,8 +270,8 @@ class Bill extends Model
                     }
                     break;
 
-                // ── 8. Beds (IPD Bed Charges) ─────────────────────────
-                // billing_status track karo — bed release logic alag hai
+                    // ── 8. Beds (IPD Bed Charges) ─────────────────────────
+                    // billing_status track karo — bed release logic alag hai
                 case 'beds':
                     foreach ($ids as $id) {
                         $record = Bed::find($id);
@@ -285,7 +285,20 @@ class Bill extends Model
                     }
                     break;
 
-                // ── Unknown reference types — silently skip ───────────
+                    // ── 9. OT Schedules ───────────────────────────────────
+                case 'ot_schedules':
+                    foreach ($ids as $id) {
+                        $record = OtSchedule::find($id);
+                        if (! $record) {
+                            continue;
+                        }
+                        $record->update([
+                            'billing_status' => $isPaid ? 'Paid' : ($isPartial ? 'Partial' : 'Billed'),
+                        ]);
+                    }
+                    break;
+
+                    // ── Unknown reference types — silently skip ───────────
                 default:
                     break;
             }
@@ -296,7 +309,7 @@ class Bill extends Model
 
     public static function generateBillNumber(): string
     {
-        $year  = date('Y');
+        $year = date('Y');
         $count = self::whereYear('created_at', $year)->withTrashed()->count() + 1;
 
         return 'BILL-'.$year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);
