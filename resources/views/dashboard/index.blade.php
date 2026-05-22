@@ -12,6 +12,7 @@
             border-radius: 12px;
             padding: 20px;
             transition: box-shadow 0.2s;
+            height: 100%;
         }
 
         .stat-card:hover {
@@ -19,37 +20,133 @@
         }
 
         .stat-icon-box {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
-        .stat-label {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 4px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .stat-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 14px;
         }
 
-        .stat-value {
-            font-size: 26px;
-            font-weight: 700;
+        .stat-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-card-title-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card-sub {
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.3;
+        }
+
+        .stat-card-title {
+            font-size: 14px;
+            font-weight: 600;
             color: #1e293b;
-            line-height: 1;
+            line-height: 1.3;
         }
 
-        .stat-change {
-            font-size: 12px;
-            margin-top: 6px;
+        .stat-live-badge {
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
+        .stat-numbers-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 0;
+            margin-bottom: 14px;
+        }
+
+        .stat-num-col {
+            flex: 1;
+            text-align: center;
+            padding: 0 8px;
+        }
+
+        .stat-num-col+.stat-num-col {
+            border-left: 1px solid #e5e7eb;
+        }
+
+        .stat-num-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .stat-num-value {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .stat-num-hint {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 1px;
+        }
+
+        .stat-divider-v {
+            width: 1px;
+            background: #e5e7eb;
+            align-self: stretch;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .stat-bar-row {
+            margin-top: auto;
+        }
+
+        .stat-bar-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .stat-bar-track {
+            height: 5px;
+            background: #f1f5f9;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        .stat-bar-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ── Bottom sections ── */
         .card-section {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -106,7 +203,6 @@
             white-space: nowrap;
         }
 
-        /* Patient status */
         .badge-Active {
             background: #dcfce7;
             color: #166534;
@@ -127,7 +223,6 @@
             color: #991b1b;
         }
 
-        /* Appointment status */
         .badge-Scheduled {
             background: #eff6ff;
             color: #1d4ed8;
@@ -171,19 +266,6 @@
             transition: width 1s ease;
         }
 
-        .appt-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        /* Occupancy bar color hints */
         .bar-low {
             background: #16a34a !important;
         }
@@ -195,6 +277,18 @@
         .bar-high {
             background: #dc2626 !important;
         }
+
+        .appt-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
     </style>
 @endpush
 
@@ -203,108 +297,253 @@
     {{-- ===== STATS ROW ===== --}}
     <div class="row g-3 mb-4">
 
-        {{-- Total Patients --}}
+        {{-- ── 1. Total Patients ── --}}
         <div class="col-6 col-xl-3">
             <div class="stat-card">
-                <div class="stat-icon-box" style="background:#eff6ff">
-                    <i class="bi bi-people" style="color:#1d4ed8"></i>
-                </div>
-                <div class="stat-label">Total patients</div>
-                <div class="stat-value">{{ number_format($patient) }}</div>
-                @php $pg = $patientGrowth; @endphp
-                <div class="stat-change {{ $pg >= 0 ? 'text-success' : 'text-danger' }}">
-                    <i class="bi bi-arrow-{{ $pg >= 0 ? 'up' : 'down' }}-short"></i>
-                    @if ($pg == 0)
-                        No change this month
-                    @else
-                        {{ $pg > 0 ? '+' : '' }}{{ $pg }}% this month
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- Today's Appointments --}}
-        <div class="col-6 col-xl-3">
-            <div class="stat-card">
-                <div class="stat-icon-box" style="background:#f0fdf4">
-                    <i class="bi bi-calendar-check" style="color:#16a34a"></i>
-                </div>
-                <div class="stat-label">Today's appointments</div>
-                <div class="stat-value">{{ number_format($appointment) }}</div>
-                @php $ac = $appointmentChange; @endphp
-                <div class="stat-change {{ $ac >= 0 ? 'text-success' : 'text-danger' }}">
-                    <i class="bi bi-arrow-{{ $ac >= 0 ? 'up' : 'down' }}-short"></i>
-                    @if ($ac == 0)
-                        Same as yesterday
-                    @else
-                        {{ $ac > 0 ? '+' : '' }}{{ $ac }} from yesterday
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- Available Beds --}}
-        <div class="col-6 col-xl-3">
-            <div class="stat-card">
-                <div class="stat-icon-box" style="background:#f0fdfa">
-                    <i class="bi bi-hospital" style="color:#0f766e"></i>
-                </div>
-                <div class="stat-label">Available beds</div>
-                <div class="stat-value">{{ $availableBeds ?? '34' }}</div>
-                <div class="stat-change text-danger">
-                    <i class="bi bi-arrow-down-short"></i> -6 from last week
-                </div>
-            </div>
-        </div>
-
-        {{-- Revenue Card --}}
-        <div class="col-6 col-xl-3">
-            <div class="stat-card">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="stat-icon-box" style="background:#fffbeb">
-                        <i class="bi bi-cash-stack" style="color:#d97706"></i>
-                    </div>
-                    <div>
-                        <div class="stat-label mb-0">Revenue</div>
-                        <small class="text-muted" style="font-size:11px">Today · Month · Total</small>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-stretch gap-2">
-
-                    {{-- Today --}}
-                    <div class="flex-fill text-center px-1">
-                        <div class="text-muted" style="font-size:11px">Today</div>
-                        <div class="fw-semibold" style="font-size:15px">
-                            Rs {{ number_format($todayRevenue) }}
+                <div class="stat-card-header">
+                    <div class="stat-card-header-left">
+                        <div class="stat-icon-box" style="background:#eff6ff">
+                            <i class="bi bi-people" style="color:#1d4ed8"></i>
+                        </div>
+                        <div class="stat-card-title-group">
+                            <span class="stat-card-sub">Hospital</span>
+                            <span class="stat-card-title">Patients</span>
                         </div>
                     </div>
+                    @php $pg = $patientGrowth; @endphp
+                    <span class="stat-live-badge"
+                        style="background:{{ $pg >= 0 ? '#dcfce7' : '#fee2e2' }};
+                           color:{{ $pg >= 0 ? '#166534' : '#991b1b' }};
+                           border:1px solid {{ $pg >= 0 ? '#bbf7d0' : '#fecaca' }}">
+                        {{ $pg >= 0 ? '+' : '' }}{{ $pg }}%
+                    </span>
+                </div>
 
-                    <div style="width:1px; background:#e5e7eb; align-self:stretch"></div>
+                <div class="stat-numbers-box">
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">Total</div>
+                        <div class="stat-num-value" style="color:#1d4ed8">
+                            {{ number_format($patient) }}
+                        </div>
+                        <div class="stat-num-hint">all time</div>
+                    </div>
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">This month</div>
+                        <div class="stat-num-value" style="color:#1e293b">
+                            {{ \App\Models\Patient::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count() }}
+                        </div>
+                        <div class="stat-num-hint">registered</div>
+                    </div>
+                </div>
 
-                    {{-- This Month --}}
-                    <div class="flex-fill text-center px-1">
-                        <div class="text-muted" style="font-size:11px">{{ now()->format('M') }}</div>
-                        <div class="fw-semibold" style="font-size:15px">
-                            Rs {{ number_format($monthRevenue) }}
+                <div class="stat-bar-row">
+                    <div class="stat-bar-meta">
+                        <span style="font-size:11px;color:#6b7280">Monthly growth</span>
+                        <span style="font-size:11px;font-weight:600;color:#1e293b">{{ abs($pg) }}%</span>
+                    </div>
+                    <div class="stat-bar-track">
+                        <div class="stat-bar-fill"
+                            style="width:{{ min(abs($pg), 100) }}%;
+                                background:{{ $pg >= 0 ? '#1d4ed8' : '#dc2626' }}">
                         </div>
                     </div>
-
-                    <div style="width:1px; background:#e5e7eb; align-self:stretch"></div>
-
-                    {{-- Total --}}
-                    <div class="flex-fill text-center px-1">
-                        <div class="text-muted" style="font-size:11px">Total</div>
-                        <div class="fw-semibold" style="font-size:15px">
-                            Rs {{ number_format($totalRevenue) }}
-                        </div>
+                    <div class="stat-bar-footer">
+                        <span style="font-size:11px;color:#6b7280">
+                            <span style="color:{{ $pg >= 0 ? '#16a34a' : '#dc2626' }};font-weight:500">
+                                <i class="bi bi-arrow-{{ $pg >= 0 ? 'up' : 'down' }}-short"></i>
+                                {{ $pg >= 0 ? 'Growing' : 'Declining' }}
+                            </span> vs last month
+                        </span>
                     </div>
-
                 </div>
             </div>
         </div>
+
+        {{-- ── 2. Today's Appointments ── --}}
+        <div class="col-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-header-left">
+                        <div class="stat-icon-box" style="background:#f0fdf4">
+                            <i class="bi bi-calendar-check" style="color:#16a34a"></i>
+                        </div>
+                        <div class="stat-card-title-group">
+                            <span class="stat-card-sub">Schedule</span>
+                            <span class="stat-card-title">Appointments</span>
+                        </div>
+                    </div>
+                    @php $ac = $appointmentChange; @endphp
+                    <span class="stat-live-badge" style="background:#f0fdf4;color:#0f766e;border:1px solid #99f6e4">
+                        Live
+                    </span>
+                </div>
+
+                <div class="stat-numbers-box">
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">Today</div>
+                        <div class="stat-num-value" style="color:#16a34a">
+                            {{ number_format($appointment) }}
+                        </div>
+                        <div class="stat-num-hint">{{ now()->format('d M') }}</div>
+                    </div>
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">Yesterday</div>
+                        <div class="stat-num-value" style="color:#1e293b">
+                            {{ $appointment - $ac }}
+                        </div>
+                        <div class="stat-num-hint">{{ now()->subDay()->format('d M') }}</div>
+                    </div>
+                </div>
+
+                <div class="stat-bar-row">
+                    <div class="stat-bar-meta">
+                        <span style="font-size:11px;color:#6b7280">vs yesterday</span>
+                        <span
+                            style="font-size:11px;font-weight:600;
+                                 color:{{ $ac >= 0 ? '#16a34a' : '#dc2626' }}">
+                            {{ $ac >= 0 ? '+' : '' }}{{ $ac }}
+                        </span>
+                    </div>
+                    <div class="stat-bar-track">
+                        @php
+                            $apptMax = max($appointment, $appointment - $ac, 1);
+                            $apptPct = round(($appointment / $apptMax) * 100);
+                        @endphp
+                        <div class="stat-bar-fill" style="width:{{ $apptPct }}%;background:#16a34a">
+                        </div>
+                    </div>
+                    <div class="stat-bar-footer">
+                        <span style="font-size:11px;color:#6b7280">
+                            @if ($ac == 0)
+                                Same as yesterday
+                            @elseif($ac > 0)
+                                <span style="color:#16a34a;font-weight:500">
+                                    <i class="bi bi-arrow-up-short"></i>{{ $ac }} more
+                                </span> than yesterday
+                            @else
+                                <span style="color:#dc2626;font-weight:500">
+                                    <i class="bi bi-arrow-down-short"></i>{{ abs($ac) }} fewer
+                                </span> than yesterday
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── 3. Beds & Wards ── --}}
+        <div class="col-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-header-left">
+                        <div class="stat-icon-box" style="background:#f0fdfa">
+                            <i class="bi bi-hospital" style="color:#0f766e"></i>
+                        </div>
+                        <div class="stat-card-title-group">
+                            <span class="stat-card-sub">Bed management</span>
+                            <span class="stat-card-title">Wards & beds</span>
+                        </div>
+                    </div>
+                    <span class="stat-live-badge" style="background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4">
+                        Live
+                    </span>
+                </div>
+
+                <div class="stat-numbers-box">
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">Available beds</div>
+                        <div class="stat-num-value" style="color:#0f766e">{{ $availableBeds }}</div>
+                        <div class="stat-num-hint">of {{ $totalBeds }} total</div>
+                    </div>
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">Active wards</div>
+                        <div class="stat-num-value" style="color:#1e293b">{{ $totalWards }}</div>
+                        <div class="stat-num-hint">all operational</div>
+                    </div>
+                </div>
+
+                <div class="stat-bar-row">
+                    <div class="stat-bar-meta">
+                        <span style="font-size:11px;color:#6b7280">Occupancy rate</span>
+                        <span style="font-size:11px;font-weight:600;color:#1e293b">{{ $occupancyRate }}%</span>
+                    </div>
+                    <div class="stat-bar-track">
+                        <div class="stat-bar-fill"
+                            style="width:{{ $occupancyRate }}%;
+                                background:{{ $occupancyRate >= 80 ? '#dc2626' : ($occupancyRate >= 50 ? '#d97706' : '#0f766e') }}">
+                        </div>
+                    </div>
+                    <div class="stat-bar-footer">
+                        <span style="font-size:11px;color:#6b7280">
+                            <span style="color:#e24b4a;font-weight:500">{{ $occupiedBeds }}</span> occupied
+                        </span>
+                        <span style="font-size:11px;color:#6b7280">
+                            {{ $totalBeds - $availableBeds - $occupiedBeds }} reserved/maint.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── 4. Revenue ── --}}
+        <div class="col-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-header-left">
+                        <div class="stat-icon-box" style="background:#fffbeb">
+                            <i class="bi bi-cash-stack" style="color:#d97706"></i>
+                        </div>
+                        <div class="stat-card-title-group">
+                            <span class="stat-card-sub">Billing</span>
+                            <span class="stat-card-title">Revenue</span>
+                        </div>
+                    </div>
+                    <span class="stat-live-badge" style="background:#fffbeb;color:#92400e;border:1px solid #fde68a">
+                        PKR
+                    </span>
+                </div>
+
+                <div class="stat-numbers-box">
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">Today</div>
+                        <div class="stat-num-value" style="color:#d97706;font-size:18px">
+                            {{ number_format($todayRevenue) }}
+                        </div>
+                        <div class="stat-num-hint">{{ now()->format('d M') }}</div>
+                    </div>
+                    <div class="stat-num-col">
+                        <div class="stat-num-label">{{ now()->format('M') }}</div>
+                        <div class="stat-num-value" style="color:#1e293b;font-size:18px">
+                            {{ number_format($monthRevenue) }}
+                        </div>
+                        <div class="stat-num-hint">this month</div>
+                    </div>
+                </div>
+
+                <div class="stat-bar-row">
+                    @php
+                        $revPct = $totalRevenue > 0 ? round(($monthRevenue / $totalRevenue) * 100) : 0;
+                    @endphp
+                    <div class="stat-bar-meta">
+                        <span style="font-size:11px;color:#6b7280">This month / total</span>
+                        <span style="font-size:11px;font-weight:600;color:#1e293b">{{ $revPct }}%</span>
+                    </div>
+                    <div class="stat-bar-track">
+                        <div class="stat-bar-fill" style="width:{{ $revPct }}%;background:#d97706"></div>
+                    </div>
+                    <div class="stat-bar-footer">
+                        <span style="font-size:11px;color:#6b7280">
+                            Total&nbsp;<span style="font-weight:600;color:#1e293b">
+                                Rs {{ number_format($totalRevenue) }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-    {{-- END STATS ROW }}
+    {{-- END STATS ROW --}}
 
 
     {{-- ===== MIDDLE ROW ===== --}}
@@ -337,38 +576,30 @@
                             $c = $avatarColors[$appt->type] ?? ['bg' => '#f1f5f9', 'color' => '#475569'];
                             $badgeClass = 'badge-' . str_replace(' ', '-', $appt->status);
                         @endphp
-
-                        <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid #f1f5f9">
-
+                        <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom:1px solid #f1f5f9">
                             <span style="font-size:12px;color:#94a3b8;min-width:52px;flex-shrink:0">
                                 {{ $appt->appointment_time ? \Carbon\Carbon::parse($appt->appointment_time)->format('h:i A') : '—' }}
                             </span>
-
                             <div class="appt-avatar" style="background:{{ $c['bg'] }};color:{{ $c['color'] }}">
                                 {{ $appt->patient->initials ?? '??' }}
                             </div>
-
                             <div class="flex-grow-1" style="min-width:0">
                                 <div
-                                    style="font-size:13px;font-weight:500;color:#1e293b;
-                                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                    style="font-size:13px;font-weight:500;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                                     {{ $appt->patient->name ?? '—' }}
                                 </div>
                                 <div
-                                    style="font-size:12px;color:#94a3b8;
-                                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                    style="font-size:12px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                                     {{ $appt->type }}
                                     @if ($appt->doctor)
                                         &nbsp;·&nbsp;{{ $appt->doctor->name }}
                                     @endif
                                 </div>
                             </div>
-
                             <span class="badge-status {{ $badgeClass }}" style="flex-shrink:0">
                                 {{ $appt->status }}
                             </span>
                         </div>
-
                     @empty
                         <div class="text-center py-5" style="color:#94a3b8;font-size:13px">
                             <i class="bi bi-calendar-x"
@@ -380,17 +611,33 @@
             </div>
         </div>
 
-        {{-- Department Occupancy — Real Data --}}
+        {{-- Department Occupancy --}}
         <div class="col-12 col-lg-6">
             <div class="card-section h-100">
                 <div class="card-section-header">
                     <span class="card-section-title">
                         <i class="bi bi-building me-2" style="color:#0f766e"></i>Department occupancy
                     </span>
+                    {{-- <div class="d-flex gap-3 mt-4 pt-3" style="border-top:1px solid #f1f5f9"> --}}
+                            <span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px">
+                                <span
+                                    style="width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block"></span>Low
+                                (&lt;50%)
+                            </span>
+                            <span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px">
+                                <span
+                                    style="width:10px;height:10px;border-radius:50%;background:#d97706;display:inline-block"></span>Medium
+                                (50–79%)
+                            </span>
+                            <span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px">
+                                <span
+                                    style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block"></span>High
+                                (80%+)
+                            </span>
+                        {{-- </div> --}}
                     <span style="font-size:11px;color:#94a3b8">Today's load</span>
                 </div>
                 <div class="p-4">
-
                     @if (count($departmentOccupancy) > 0)
                         @foreach ($departmentOccupancy as $dept)
                             @php
@@ -402,8 +649,7 @@
                                             : 'bar-low');
                             @endphp
                             <div class="d-flex align-items-center gap-3 mb-3">
-                                <div style="min-width:90px;font-size:13px;color:#374151;
-                                                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+                                <div style="min-width:90px;font-size:13px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
                                     title="{{ $dept['name'] }}">
                                     {{ $dept['name'] }}
                                 </div>
@@ -413,40 +659,18 @@
                                 </div>
                                 <div style="min-width:60px;text-align:right;font-size:12px;color:#64748b">
                                     <span style="font-weight:600;color:#1e293b">{{ $dept['percent'] }}%</span>
-                                    <span style="font-size:11px;color:#94a3b8">
-                                        ({{ $dept['count'] }})
-                                    </span>
+                                    <span style="font-size:11px;color:#94a3b8">({{ $dept['count'] }})</span>
                                 </div>
                             </div>
                         @endforeach
 
-                        {{-- Legend --}}
-                        <div class="d-flex gap-3 mt-4 pt-3" style="border-top:1px solid #f1f5f9">
-                            <span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px">
-                                <span
-                                    style="width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block"></span>
-                                Low (&lt;50%)
-                            </span>
-                            <span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px">
-                                <span
-                                    style="width:10px;height:10px;border-radius:50%;background:#d97706;display:inline-block"></span>
-                                Medium (50–79%)
-                            </span>
-                            <span style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px">
-                                <span
-                                    style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block"></span>
-                                High (80%+)
-                            </span>
-                        </div>
                     @else
-                        {{-- Koi doctor/department nahi yet --}}
                         <div class="text-center py-4" style="color:#94a3b8;font-size:13px">
                             <i class="bi bi-building"
                                 style="font-size:28px;display:block;margin-bottom:6px;opacity:.5"></i>
                             No department data available
                         </div>
                     @endif
-
                 </div>
             </div>
         </div>
@@ -485,9 +709,7 @@
                 <tbody>
                     @forelse($recentPatients as $pat)
                         <tr>
-                            <td>
-                                <code style="font-size:12px;color:#6366f1">{{ $pat->mrn }}</code>
-                            </td>
+                            <td><code style="font-size:12px;color:#6366f1">{{ $pat->mrn }}</code></td>
                             <td>
                                 <div style="font-weight:500;color:#1e293b">{{ $pat->name }}</div>
                                 <div style="font-size:11px;color:#94a3b8">{{ $pat->city }}</div>
@@ -495,13 +717,9 @@
                             <td>{{ $pat->age }} / {{ $pat->gender }}</td>
                             <td>{{ $pat->patient_type }}</td>
                             <td>{{ $pat->doctor->name ?? '—' }}</td>
-                            <td style="color:#94a3b8;font-size:12px">
-                                {{ $pat->created_at->format('d M Y') }}
-                            </td>
+                            <td style="color:#94a3b8;font-size:12px">{{ $pat->created_at->format('d M Y') }}</td>
                             <td>
-                                <span class="badge-status badge-{{ $pat->status }}">
-                                    {{ $pat->status }}
-                                </span>
+                                <span class="badge-status badge-{{ $pat->status }}">{{ $pat->status }}</span>
                             </td>
                             <td>
                                 <a href="{{ route('patients.show', $pat->id) }}"
@@ -529,7 +747,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.bar-fill').forEach(bar => {
+            document.querySelectorAll('.bar-fill, .stat-bar-fill').forEach(bar => {
                 const w = bar.style.width;
                 bar.style.width = '0%';
                 setTimeout(() => {

@@ -127,6 +127,34 @@ class MortuaryRecord extends Model
         return $this->hasMany(BillItem::class, 'reference_id')
             ->where('reference_type', 'mortuary_records');
     }
+      protected $table = 'mortuary_records';
+
+    /**
+     * Relationship for the doctor who declared the death
+     */
+    public function declaredBy(): BelongsTo
+    {
+        // 'declared_by' is the column name in your database
+        return $this->belongsTo(Doctor::class, 'declared_by');
+    }
+
+    /**
+     * Relationship for the doctor who performed the postmortem
+     */
+    public function postmortemBy(): BelongsTo
+    {
+        return $this->belongsTo(Doctor::class, 'postmortem_by');
+    }
+
+    /**
+     * Relationship for the employee who admitted the body
+     */
+
+
+    /**
+     * Relationship for the patient
+     */
+
 
     // ── SCOPES ───────────────────────────────────────────────────────
     public function scopeAdmitted($query)

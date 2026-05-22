@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 class Patient extends Model
 {
@@ -46,7 +46,7 @@ class Patient extends Model
                 // Latest patient fetch kar rahe hain chahe wo delete ho chuka ho (withTrashed)
                 $lastPatient = static::withTrashed()->latest('id')->first();
 
-                if (!$lastPatient) {
+                if (! $lastPatient) {
                     $number = 1;
                 } else {
                     // MRN-00001 se number nikalne ka tareeka
@@ -54,7 +54,7 @@ class Patient extends Model
                     $number = $lastNumber + 1;
                 }
 
-                $patient->mrn = 'MRN-' . str_pad($number, 5, '0', STR_PAD_LEFT);
+                $patient->mrn = 'MRN-'.str_pad($number, 5, '0', STR_PAD_LEFT);
             }
         });
     }
@@ -77,6 +77,51 @@ class Patient extends Model
         return $this->hasOne(Bed::class);
     }
 
+    public function bills(): HasMany
+    {
+        return $this->hasMany(Bill::class, 'patient_id');
+    }
+
+    // 2. If you want to count actual PAYMENTS (HasManyThrough)
+    // This allows you to go Patient -> Bill -> BillPayment
+    public function payments(): HasManyThrough
+    {
+        return $this->hasManyThrough(BillPayment::class, Bill::class);
+    }
+
+    // 3. Lab Orders (Matches your schema)
+    public function labOrders(): HasMany
+    {
+        return $this->hasMany(LabOrder::class, 'patient_id');
+    }
+
+    // 4. Radiology Orders (Matches your schema)
+    public function radiologyOrders(): HasMany
+    {
+        return $this->hasMany(RadiologyOrder::class, 'patient_id');
+    }
+
+    // 5. OT Schedules (Matches your schema)
+    public function otSchedules(): HasMany
+    {
+        return $this->hasMany(OtSchedule::class, 'patient_id');
+    }
+
+    // 6. Blood Requests (Matches your schema)
+    public function bloodRequests(): HasMany
+    {
+        return $this->hasMany(BloodRequest::class, 'patient_id');
+    }
+
+    // 7. Appointments (Matches your schema)
+
+
+    // 8. Prescriptions (Matches your schema)
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class, 'patient_id');
+    }
+
     /**
      * ===== ACCESSORS =====
      */
@@ -85,9 +130,12 @@ class Patient extends Model
     {
         return $this->date_of_birth ? $this->date_of_birth->age : null;
     }
-public function mortuaryRecord() {
-    return $this->hasOne(\App\Models\MortuaryRecord::class);
-}
+
+    public function mortuaryRecord()
+    {
+        return $this->hasOne(MortuaryRecord::class);
+    }
+
     // Name ke initials nikalne ke liye (e.g. Ahmed Ali -> AA)
     public function getInitialsAttribute()
     {
@@ -96,6 +144,7 @@ public function mortuaryRecord() {
         foreach ($words as $w) {
             $initials .= strtoupper(substr($w, 0, 1));
         }
+
         return substr($initials, 0, 2);
     }
 
@@ -118,7 +167,9 @@ public function mortuaryRecord() {
      */
     public function scopeSearch($query, $term)
     {
-        if (empty($term)) return $query;
+        if (empty($term)) {
+            return $query;
+        }
 
         // Database driver detect karein
         $driver = $query->getConnection()->getDriverName();
@@ -126,10 +177,10 @@ public function mortuaryRecord() {
 
         return $query->where(function ($q) use ($term, $operator) {
             $q->where('name', $operator, "%{$term}%")
-              ->orWhere('mrn', $operator, "%{$term}%")
-              ->orWhere('phone', 'like', "%{$term}%")
-              ->orWhere('cnic', 'like', "%{$term}%")
-              ->orWhere('city', $operator, "%{$term}%");
+                ->orWhere('mrn', $operator, "%{$term}%")
+                ->orWhere('phone', 'like', "%{$term}%")
+                ->orWhere('cnic', 'like', "%{$term}%")
+                ->orWhere('city', $operator, "%{$term}%");
         });
     }
 }

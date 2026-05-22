@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Bed;
 use App\Models\BillPayment;
 use App\Models\Doctor;
 use App\Models\Employee;
 use App\Models\Patient;
+use App\Models\Ward;
 
 class DashboardController extends Controller
 {
@@ -16,6 +18,12 @@ class DashboardController extends Controller
         // ── Core counts ──
         $patient = Patient::count();
         $appointment = Appointment::whereDate('appointment_date', today())->count();
+        // wards and beds
+        $availableBeds = Bed::where('status', 'Available')->count();
+        $occupiedBeds = Bed::where('status', 'Occupied')->count();
+        $totalBeds = Bed::count();
+        $totalWards = Ward::where('is_active', true)->count();
+        $occupancyRate = $totalBeds > 0 ? round(($occupiedBeds / $totalBeds) * 100) : 0;
 
         // ── Patient growth: this month vs last month ──
         $thisMonthPatients = Patient::whereMonth('created_at', now()->month)
@@ -131,14 +139,10 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard.index', compact(
-            'patient',
-            'appointment',
-            'patientGrowth',
-            'appointmentChange',
-            'departmentOccupancy',
-            'recentPatients',
-            'todayRevenue', 'monthRevenue', 'totalRevenue',
-            'recentAppointments'
+            'patient', 'appointment', 'patientGrowth', 'appointmentChange',
+            'departmentOccupancy', 'recentPatients',
+            'todayRevenue', 'monthRevenue', 'totalRevenue', 'recentAppointments',
+            'availableBeds', 'occupiedBeds', 'totalBeds', 'totalWards', 'occupancyRate'
         ));
     }
 }

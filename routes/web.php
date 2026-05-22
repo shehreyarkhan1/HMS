@@ -10,6 +10,9 @@ use App\Http\Controllers\BloodBank\BloodDonorController;
 use App\Http\Controllers\BloodBank\BloodIssueController;
 use App\Http\Controllers\BloodBank\BloodRequestController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Death\BodyReleaseController;
+use App\Http\Controllers\Death\DeathCertificateController;
+use App\Http\Controllers\Death\MortuaryController;
 use App\Http\Controllers\Dispensing\DispensingController;
 use App\Http\Controllers\Doctor\DoctorController;
 use App\Http\Controllers\Employee\EmployeeController;
@@ -21,6 +24,7 @@ use App\Http\Controllers\Medicine\MedicineController;
 use App\Http\Controllers\OperationTheater\OtRoomController;
 use App\Http\Controllers\OperationTheater\OtScheduleController;
 use App\Http\Controllers\Patient\PatientController;
+use App\Http\Controllers\PatientReport\PatientReportController;
 use App\Http\Controllers\Prescription\PrescriptionController;
 use App\Http\Controllers\Radiology\RadiologyBodyPartController;
 use App\Http\Controllers\Radiology\RadiologyController;
@@ -28,9 +32,6 @@ use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Ward\WardController;
-use App\Http\Controllers\Death\MortuaryController;
-use App\Http\Controllers\Death\BodyReleaseController;
-use App\Http\Controllers\Death\DeathCertificateController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -252,7 +253,7 @@ Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
     Route::get('requests/{request}', [BloodRequestController::class, 'show'])->name('requests.show');
     Route::patch('requests/{request}/status', [BloodRequestController::class, 'updateStatus'])->name('requests.status');
     Route::delete('requests/{bloodRequest}', [BloodRequestController::class, 'destroy'])
-    ->name('requests.destroy');
+        ->name('requests.destroy');
 
     // ── BLOOD ISSUE (TRANSFUSION) ────────────────────────────────────────
     Route::post('issues', [BloodIssueController::class, 'store'])->name('issues.store');
@@ -347,28 +348,40 @@ Route::prefix('billing')->name('billing.')->group(function () {
 
 // Mortuary and death
 
-
 Route::prefix('mortuary')->name('mortuary.')->group(function () {
 
     // ── MORTUARY RECORDS ──────────────────────────────────────────────
-    Route::get('/',                [MortuaryController::class, 'index'])  ->name('index');
-    Route::get('/create',          [MortuaryController::class, 'create']) ->name('create');
-    Route::post('/',               [MortuaryController::class, 'store'])  ->name('store');
-    Route::get('/{mortuary}',      [MortuaryController::class, 'show'])   ->name('show');
-    Route::get('/{mortuary}/edit', [MortuaryController::class, 'edit'])   ->name('edit');
-    Route::put('/{mortuary}',      [MortuaryController::class, 'update']) ->name('update');
-    Route::delete('/{mortuary}',   [MortuaryController::class, 'destroy'])->name('destroy');
+    Route::get('/', [MortuaryController::class, 'index'])->name('index');
+    Route::get('/create', [MortuaryController::class, 'create'])->name('create');
+    Route::post('/', [MortuaryController::class, 'store'])->name('store');
+    Route::get('/{mortuary}', [MortuaryController::class, 'show'])->name('show');
+    Route::get('/{mortuary}/edit', [MortuaryController::class, 'edit'])->name('edit');
+    Route::put('/{mortuary}', [MortuaryController::class, 'update'])->name('update');
+    Route::delete('/{mortuary}', [MortuaryController::class, 'destroy'])->name('destroy');
     Route::patch('/{mortuary}/status', [MortuaryController::class, 'updateStatus'])->name('status');
 
     // ── DEATH CERTIFICATES ────────────────────────────────────────────
-    Route::get( '/{mortuary}/certificates/create', [DeathCertificateController::class, 'create']) ->name('certificates.create');
-    Route::post('/{mortuary}/certificates',        [DeathCertificateController::class, 'store'])  ->name('certificates.store');
+    Route::get('/{mortuary}/certificates/create', [DeathCertificateController::class, 'create'])->name('certificates.create');
+    Route::post('/{mortuary}/certificates', [DeathCertificateController::class, 'store'])->name('certificates.store');
 
-    Route::get( '/certificates/{certificate}/print',  [DeathCertificateController::class, 'print'])  ->name('certificates.print');
-    Route::post('/certificates/{certificate}/verify', [DeathCertificateController::class, 'verify']) ->name('certificates.verify');
-    Route::delete('/certificates/{certificate}',      [DeathCertificateController::class, 'destroy'])->name('certificates.destroy');
+    Route::get('/certificates/{certificate}/print', [DeathCertificateController::class, 'print'])->name('certificates.print');
+    Route::post('/certificates/{certificate}/verify', [DeathCertificateController::class, 'verify'])->name('certificates.verify');
+    Route::delete('/certificates/{certificate}', [DeathCertificateController::class, 'destroy'])->name('certificates.destroy');
 
     // ── BODY RELEASE ──────────────────────────────────────────────────
-    Route::get( '/{mortuary}/release/create', [BodyReleaseController::class, 'create'])->name('release.create');
-    Route::post('/{mortuary}/release',        [BodyReleaseController::class, 'store']) ->name('release.store');
+    Route::get('/{mortuary}/release/create', [BodyReleaseController::class, 'create'])->name('release.create');
+    Route::post('/{mortuary}/release', [BodyReleaseController::class, 'store'])->name('release.store');
+});
+
+// Patient Report routes
+
+Route::prefix('reports')->name('reports.')->group(function () {
+
+    // Patient search / select page
+    Route::get('/patients', [PatientReportController::class, 'index'])
+        ->name('patients.index');
+
+    // Patient complete report
+    Route::get('/patients/{patient}', [PatientReportController::class, 'show'])
+        ->name('patients.show');
 });

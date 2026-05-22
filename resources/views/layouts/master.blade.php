@@ -650,6 +650,14 @@
                 </a>
             @endif
 
+            @if (Route::has('reports.patients.index'))
+                <a href="{{ route('reports.patients.index') }}"
+                    class="nav-item {{ request()->routeIs('reports.patients.*') ? 'active' : '' }}">
+                    <i class="bi bi-graph-up"></i>
+                    Reports
+                </a>
+            @endif
+
 
 
 
