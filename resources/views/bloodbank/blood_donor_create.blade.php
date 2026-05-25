@@ -128,14 +128,16 @@
         <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">
             Required for Replacement or Directed donations
         </p>
-        <select name="patient_id" class="form-select">
+        {{-- <select name="patient_id" class="form-select">
             <option value="">— No Linked Patient —</option>
             @foreach($patients as $patient)
                 <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
                     {{ $patient->name }} ({{ $patient->mrn }})
                 </option>
             @endforeach
-        </select>
+        </select> --}}
+
+        <x-patient-search :patient="$selectedPatient" />
     </div>
 
     {{-- Buttons --}}

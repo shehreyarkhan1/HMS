@@ -52,9 +52,10 @@ class BloodDonorController extends Controller
 
     public function create()
     {
-        $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        // $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        $selectedPatient = null; // Default value for patient search component
         $bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-        return view('bloodbank.blood_donor_create', compact('patients', 'bloodGroups'));
+        return view('bloodbank.blood_donor_create', compact('selectedPatient', 'bloodGroups'));
     }
 
     public function store(Request $request)
@@ -89,9 +90,10 @@ class BloodDonorController extends Controller
 
     public function edit(BloodDonor $donor)
     {
-        $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        // $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        $selectedPatient = $donor->patient; // For patient search component
         $bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-        return view('bloodbank.blood_donor_edit', compact('donor', 'patients', 'bloodGroups'));
+        return view('bloodbank.blood_donor_edit', compact('donor', 'selectedPatient', 'bloodGroups'));
     }
 
     public function update(Request $request, BloodDonor $donor)

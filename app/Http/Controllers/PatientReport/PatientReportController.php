@@ -73,7 +73,7 @@ class PatientReportController extends Controller
         $labOrders = LabOrder::with([
             'doctor.employee',
             'items.labTest.category',
-            'items.labSample.sampleType',
+            'items.Sample.sampleType',
             'items.result',
         ])
             ->where('patient_id', $patient->id)

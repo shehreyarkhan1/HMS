@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\BloodBank;
 
 use App\Http\Controllers\Controller;
+use App\Models\BloodDonation;
+use App\Models\BloodRequest;
 use App\Models\Doctor;
+use App\Models\Employee;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use App\Models\BloodRequest;
-use App\Models\Employee;
-use App\Models\BloodDonation;
-use App\Models\BloodCrossmatch;
 
 class BloodRequestController extends Controller
 {
@@ -21,31 +20,33 @@ class BloodRequestController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('request_id', 'like', "%$s%")
-                    ->orWhereHas('patient', fn($q) => $q->where('name', 'like', "%$s%")->orWhere('mrn', 'like', "%$s%"));
+                    ->orWhereHas('patient', fn ($q) => $q->where('name', 'like', "%$s%")->orWhere('mrn', 'like', "%$s%"));
             });
         }
-        if ($request->filled('blood_group'))
+        if ($request->filled('blood_group')) {
             $query->where('blood_group', $request->blood_group);
-        if ($request->filled('urgency'))
+        }
+        if ($request->filled('urgency')) {
             $query->where('urgency', $request->urgency);
-        if ($request->filled('status'))
+        }
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
 
         $requests = $query
             ->orderByRaw("
         CASE
-            WHEN urgency = 'Emergency' THEN 1
-            WHEN urgency = 'Urgent' THEN 2
-            WHEN urgency = 'Routine' THEN 3
-            ELSE 4
+            WHEN status IN ('Pending', 'Under Review', 'Crossmatch', 'Approved') THEN 1
+            WHEN status = 'Partially Fulfilled' THEN 2
+            ELSE 3 -- Fulfilled, Cancelled, Rejected neeche chale jayenge
         END
     ")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'desc') // Phir sab se nayi request sab se ooper
             ->paginate(15)
             ->withQueryString();
 
         $bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-        $patients = Patient::whereIn('status', ['Active', 'Admitted'])->orderBy('name')->get();
+        $selectedPatient = null; // Default value for patient search component
         $doctors = Doctor::with('employee')->where('is_active', true)->get();
         $employees = Employee::where('employment_status', 'Active')->orderBy('first_name')->get();
 
@@ -59,10 +60,10 @@ class BloodRequestController extends Controller
         return view('bloodbank.blood_request_index', compact(
             'requests',
             'bloodGroups',
-            'patients',
             'doctors',
             'employees',
-            'stats'
+            'stats',
+            'selectedPatient'
         ));
     }
 
@@ -83,6 +84,7 @@ class BloodRequestController extends Controller
         ]);
 
         BloodRequest::create($validated);
+
         return redirect()->route('blood-bank.requests.index')
             ->with('success', 'Blood request submitted.');
     }
@@ -105,7 +107,6 @@ class BloodRequestController extends Controller
 
         return view('bloodbank.blood_request_show', compact('request', 'availableBags'));
     }
-
 
     public function updateStatus(Request $request, $id) // Model binding ki jagah ID use ki hai
     {
@@ -146,7 +147,7 @@ class BloodRequestController extends Controller
         // Final Save
         $bloodRequest->save();
 
-        return back()->with('success', 'Request status updated to ' . $request->status);
+        return back()->with('success', 'Request status updated to '.$request->status);
     }
 
     public function destroy(BloodRequest $bloodRequest)
@@ -155,7 +156,7 @@ class BloodRequestController extends Controller
             return back()->with('error', 'Cannot delete a fulfilled or in-crossmatch request.');
         }
         $bloodRequest->delete();
+
         return redirect()->route('blood-bank.requests.index')->with('success', 'Request removed.');
     }
-
 }
