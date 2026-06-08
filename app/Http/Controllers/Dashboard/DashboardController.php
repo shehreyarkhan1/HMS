@@ -27,6 +27,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Doctors ka apna dashboard hai — unhe yahan nahi aana chahiye
+        if (auth()->check() && auth()->user()->hasRole('doctor')) {
+            return redirect()->route('doctor.dashboard');
+        }
+
         // Pure data ko 10 minutes ke liye cache mein save kar rahe hain
         $data = Cache::remember('hospital_dashboard_stats_v2', 600, function () {
 

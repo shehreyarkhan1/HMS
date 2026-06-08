@@ -171,22 +171,31 @@
                     <div class="form-section-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <x-patient-search :patients="$selectedPatient" />
+                                <x-patient-search :patient="$selectedPatient" />
                                 @error('patient_id')
                                     <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-sm">Referring Doctor <span class="text-danger">*</span></label>
-                                <select name="doctor_id" class="form-control-sm-custom" required>
-                                    <option value="">Select doctor...</option>
-                                    @foreach ($doctors as $doctor)
-                                        <option value="{{ $doctor->id }}"
-                                            {{ old('doctor_id') == $doctor->id || optional($selectedDoctor)->id == $doctor->id ? 'selected' : '' }}>
-                                            {{ $doctor->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+
+                                @if (auth()->user()->hasRole('doctor') && $selectedDoctor)
+                                    {{-- Doctor khud hai — readonly show karo --}}
+                                    <input type="hidden" name="doctor_id" value="{{ $selectedDoctor->id }}">
+                                    <input type="text" class="form-control-sm-custom" value="{{ $selectedDoctor->name }}"
+                                        readonly style="background:#f1f5f9; color:#64748b; cursor:not-allowed">
+                                @else
+                                    <select name="doctor_id" class="form-control-sm-custom" required>
+                                        <option value="">Select doctor...</option>
+                                        @foreach ($doctors as $doctor)
+                                            <option value="{{ $doctor->id }}"
+                                                {{ old('doctor_id') == $doctor->id || optional($selectedDoctor)->id == $doctor->id ? 'selected' : '' }}>
+                                                {{ $doctor->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @endif
+
                                 @error('doctor_id')
                                     <div class="text-danger" style="font-size:11px;margin-top:4px">{{ $message }}</div>
                                 @enderror

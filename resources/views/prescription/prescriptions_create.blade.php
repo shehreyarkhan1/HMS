@@ -141,15 +141,21 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Doctor</label>
-                                <select name="doctor_id" class="form-select">
-                                    <option value="">Select doctor...</option>
-                                    @foreach ($doctors as $d)
-                                        <option value="{{ $d->id }}"
-                                            {{ old('doctor_id') == $d->id ? 'selected' : '' }}>
-                                            Dr. {{ $d->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                @if (auth()->user()->hasRole('doctor') && $selectedDoctor)
+                                    <input type="hidden" name="doctor_id" value="{{ $selectedDoctor->id }}">
+                                    <input type="text" class="form-control" value="Dr. {{ $selectedDoctor->name }}"
+                                        readonly style="background:#f1f5f9; color:#64748b; cursor:not-allowed">
+                                @else
+                                    <select name="doctor_id" class="form-select">
+                                        <option value="">Select doctor...</option>
+                                        @foreach ($doctors as $d)
+                                            <option value="{{ $d->id }}"
+                                                {{ old('doctor_id') == $d->id || optional($selectedDoctor)->id == $d->id ? 'selected' : '' }}>
+                                                Dr. {{ $d->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Prescribed date <span class="required-star">*</span></label>

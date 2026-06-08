@@ -148,29 +148,27 @@
                     <div class="form-card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                {{-- <div class="field-label">Patient *</div>
-                        <select name="patient_id" class="form-select form-select-sm" required>
-                            <option value="">— Select patient —</option>
-                            @foreach ($patients as $p)
-                                <option value="{{ $p->id }}"
-                                    {{ optional($selectedPatient)->id == $p->id ? 'selected' : '' }}>
-                                    {{ $p->name }} ({{ $p->mrn }})
-                                </option>
-                            @endforeach
-                        </select> --}}
+
                                 <x-patient-search :patient="$selectedPatient" />
                             </div>
                             <div class="col-md-6">
                                 <div class="field-label">Referring Doctor *</div>
-                                <select name="doctor_id" class="form-select form-select-sm" required>
-                                    <option value="">— Select doctor —</option>
-                                    @foreach ($doctors as $d)
-                                        <option value="{{ $d->id }}"
-                                            {{ optional($selectedDoctor)->id == $d->id ? 'selected' : '' }}>
-                                            {{ $d->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                @if (auth()->user()->hasRole('doctor') && $selectedDoctor)
+                                    <input type="hidden" name="doctor_id" value="{{ $selectedDoctor->id }}">
+                                    <input type="text" class="form-control form-control-sm"
+                                        value="{{ $selectedDoctor->name }}" readonly
+                                        style="background:#f1f5f9; color:#64748b; cursor:not-allowed">
+                                @else
+                                    <select name="doctor_id" class="form-select form-select-sm" required>
+                                        <option value="">— Select doctor —</option>
+                                        @foreach ($doctors as $d)
+                                            <option value="{{ $d->id }}"
+                                                {{ optional($selectedDoctor)->id == $d->id ? 'selected' : '' }}>
+                                                {{ $d->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </div>
                             <div class="col-md-4">
                                 <div class="field-label">Order Date *</div>
@@ -385,7 +383,7 @@
             if (Object.keys(selected).length === 0) {
                 document.getElementById('selectedBox').insertAdjacentHTML('beforeend',
                     '<div id="emptyMsg" style="font-size:12px;color:#94a3b8;text-align:center;padding:20px 0">No exams selected yet.</div>'
-                    );
+                );
             }
             recalc();
         }

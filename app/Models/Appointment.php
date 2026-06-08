@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Appointment extends Model
 {
@@ -59,12 +59,14 @@ class Appointment extends Model
             ? Carbon::parse($this->appointment_time)->format('h:i A')
             : '—';
     }
-// Relationship: Ek appointment ke kai bill items ho sakte hain
-public function billItems()
-{
-    return $this->hasMany(BillItem::class, 'reference_id')
-                ->where('reference_type', 'appointments');
-}
+
+    // Relationship: Ek appointment ke kai bill items ho sakte hain
+    public function billItems()
+    {
+        return $this->hasMany(BillItem::class, 'reference_id')
+            ->where('reference_type', 'appointments');
+    }
+
     /** Is appointment today? */
     public function getIsTodayAttribute(): bool
     {
@@ -77,11 +79,27 @@ public function billItems()
         return $this->appointment_date->isFuture();
     }
 
-    /** Is appointment overdue (past + not completed)? */
+    /** Is appointment overdue (past date + time and not completed)? */
     public function getIsOverdueAttribute(): bool
     {
-        return $this->appointment_date->isPast()
-            && !in_array($this->status, ['Completed', 'Cancelled', 'No-show']);
+        // 1. Agar status pehle hi khatam ho chuka hai, toh overdue nahi hai
+        if (in_array($this->status, ['Completed', 'Cancelled', 'No-show'])) {
+            return false;
+        }
+
+        // 2. Date aur Time ko ek saath combine karein
+        // Hum appointment_date se string nikalenge aur appointment_time usme add kar denge
+        try {
+            $appointmentFullDateTime = Carbon::parse(
+                $this->appointment_date->format('Y-m-d').' '.$this->appointment_time
+            );
+
+            // 3. Ab check karein ke kya yeh mukammal waqt (Date + Time) guzar chuka hai?
+            return $appointmentFullDateTime->isPast();
+        } catch (\Exception $e) {
+            // Agar time format mein koi masla ho toh purana tareeka backup ke taur par
+            return $this->appointment_date->isPast();
+        }
     }
 
     /** Human-readable date: Mon, 30 Mar 2026 */

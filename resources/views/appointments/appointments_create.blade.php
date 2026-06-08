@@ -237,6 +237,7 @@
                             @enderror
                         </div>
 
+
                         <div class="col-md-6">
                             <div class="form-label-custom">Doctor</div>
                             <select name="doctor_id" id="doctor_id"

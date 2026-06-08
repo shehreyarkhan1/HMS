@@ -308,7 +308,7 @@
             showMsg('hourglass-split', 'Searching...');
 
             searchTimeout = setTimeout(function() {
-                fetch('/billing/ajax/patient-search?q=' + encodeURIComponent(q) +
+                fetch('{{ route('ajax.patient-search') }}?q=' + encodeURIComponent(q) +
                         '@if ($filter)&status={{ $filter }}@endif'
                         )
                     .then(r => r.json())

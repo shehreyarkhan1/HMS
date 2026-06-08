@@ -298,7 +298,7 @@
                                     @foreach($employees as $emp)
                                         <option value="{{ $emp->id }}" {{-- Yahan first_name aur employee_id use karein --}}
                                             data-name="{{ $emp->first_name }} {{ $emp->last_name }}"
-                                            data-code="{{ $emp->employee_id }}" {{ (old('employee_id') ?? ($user->employee_id ?? '')) == $emp->id ? 'selected' : '' }}>
+                                            data-code="{{ $emp->employee_id }}" {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
 
                                             {{ $emp->first_name }} {{ $emp->last_name }}
 

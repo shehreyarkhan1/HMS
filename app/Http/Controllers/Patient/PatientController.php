@@ -71,16 +71,23 @@ class PatientController extends Controller
         $patient = Patient::create($request->all());
 
         return redirect()
-            ->route('patients.show', $patient->id)
-            ->with('success', "Patient {$patient->name} registered successfully! MRN: {$patient->mrn}");
-    }
+        ->route('appointments.create', ['patient_id' => $patient->id])
+        ->with('success', "Patient {$patient->name} registered! MRN: {$patient->mrn} — Now book appointment.");
+}
 
     // ===== SHOW - View single patient =====
     public function show(Patient $patient)
-    {
-        $patient->load('doctor', 'appointments');
-        return view('patients.patients_show', compact('patient'));
-    }
+{
+    $patient->load([
+        'doctor',
+        'appointments.doctor',
+        'labOrders',
+        'radiologyOrders',
+        'prescriptions.doctor',
+    ]);
+
+    return view('patients.patients_show', compact('patient'));
+}
 
     // ===== EDIT - Show edit form =====
     public function edit(Patient $patient)

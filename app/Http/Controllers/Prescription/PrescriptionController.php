@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\Prescription;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Prescription;
-use App\Models\PrescriptionItem;
+use App\Models\Appointment;
+use App\Models\Doctor;
 use App\Models\Medicine;
 use App\Models\Patient;
-use App\Models\Doctor;
-use Illuminate\Support\Facades\Log;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PrescriptionController extends Controller
 {
@@ -64,61 +66,55 @@ class PrescriptionController extends Controller
     public function create(Request $request)
     {
         try {
-            // Patients
-            // $patients = Patient::select('id', 'name', 'mrn')
-            //     ->orderBy('name')
-            //     ->get();
-
-            // Active Doctors
             $doctors = Doctor::with('employee')
                 ->where('is_active', true)
                 ->get()
                 ->sortBy('employee.first_name');
 
-
-
-            // Available Medicines
             $medicines = Medicine::select('id', 'name', 'generic_name', 'unit', 'sale_price')
                 ->where('is_active', true)
                 ->where('total_stock', '>', 0)
                 ->orderBy('name')
                 ->get();
 
-            // Selected Patient (safe handling)
             $selectedPatient = null;
-            if ($request->filled('patient_id')) {
-                $selectedPatient = Patient::find($request->patient_id);
+            $selectedDoctor = null;
 
-                // Optional safety check
-                if (!$selectedPatient) {
-                    return redirect()->back()->with('error', 'Selected patient not found.');
+            // Doctor logged in hai tو apna record auto-select
+            if (auth()->user()->hasRole('doctor')) {
+                $selectedDoctor = Doctor::whereHas('employee', function ($q) {
+                    $q->whereHas('user', function ($q2) {
+                        $q2->where('id', auth()->id());
+                    });
+                })->first();
+            }
+
+            // Appointment se patient
+            if ($request->filled('appointment_id')) {
+                $appt = Appointment::with('patient', 'doctor')->find($request->appointment_id);
+                if ($appt) {
+                    $selectedPatient = $appt->patient;
+                    if (! auth()->user()->hasRole('doctor')) {
+                        $selectedDoctor = $appt->doctor;
+                    }
                 }
             }
 
-            return view('prescription.prescriptions_create', compact(
+            // Direct patient_id se
+            if (! $selectedPatient && $request->filled('patient_id')) {
+                $selectedPatient = Patient::find($request->patient_id);
+            }
 
-                'doctors',
-                'medicines',
-                'selectedPatient'
+            return view('prescription.prescriptions_create', compact(
+                'doctors', 'medicines', 'selectedPatient', 'selectedDoctor'
             ));
 
         } catch (\Throwable $e) {
-
-            // Log error
             Log::error('Prescription Create Page Error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'request' => $request->all(),
             ]);
-
-            // Response handling
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to load prescription create page.'
-                ], 500);
-            }
 
             return redirect()->back()->with('error', 'Something went wrong while opening the create page.');
         }
@@ -127,25 +123,25 @@ class PrescriptionController extends Controller
     // ===== STORE =====
     public function store(Request $request)
     {
-        try {
-            // ✅ Validation
-            $validated = $request->validate([
-                'patient_id' => 'required|exists:patients,id',
-                'doctor_id' => 'nullable|exists:doctors,id',
-                'appointment_id' => 'nullable|exists:appointments,id',
-                'prescribed_date' => 'required|date',
-                'valid_until' => 'nullable|date|after:prescribed_date',
-                'diagnosis' => 'nullable|string',
-                'notes' => 'nullable|string',
-                'items' => 'required|array|min:1',
-                'items.*.medicine_id' => 'required|exists:medicines,id',
-                'items.*.dosage' => 'required|string|max:100',
-                'items.*.frequency' => 'required|string|max:100',
-                'items.*.duration_days' => 'required|integer|min:1',
-                'items.*.quantity' => 'required|integer|min:1',
-                'items.*.instructions' => 'nullable|string|max:200',
-            ]);
+        // ✅ Validation
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
+            'appointment_id' => 'nullable|exists:appointments,id',
+            'prescribed_date' => 'required|date',
+            'valid_until' => 'nullable|date|after:prescribed_date',
+            'diagnosis' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.medicine_id' => 'required|exists:medicines,id',
+            'items.*.dosage' => 'required|string|max:100',
+            'items.*.frequency' => 'required|string|max:100',
+            'items.*.duration_days' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.instructions' => 'nullable|string|max:200',
+        ]);
 
+        try {
             DB::beginTransaction();
 
             // ✅ Create Prescription
@@ -176,6 +172,17 @@ class PrescriptionController extends Controller
 
             DB::commit();
 
+            // Doctor redirect
+            if (auth()->user()->hasRole('doctor')) {
+                if ($request->filled('appointment_id')) {
+                    return redirect()->route('appointments.show', $request->appointment_id)
+                        ->with('success', "Prescription {$prescription->prescription_number} created!");
+                }
+
+                return redirect()->route('patients.show', $prescription->patient_id)
+                    ->with('success', "Prescription {$prescription->prescription_number} created!");
+            }
+
             return redirect()
                 ->route('pharmacy.prescriptions.show', $prescription->id)
                 ->with('success', "Prescription {$prescription->prescription_number} created!");
@@ -196,7 +203,7 @@ class PrescriptionController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to create prescription.'
+                    'message' => 'Failed to create prescription.',
                 ], 500);
             }
 
@@ -215,7 +222,7 @@ class PrescriptionController extends Controller
                 'patient',
                 'doctor',
                 'items.medicine',
-                'dispensings.items.medicine'
+                'dispensings.items.medicine',
             ]);
 
             return view('prescription.prescriptions_show', compact('prescription'));

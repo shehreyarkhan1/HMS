@@ -58,13 +58,13 @@ class LabOrderController extends Controller
     // ─────────────────────────────────────────────
     public function create(Request $request)
     {
-        // $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
         $doctors = Doctor::with('employee')
             ->where('is_active', true)
             ->join('employees', 'doctors.employee_id', '=', 'employees.id')
             ->orderBy('employees.first_name')
             ->select('doctors.*')
             ->get();
+
         $tests = LabTest::with('category', 'sampleType')
             ->active()
             ->orderBy('name')
@@ -74,12 +74,30 @@ class LabOrderController extends Controller
 
         $selectedPatient = null;
         $selectedDoctor = null;
+
+        // Doctor logged in hai tو apna record auto-select
+        if (auth()->user()->hasRole('doctor')) {
+            $selectedDoctor = Doctor::whereHas('employee', function ($q) {
+                $q->whereHas('user', function ($q2) {
+                    $q2->where('id', auth()->id());
+                });
+            })->first();
+        }
+
+        // Appointment se patient (aur non-doctor ke liye doctor bhi)
         if ($request->filled('appointment_id')) {
             $appt = Appointment::with('patient', 'doctor')->find($request->appointment_id);
             if ($appt) {
                 $selectedPatient = $appt->patient;
-                $selectedDoctor = $appt->doctor;
+                if (! auth()->user()->hasRole('doctor')) {
+                    $selectedDoctor = $appt->doctor;
+                }
             }
+        }
+
+        // Direct patient_id se
+        if (! $selectedPatient && $request->filled('patient_id')) {
+            $selectedPatient = Patient::find($request->patient_id);
         }
 
         return view('laboratory.lab_create', compact(
@@ -132,26 +150,42 @@ class LabOrderController extends Controller
             $order->syncPaymentStatus();  // Phir check karega ke paid hai ya nahi (Unpaid dikhayega)
         });
 
-        return redirect()->route('lab.orders.index')->with('success', 'Lab order created successfully.');
+        // Doctor ko index access nahi — unhe create page pe wapas bhejo
+        $redirect = auth()->user()->hasRole('doctor')
+            ? redirect()->route('lab.orders.create')
+            : redirect()->route('lab.orders.index');
+
+        return $redirect->with('success', 'Lab order created successfully.');
     }
 
     // ─────────────────────────────────────────────
     //  SHOW
     // ─────────────────────────────────────────────
     public function show(LabOrder $labOrder)
-    {
-        $labOrder->load([
-            'patient',
-            'doctor',
-            'appointment',
-            'items.labTest.category',
-            'items.sample.sampleType',
-            'items.result.verifiedBy',
-            'samples.sampleType',
-        ]);
+{
+    // Doctor sirf apna order dekh sakta hai
+    if (auth()->user()->hasRole('doctor')) {
+        $doctor = Doctor::whereHas('employee', function ($q) {
+            $q->whereHas('user', function ($q2) {
+                $q2->where('id', auth()->id());
+            });
+        })->first();
 
-        return view('laboratory.lab_show', compact('labOrder'));
+        abort_if(!$doctor || $labOrder->doctor_id !== $doctor->id, 403);
     }
+
+    $labOrder->load([
+        'patient',
+        'doctor',
+        'appointment',
+        'items.labTest.category',
+        'items.sample.sampleType',
+        'items.result.verifiedBy',
+        'samples.sampleType',
+    ]);
+
+    return view('laboratory.lab_show', compact('labOrder'));
+}
 
     // ─────────────────────────────────────────────
     //  COLLECT SAMPLE

@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 class RadiologyOrder extends Model
 {
@@ -64,6 +64,16 @@ class RadiologyOrder extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
+    }
+
+    public function radiologyReport()
+    {
+        return $this->hasOne(RadiologyReport::class);
+    }
+
+    public function radiologyExam()
+    {
+        return $this->belongsTo(RadiologyExam::class);
     }
 
     /**
@@ -124,7 +134,7 @@ class RadiologyOrder extends Model
     {
         return $query->whereBetween('order_date', [
             Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek()
+            Carbon::now()->endOfWeek(),
         ]);
     }
 
@@ -285,17 +295,17 @@ class RadiologyOrder extends Model
      */
     public function getFormattedTotalAttribute(): string
     {
-        return 'PKR ' . number_format($this->total_amount, 2);
+        return 'PKR '.number_format($this->total_amount, 2);
     }
 
     public function getFormattedNetAttribute(): string
     {
-        return 'PKR ' . number_format($this->net_amount, 2);
+        return 'PKR '.number_format($this->net_amount, 2);
     }
 
     public function getFormattedBalanceAttribute(): string
     {
-        return 'PKR ' . number_format($this->balance_due, 2);
+        return 'PKR '.number_format($this->balance_due, 2);
     }
 
     /**
@@ -390,7 +400,6 @@ class RadiologyOrder extends Model
     /**
      * Auto-generate order number and set defaults
      */
-
     public function hasCriticalFindings(): bool
     {
         return $this->items()
@@ -400,16 +409,13 @@ class RadiologyOrder extends Model
             ->exists();
     }
 
-    
-
-
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($order) {
             if (empty($order->order_number)) {
-                $order->order_number = 'RAD-' . str_pad(self::withTrashed()->max('id') + 1, 5, '0', STR_PAD_LEFT);
+                $order->order_number = 'RAD-'.str_pad(self::withTrashed()->max('id') + 1, 5, '0', STR_PAD_LEFT);
             }
             if (empty($order->order_date)) {
                 $order->order_date = now();

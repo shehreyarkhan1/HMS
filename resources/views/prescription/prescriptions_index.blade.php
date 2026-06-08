@@ -169,23 +169,26 @@
                         style="width:200px">
                     <select name="status">
                         <option value="">All status</option>
-                        @foreach(['Pending', 'Partial', 'Dispensed', 'Cancelled'] as $s)
-                            <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ $s }}</option>
+                        @foreach (['Pending', 'Partial', 'Dispensed', 'Cancelled'] as $s)
+                            <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>
+                                {{ $s }}</option>
                         @endforeach
                     </select>
                     <input type="date" name="date" value="{{ request('date') }}" style="width:150px">
                     <button type="submit" class="btn btn-sm btn-primary px-3" style="height:36px;font-size:13px">
                         <i class="bi bi-search me-1"></i>Filter
                     </button>
-                    @if(request()->hasAny(['search', 'status', 'date']))
+                    @if (request()->hasAny(['search', 'status', 'date']))
                         <a href="{{ route('pharmacy.prescriptions.index') }}" class="btn btn-sm btn-outline-secondary px-3"
                             style="height:36px;font-size:13px">Clear</a>
                     @endif
                 </form>
-                <a href="{{ route('pharmacy.prescriptions.create') }}" class="btn btn-sm btn-success px-3"
-                    style="height:36px;font-size:13px">
-                    <i class="bi bi-plus-lg me-1"></i>New prescription
-                </a>
+                @if (!auth()->user()->hasRole('pharmacist'))
+                    <a href="{{ route('pharmacy.prescriptions.create') }}" class="btn btn-sm btn-success px-3"
+                        style="height:36px;font-size:13px">
+                        <i class="bi bi-plus-lg me-1"></i>New prescription
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -214,10 +217,12 @@
                             <td style="color:#64748b">{{ $rx->doctor->name ?? '—' }}</td>
                             <td style="color:#64748b;font-size:12px">{{ $rx->prescribed_date->format('d M Y') }}</td>
                             <td>
-                                @if($rx->valid_until)
+                                @if ($rx->valid_until)
                                     <span style="font-size:12px;color:{{ $rx->is_expired ? '#dc2626' : '#64748b' }}">
                                         {{ $rx->valid_until->format('d M Y') }}
-                                        @if($rx->is_expired) <i class="bi bi-exclamation-circle ms-1"></i> @endif
+                                        @if ($rx->is_expired)
+                                            <i class="bi bi-exclamation-circle ms-1"></i>
+                                        @endif
                                     </span>
                                 @else
                                     <span style="color:#94a3b8">—</span>
@@ -235,9 +240,10 @@
                                         class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:12px">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    @if(in_array($rx->status, ['Pending', 'Partial']))
+                                    @if (in_array($rx->status, ['Pending', 'Partial']) && !auth()->user()->hasRole('doctor'))
                                         <a href="{{ route('pharmacy.dispensings.create', ['prescription_id' => $rx->id]) }}"
-                                            class="btn btn-sm btn-success py-0 px-2" style="font-size:12px" title="Dispense">
+                                            class="btn btn-sm btn-success py-0 px-2" style="font-size:12px"
+                                            title="Dispense">
                                             <i class="bi bi-capsule"></i>
                                         </a>
                                     @endif
@@ -249,8 +255,10 @@
                             <td colspan="8" class="text-center py-5" style="color:#94a3b8">
                                 <i class="bi bi-file-medical" style="font-size:40px;display:block;margin-bottom:8px"></i>
                                 No prescriptions found.
-                                <a href="{{ route('pharmacy.prescriptions.create') }}" class="text-primary ms-1">Create
-                                    first</a>
+                                @if (!auth()->user()->hasRole('pharmacist'))
+                                    <a href="{{ route('pharmacy.prescriptions.create') }}" class="text-primary ms-1">Create
+                                        first</a>
+                                @endif
                             </td>
                         </tr>
                     @endforelse
@@ -258,7 +266,7 @@
             </table>
         </div>
 
-        @if($prescriptions->hasPages())
+        @if ($prescriptions->hasPages())
             <div class="d-flex justify-content-between align-items-center px-4 py-3" style="border-top:1px solid #e2e8f0">
                 <span style="font-size:12px;color:#94a3b8">
                     Showing {{ $prescriptions->firstItem() }}–{{ $prescriptions->lastItem() }}

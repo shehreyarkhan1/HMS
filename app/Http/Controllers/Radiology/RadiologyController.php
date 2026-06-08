@@ -67,13 +67,13 @@ class RadiologyController extends Controller
     // ─────────────────────────────────────────────
     public function create(Request $request)
     {
-        // $patients = Patient::orderBy('name')->get(['id', 'name', 'mrn', 'gender', 'date_of_birth']);
         $doctors = Doctor::with('employee')
             ->where('is_active', true)
             ->join('employees', 'doctors.employee_id', '=', 'employees.id')
             ->orderBy('employees.first_name')
             ->select('doctors.*')
             ->get();
+
         $modalities = RadiologyModality::with('exams.bodyPart')->active()->orderBy('name')->get();
         $examsByModality = $modalities->mapWithKeys(fn ($m) => [
             $m->id => [
@@ -85,16 +85,32 @@ class RadiologyController extends Controller
         $selectedPatient = null;
         $selectedDoctor = null;
 
+        // Doctor logged in hai tو apna record auto-select
+        if (auth()->user()->hasRole('doctor')) {
+            $selectedDoctor = Doctor::whereHas('employee', function ($q) {
+                $q->whereHas('user', function ($q2) {
+                    $q2->where('id', auth()->id());
+                });
+            })->first();
+        }
+
+        // Appointment se patient (non-doctor ke liye doctor bhi)
         if ($request->filled('appointment_id')) {
             $appt = Appointment::with('patient', 'doctor')->find($request->appointment_id);
             if ($appt) {
                 $selectedPatient = $appt->patient;
-                $selectedDoctor = $appt->doctor;
+                if (! auth()->user()->hasRole('doctor')) {
+                    $selectedDoctor = $appt->doctor;
+                }
             }
         }
 
+        // Direct patient_id se
+        if (! $selectedPatient && $request->filled('patient_id')) {
+            $selectedPatient = Patient::find($request->patient_id);
+        }
+
         return view('radiology.radiology_create', compact(
-            // 'patients',
             'doctors',
             'examsByModality',
             'selectedPatient',
@@ -164,6 +180,12 @@ class RadiologyController extends Controller
             $order->syncPaymentStatus();  // Phir check karega ke paid hai ya nahi (Unpaid dikhayega)
         });
 
+        // Doctor ko appointment page pe redirect karo (agar appointment_id tha)
+        if (auth()->user()->hasRole('doctor') && $request->filled('appointment_id')) {
+            return redirect()->route('appointments.show', $request->appointment_id)
+                ->with('success', 'Radiology order created successfully.');
+        }
+
         return redirect()->route('radiology.orders.index')
             ->with('success', 'Radiology order created successfully. Payment will be processed via Billing.');
     }
@@ -172,21 +194,32 @@ class RadiologyController extends Controller
     //  SHOW
     // ─────────────────────────────────────────────
     public function show(RadiologyOrder $radiologyOrder)
-    {
-        $radiologyOrder->load([
-            'patient',
-            'doctor',
-            'appointment',
-            'items.exam.modality',
-            'items.exam.bodyPart',
-            'items.report.reportedBy',
-            'items.report.verifiedBy',
-            'items.images',
-            'consents',
-        ]);
+{
+    // Doctor sirf apna order dekh sakta hai
+    if (auth()->user()->hasRole('doctor')) {
+        $doctor = Doctor::whereHas('employee', function ($q) {
+            $q->whereHas('user', function ($q2) {
+                $q2->where('id', auth()->id());
+            });
+        })->first();
 
-        return view('radiology.radiology_show', compact('radiologyOrder'));
+        abort_if(!$doctor || $radiologyOrder->doctor_id !== $doctor->id, 403);
     }
+
+    $radiologyOrder->load([
+        'patient',
+        'doctor',
+        'appointment',
+        'items.exam.modality',
+        'items.exam.bodyPart',
+        'items.report.reportedBy',
+        'items.report.verifiedBy',
+        'items.images',
+        'consents',
+    ]);
+
+    return view('radiology.radiology_show', compact('radiologyOrder'));
+}
 
     // ─────────────────────────────────────────────
     //  START SCAN  (In Progress)

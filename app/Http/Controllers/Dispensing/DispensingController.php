@@ -69,7 +69,6 @@ class DispensingController extends Controller
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'prescription_id' => 'nullable|exists:prescriptions,id',
-            // 'payment_status' validation HATA DI GAYI HAI
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.medicine_id' => 'required|exists:medicines,id',
@@ -78,83 +77,82 @@ class DispensingController extends Controller
             'items.*.prescription_item_id' => 'nullable|exists:prescription_items,id',
         ]);
 
-        DB::transaction(function () use ($request) {
+        try {
+            DB::transaction(function () use ($request) {
 
-            $totalAmount = 0;
-            $itemsData = [];
+                $totalAmount = 0;
+                $itemsData = [];
 
-            foreach ($request->items as $item) {
-                $batch = MedicineBatch::findOrFail($item['medicine_batch_id']);
+                foreach ($request->items as $item) {
+                    $batch = MedicineBatch::findOrFail($item['medicine_batch_id']);
 
-                // Check stock
-                if ($batch->quantity_in_stock < $item['quantity']) {
-                    throw new \Exception("Insufficient stock in batch {$batch->batch_number}!");
+                    if ($batch->quantity_in_stock < $item['quantity']) {
+                        throw new \Exception("Insufficient stock in batch {$batch->batch_number}!");
+                    }
+
+                    $unitPrice = $batch->medicine->sale_price;
+                    $totalPrice = $unitPrice * $item['quantity'];
+                    $totalAmount += $totalPrice;
+
+                    $batch->decrement('quantity_in_stock', $item['quantity']);
+                    if ($batch->quantity_in_stock == 0) {
+                        $batch->update(['status' => 'Exhausted']);
+                    }
+
+                    $itemsData[] = [
+                        'medicine_id' => $item['medicine_id'],
+                        'medicine_batch_id' => $item['medicine_batch_id'],
+                        'prescription_item_id' => $item['prescription_item_id'] ?? null,
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $unitPrice,
+                        'total_price' => $totalPrice,
+                    ];
+
+                    if (! empty($item['prescription_item_id'])) {
+                        PrescriptionItem::find($item['prescription_item_id'])
+                            ?->increment('dispensed_qty', $item['quantity']);
+                    }
                 }
 
-                $unitPrice = $batch->medicine->sale_price;
-                $totalPrice = $unitPrice * $item['quantity'];
-                $totalAmount += $totalPrice;
+                $dispensing = Dispensing::create([
+                    'patient_id' => $request->patient_id,
+                    'prescription_id' => $request->prescription_id,
+                    'dispensed_at' => now(),
+                    'total_amount' => $totalAmount,
+                    'payment_status' => 'Unpaid',
+                    'notes' => $request->notes,
+                ]);
 
-                // Deduct from batch
-                $batch->decrement('quantity_in_stock', $item['quantity']);
-                if ($batch->quantity_in_stock == 0) {
-                    $batch->update(['status' => 'Exhausted']);
+                foreach ($itemsData as $data) {
+                    $dispensing->items()->create($data);
                 }
 
-                $itemsData[] = [
-                    'medicine_id' => $item['medicine_id'],
-                    'medicine_batch_id' => $item['medicine_batch_id'],
-                    'prescription_item_id' => $item['prescription_item_id'] ?? null,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $unitPrice,
-                    'total_price' => $totalPrice,
-                ];
-
-                // Update dispensed_qty on prescription item
-                if (! empty($item['prescription_item_id'])) {
-                    PrescriptionItem::find($item['prescription_item_id'])
-                        ?->increment('dispensed_qty', $item['quantity']);
+                foreach ($request->items as $item) {
+                    Medicine::find($item['medicine_id'])?->syncStock();
                 }
-            }
 
-            // Create dispensing
-            $dispensing = Dispensing::create([
-                'patient_id' => $request->patient_id,
-                'prescription_id' => $request->prescription_id,
-                'dispensed_at' => now(),
-                'total_amount' => $totalAmount,
-                'payment_status' => 'Unpaid', // Hardcoded Unpaid (Billing module pay karega)
-                'notes' => $request->notes,
-            ]);
+                if ($request->prescription_id) {
+                    Prescription::find($request->prescription_id)?->syncStatus();
+                }
+            });
 
-            // Create dispensing items
-            foreach ($itemsData as $data) {
-                $dispensing->items()->create($data);
-            }
+            return redirect()
+                ->route('pharmacy.dispensings.index')
+                ->with('success', 'Medicines dispensed successfully! Payment pending in Billing Module.');
 
-            // Sync medicine total_stock
-            foreach ($request->items as $item) {
-                Medicine::find($item['medicine_id'])?->syncStock();
-            }
-
-            // Sync prescription status
-            if ($request->prescription_id) {
-                Prescription::find($request->prescription_id)?->syncStatus();
-            }
-        });
-
-        return redirect()
-            ->route('pharmacy.dispensings.index')
-            ->with('success', 'Medicines dispensed successfully! Payment pending in Billing Module.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     // ===== SHOW =====
     public function show(Dispensing $dispensing)
-{
-    $dispensing->load('prescription.patient', 'prescription.doctor', 'prescription.items.medicine', 'prescription.dispensings');
+    {
+        $dispensing->load('patient', 'prescription', 'items.medicine', 'items.batch');
 
-    $prescription = $dispensing->prescription;
-
-    return view('prescription.prescriptions_show', compact('prescription'));
-}
+        return view('dispensing.dispensings_show', compact('dispensing'));
+    }
 }

@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Hospital Management System — @yield('title', 'Dashboard')</title>
-
+    {{-- ── App Config for JavaScript ── --}}
+    <script>
+        window.APP_URL = '{{ rtrim(url('/'), '/') }}';
+        window.CSRF = '{{ csrf_token() }}';
+    </script>
     {{-- favorite icon --}}
     <link rel="icon" href="{{ asset('fav.png') }}" type="image/x-icon">
     {{-- Bootstrap CSS --}}
@@ -343,323 +347,251 @@
 
         {{-- Navigation --}}
         <div class="sidebar-scroll" id="sidebarScrollArea">
+            @php $user = auth()->user(); @endphp
 
-            {{-- Main --}}
+            {{-- ── MAIN ── --}}
             <div class="nav-section-label">Main</div>
-            @if (Route::has('dashboard'))
+
+            {{-- Main Dashboard — doctors ka apna dashboard hai, unhe yeh nahi dikhana --}}
+            @if (!($user && $user->hasRole('doctor')))
                 <a href="{{ route('dashboard') }}"
                     class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-grid-1x2"></i>
-                    Dashboard
+                    <i class="bi bi-grid-1x2"></i> Dashboard
                 </a>
             @endif
 
-            {{-- Doctors --}}
-            <div class="nav-section-label">Doctors & Staff</div>
-
-            @if (Route::has('doctors.index'))
-                <a href="{{ route('doctors.index') }}"
-                    class="nav-item {{ request()->routeIs('doctors.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-badge"></i>
-                    Doctors
+            {{-- Doctor dashboard — doctor role ya super_admin dono dekh sakte hain --}}
+            @if ($user && ($user->hasRole('doctor') || $user->isSuperAdmin()))
+                <a href="{{ route('doctor.dashboard') }}"
+                    class="nav-item {{ request()->routeIs('doctor.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge"></i> Doctor Dashboard
                 </a>
             @endif
 
-            {{-- Patients --}}
-            <div class="nav-section-label">Patients</div>
 
-            @if (Route::has('patients.index'))
-                <a href="{{ route('patients.index') }}"
-                    class="nav-item {{ request()->routeIs('patients.*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i>
-                    Patients
-                </a>
+            {{-- ── PATIENTS & APPOINTMENTS ── --}}
+            @if ($user && ($user->canAccess('patients') || $user->canAccess('appointments') || $user->canAccess('doctors')))
+                <div class="nav-section-label">Patients & Doctors</div>
+
+                @if ($user->canAccess('doctors'))
+                    <a href="{{ route('doctors.index') }}"
+                        class="nav-item {{ request()->routeIs('doctors.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-badge"></i> Doctors
+                    </a>
+                @endif
+
+                @if ($user->canAccess('patients'))
+                    <a href="{{ route('patients.index') }}"
+                        class="nav-item {{ request()->routeIs('patients.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Patients
+                    </a>
+                @endif
+
+                @if ($user->canAccess('appointments'))
+                    <a href="{{ route('appointments.index') }}"
+                        class="nav-item {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-check"></i> Appointments
+                    </a>
+                @endif
             @endif
 
-            @if (Route::has('appointments.index'))
-                <a href="{{ route('appointments.index') }}"
-                    class="nav-item {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
-                    <i class="bi bi-calendar-check"></i>
-                    Appointments
-                </a>
-            @endif
+            {{-- ── CLINICAL ── --}}
+            @if ($user && $user->canAccess('wards'))
+                <div class="nav-section-label">Clinical</div>
 
-            @if (Route::has('staff.index'))
-                <a href="{{ route('staff.index') }}"
-                    class="nav-item {{ request()->routeIs('staff.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-workspace"></i>
-                    Staff / HR
-                </a>
-            @endif
-
-            {{-- Clinical --}}
-            <div class="nav-section-label">Clinical</div>
-
-            @if (Route::has('wards.index'))
                 <a href="{{ route('wards.index') }}"
                     class="nav-item {{ request()->routeIs('wards.*') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i>
-                    Wards & Beds
+                    <i class="bi bi-building"></i> Wards & Beds
                 </a>
             @endif
 
-            {{-- Pharmacy --}}
-            <div class="nav-section-label">Pharmacy</div>
+            {{-- ── PHARMACY ── --}}
+            @if ($user && $user->canAccess('pharmacy'))
+                <div class="nav-section-label">Pharmacy</div>
 
-            @if (Route::has('pharmacy.medicines.index'))
-                <a href="{{ route('pharmacy.medicines.index') }}"
-                    class="nav-item {{ request()->routeIs('pharmacy.medicines.*') ? 'active' : '' }}">
-                    <i class="bi bi-capsule"></i>
-                    Medicines Inventory
-                </a>
+                {{-- Medicines Inventory — sirf pharmacist --}}
+                @if ($user->hasRole('pharmacist'))
+                    <a href="{{ route('pharmacy.medicines.index') }}"
+                        class="nav-item {{ request()->routeIs('pharmacy.medicines.*') ? 'active' : '' }}">
+                        <i class="bi bi-capsule"></i> Medicines Inventory
+                    </a>
+                @endif
+
+                {{-- Prescriptions index — sirf pharmacist --}}
+                @if ($user->hasRole('pharmacist'))
+                    <a href="{{ route('pharmacy.prescriptions.index') }}"
+                        class="nav-item {{ request()->routeIs('pharmacy.prescriptions.index') ? 'active' : '' }}">
+                        <i class="bi bi-file-medical"></i> Prescriptions
+                    </a>
+                @endif
+
+                {{-- New Prescription — sirf doctor --}}
+                @if ($user->hasRole('doctor'))
+                    <a href="{{ route('pharmacy.prescriptions.create') }}"
+                        class="nav-item {{ request()->routeIs('pharmacy.prescriptions.create') ? 'active' : '' }}">
+                        <i class="bi bi-plus-circle"></i> New Prescription
+                    </a>
+                @endif
+
+                {{-- Dispensing — sirf pharmacist --}}
+                @if ($user->hasRole('pharmacist'))
+                    <a href="{{ route('pharmacy.dispensings.index') }}"
+                        class="nav-item {{ request()->routeIs('pharmacy.dispensings.*') ? 'active' : '' }}">
+                        <i class="bi bi-bag-check"></i> Dispensing
+                    </a>
+                @endif
             @endif
 
-            @if (Route::has('pharmacy.prescriptions.index'))
-                <a href="{{ route('pharmacy.prescriptions.index') }}"
-                    class="nav-item {{ request()->routeIs('pharmacy.prescriptions.*') ? 'active' : '' }}">
-                    <i class="bi bi-file-medical"></i>
-                    Prescriptions
-                </a>
-            @endif
+            {{-- ── LABORATORY ── --}}
+            @if ($user && $user->canAccess('lab'))
+                <div class="nav-section-label">Laboratory</div>
 
+                {{-- Lab Orders index — doctors ke liye nahi --}}
+                @if (!$user->hasRole('doctor'))
+                    <a href="{{ route('lab.orders.index') }}"
+                        class="nav-item {{ request()->routeIs('lab.orders.index') ? 'active' : '' }}">
+                        <i class="bi bi-clipboard2"></i> Lab Orders
+                    </a>
+                @endif
 
-            @if (Route::has('pharmacy.prescriptions.create'))
-                <a href="{{ route('pharmacy.prescriptions.create') }}"
-                    class="nav-item {{ request()->routeIs('pharmacy.prescriptions.create') ? 'active' : '' }}">
-                    <i class="bi bi-plus-circle"></i>
-                    New Prescription
-                </a>
-            @endif
-            @if (Route::has('pharmacy.dispensings.index'))
-                <a href="{{ route('pharmacy.dispensings.index') }}"
-                    class="nav-item {{ request()->routeIs('pharmacy.dispensings.*') ? 'active' : '' }}">
-                    <i class="bi bi-bag-check"></i>
-                    Dispensing
-                </a>
-            @else
-            @endif
-            {{-- Laboratory --}}
-            <div class="nav-section-label">Laboratory</div>
-
-            @if (Route::has('lab.orders.index'))
-                <a href="{{ route('lab.orders.index') }}"
-                    class="nav-item {{ request()->routeIs('lab.orders.*') ? 'active' : '' }}">
-                    <i class="bi bi-clipboard2"></i>
-                    Lab Orders
-                </a>
-            @endif
-
-            @if (Route::has('lab.orders.create'))
+                {{-- New Order — sabke liye --}}
                 <a href="{{ route('lab.orders.create') }}"
                     class="nav-item {{ request()->routeIs('lab.orders.create') ? 'active' : '' }}">
-                    <i class="bi bi-plus-circle"></i>
-                    New Order
+                    <i class="bi bi-plus-circle"></i> New Lab Order
                 </a>
+
+                {{-- Manage Tests & Settings — doctors ke liye nahi --}}
+                @if (!$user->hasRole('doctor'))
+                    <a href="{{ route('lab.tests.index') }}"
+                        class="nav-item {{ request()->routeIs('lab.tests.*') ? 'active' : '' }}">
+                        <i class="bi bi-clipboard2-pulse"></i> Manage Tests
+                    </a>
+
+                    <div class="nav-section-label">Lab Settings</div>
+                    <a href="{{ route('lab.categories.index') }}"
+                        class="nav-item {{ request()->routeIs('lab.categories.*') ? 'active' : '' }}">
+                        <i class="bi bi-tags"></i> Test Categories
+                    </a>
+                    <a href="{{ route('lab.sample-types.index') }}"
+                        class="nav-item {{ request()->routeIs('lab.sample-types.*') ? 'active' : '' }}">
+                        <i class="bi bi-droplet-fill"></i> Sample Types
+                    </a>
+                @endif
             @endif
 
-            @if (Route::has('lab.tests.index'))
-                <a href="{{ route('lab.tests.index') }}"
-                    class="nav-item {{ request()->routeIs('lab.tests.*') ? 'active' : '' }}">
-                    <i class="bi bi-clipboard2-pulse"></i>
-                    Manage Tests
-                </a>
-            @endif
+            {{-- ── RADIOLOGY ── --}}
+            @if ($user && $user->canAccess('radiology'))
+                <div class="nav-section-label">Radiology</div>
 
-            {{-- Lab Settings --}}
-            <div class="nav-section-label">Lab Settings</div>
-
-            @if (Route::has('lab.tests.create'))
-                <a href="{{ route('lab.tests.create') }}"
-                    class="nav-item {{ request()->routeIs('lab.tests.create') ? 'active' : '' }}">
-                    <i class="bi bi-plus-square"></i>
-                    Add Test
-                </a>
-            @endif
-
-            @if (Route::has('lab.categories.index'))
-                <a href="{{ route('lab.categories.index') }}"
-                    class="nav-item {{ request()->routeIs('lab.categories.*') ? 'active' : '' }}">
-                    <i class="bi bi-tags"></i>
-                    Test Categories
-                </a>
-            @endif
-
-            @if (Route::has('lab.sample-types.index'))
-                <a href="{{ route('lab.sample-types.index') }}"
-                    class="nav-item {{ request()->routeIs('lab.sample-types.*') ? 'active' : '' }}">
-                    <i class="bi bi-droplet-fill"></i>
-                    Sample Types
-                </a>
-            @endif
-
-            {{-- Radiology --}}
-            <div class="nav-section-label">Radiology</div>
-
-            @if (Route::has('radiology.orders.index'))
                 <a href="{{ route('radiology.orders.index') }}"
                     class="nav-item {{ request()->routeIs('radiology.orders.*') ? 'active' : '' }}">
-                    <i class="bi bi-radioactive"></i>
-                    Radiology
+                    <i class="bi bi-radioactive"></i> Radiology Orders
                 </a>
-            @endif
 
-            <div class="nav-section-label">Radiology Settings</div>
-
-            @if (Route::has('radiology.exams.index'))
+                <div class="nav-section-label">Radiology Settings</div>
                 <a href="{{ route('radiology.exams.index') }}"
                     class="nav-item {{ request()->routeIs('radiology.exams.*') ? 'active' : '' }}">
-                    <i class="bi bi-collection"></i>
-                    Manage Exams
+                    <i class="bi bi-collection"></i> Manage Exams
                 </a>
-            @endif
-
-            @if (Route::has('radiology.modalities.index'))
                 <a href="{{ route('radiology.modalities.index') }}"
                     class="nav-item {{ request()->routeIs('radiology.modalities.*') ? 'active' : '' }}">
-                    <i class="bi bi-camera"></i>
-                    Modalities
+                    <i class="bi bi-camera"></i> Modalities
                 </a>
-            @endif
-
-            @if (Route::has('radiology.body-parts.index'))
                 <a href="{{ route('radiology.body-parts.index') }}"
                     class="nav-item {{ request()->routeIs('radiology.body-parts.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-bounding-box"></i>
-                    Body Parts
+                    <i class="bi bi-person-bounding-box"></i> Body Parts
                 </a>
             @endif
 
-            @if (Route::has('reports.index'))
-                <a href="{{ route('reports.index') }}"
-                    class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart-line"></i>
-                    Reports
-                </a>
-            @endif
+            {{-- ── OPERATION THEATER ── (super_admin only for now) ── --}}
+            @if ($user && ($user->isSuperAdmin() || $user->hasAnyRole(['doctor', 'nurse'])))
+                <div class="nav-section-label">Operation Theater</div>
 
-            {{-- System --}}
-            <div class="nav-section-label">System</div>
-
-            @if (Route::has('settings.index'))
-                <a href="{{ route('settings.index') }}"
-                    class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                    <i class="bi bi-gear"></i>
-                    Settings
-                </a>
-            @endif
-            <div class="nav-section-label">Operation Theater Rooms</div>
-            @if (Route::has('ot.rooms.index'))
                 <a href="{{ route('ot.rooms.index') }}"
                     class="nav-item {{ request()->routeIs('ot.rooms.*') ? 'active' : '' }}">
-                    <i class="bi bi-hospital"></i>
-                    OT Rooms
+                    <i class="bi bi-hospital"></i> OT Rooms
+                </a>
+                <a href="{{ route('ot.index') }}"
+                    class="nav-item {{ request()->routeIs('ot.index') || request()->routeIs('ot.schedules.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar2-week"></i> OT Schedules
                 </a>
             @endif
 
-            <div class="nav-section-label">Operation Theater</div>
+            {{-- ── BLOOD BANK ── (super_admin only) ── --}}
+            @if ($user && $user->isSuperAdmin())
+                <div class="nav-section-label">Blood Bank</div>
 
-            @if (Route::has('ot.index'))
-                <a href="{{ route('ot.index') }}" class="nav-item {{ request()->routeIs('ot.*') ? 'active' : '' }}">
-                    <i class="bi bi-calendar2-week"></i>
-                    OT Schedules
-                </a>
-            @endif
-
-            <div class="nav-section-label">Blood Bank</div>
-            @if (Route::has('blood-bank.index'))
                 <a href="{{ route('blood-bank.index') }}"
-                    class="nav-item {{ request()->routeIs('blood-bank.*') ? 'active' : '' }}">
-                    <i class="bi bi-droplet"></i>
-                    Blood Bank Dashboard
+                    class="nav-item {{ request()->routeIs('blood-bank.index') ? 'active' : '' }}">
+                    <i class="bi bi-droplet"></i> Blood Bank Dashboard
                 </a>
-            @endif
-
-            @if (Route::has('blood-bank.donors.index'))
                 <a href="{{ route('blood-bank.donors.index') }}"
                     class="nav-item {{ request()->routeIs('blood-bank.donors.*') ? 'active' : '' }}">
-                    <i class="bi bi-people-fill"></i>
-                    Blood Donors
+                    <i class="bi bi-people-fill"></i> Donors
                 </a>
-            @endif
-            @if (Route::has('blood-bank.donations.index'))
                 <a href="{{ route('blood-bank.donations.index') }}"
                     class="nav-item {{ request()->routeIs('blood-bank.donations.*') ? 'active' : '' }}">
-                    <i class="bi bi-droplet"></i>
-                    Blood Donations
+                    <i class="bi bi-droplet"></i> Donations
                 </a>
-            @endif
-            @if (Route::has('blood-bank.requests.index'))
                 <a href="{{ route('blood-bank.requests.index') }}"
                     class="nav-item {{ request()->routeIs('blood-bank.requests.*') ? 'active' : '' }}">
-                    <i class="bi bi-droplet"></i>
-                    Blood Requests
+                    <i class="bi bi-droplet"></i> Blood Requests
                 </a>
             @endif
 
+            {{-- ── MORTUARY ── (super_admin only) ── --}}
+            @if ($user && $user->isSuperAdmin())
+                <div class="nav-section-label">Mortuary</div>
 
-            <div class="nav-section-label">Employee Management</div>
-            @if (Route::has('employees.index'))
-                <a href="{{ route('employees.index') }}"
-                    class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
-                    <i class="bi bi-people-fill"></i>
-                    Employees
-                </a>
-            @endif
-
-
-            <div class="nav-section-label">Finance</div>
-            @if (Route::has('billing.index'))
-                <a href="{{ route('billing.index') }}"
-                    class="nav-item {{ request()->routeIs('billing.*') ? 'active' : '' }}">
-                    <i class="bi bi-currency-dollar"></i>
-                    Billing
-                </a>
-            @endif
-            @if (Route::has('billing.service-charges.index'))
-                <a href="{{ route('billing.service-charges.index') }}"
-                    class="nav-item {{ request()->routeIs('billing.service-charges.*') ? 'active' : '' }}">
-                    <i class="bi bi-list-task"></i>
-                    Service Charges
-                </a>
-            @endif
-
-            <div class="nav-section-label">User Management</div>
-            @if (Route::has('admin.users.index'))
-                <a href="{{ route('admin.users.index') }}"
-                    class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="bi bi-shield-lock"></i>
-                    Users & Roles
-                </a>
-            @endif
-
-            <div class="nav-section-label">Mortuary</div>
-
-            @if (Route::has('mortuary.index'))
                 <a href="{{ route('mortuary.index') }}"
                     class="nav-item {{ request()->routeIs('mortuary.*') ? 'active' : '' }}">
-                    <i class="bi bi-journal-medical"></i>
-                    Mortuary Records
+                    <i class="bi bi-journal-medical"></i> Mortuary Records
                 </a>
             @endif
 
-            @if (Route::has('mortuary.create'))
-                <a href="{{ route('mortuary.create') }}"
-                    class="nav-item {{ request()->routeIs('mortuary.create') ? 'active' : '' }}">
-                    <i class="bi bi-plus-circle"></i>
-                    New Record
+            {{-- ── HR / EMPLOYEES ── --}}
+            @if ($user && $user->canAccess('staff'))
+                <div class="nav-section-label">Employee Management</div>
+
+                <a href="{{ route('employees.index') }}"
+                    class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i> Employees
                 </a>
             @endif
 
-            @if (Route::has('reports.patients.index'))
+            {{-- ── FINANCE ── --}}
+            @if ($user && $user->canAccess('billing'))
+                <div class="nav-section-label">Finance</div>
+
+                <a href="{{ route('billing.index') }}"
+                    class="nav-item {{ request()->routeIs('billing.index') ? 'active' : '' }}">
+                    <i class="bi bi-currency-dollar"></i> Billing
+                </a>
+                <a href="{{ route('billing.service-charges.index') }}"
+                    class="nav-item {{ request()->routeIs('billing.service-charges.*') ? 'active' : '' }}">
+                    <i class="bi bi-list-task"></i> Service Charges
+                </a>
+            @endif
+
+            {{-- ── REPORTS ── --}}
+            @if ($user && $user->canAccess('reports'))
+                <div class="nav-section-label">Reports</div>
+
                 <a href="{{ route('reports.patients.index') }}"
-                    class="nav-item {{ request()->routeIs('reports.patients.*') ? 'active' : '' }}">
-                    <i class="bi bi-graph-up"></i>
-                    Reports
+                    class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <i class="bi bi-graph-up"></i> Patient Reports
                 </a>
             @endif
 
+            {{-- ── USER MANAGEMENT ── (super_admin only) ── --}}
+            @if ($user && $user->isSuperAdmin())
+                <div class="nav-section-label">System</div>
 
-
+                <a href="{{ route('admin.users.index') }}"
+                    class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-shield-lock"></i> Users & Roles
+                </a>
+            @endif
 
         </div>
 
@@ -711,11 +643,11 @@
                 {{-- User Pill --}}
                 <div class="user-pill">
                     <div class="user-avatar">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'Admin', 0, 2)) }}
+                        {{ strtoupper(substr(auth()->user() ? auth()->user()->name : 'Admin', 0, 2)) }}
                     </div>
                     <div>
-                        <div class="user-name">{{ auth()->user()->name ?? 'Admin' }}</div>
-                        <div class="user-role">{{ auth()->user()->role ?? 'Administrator' }}</div>
+                        <div class="user-name">{{ auth()->user() ? auth()->user()->name : 'Admin' }}</div>
+                        <div class="user-role">{{ auth()->user() ? auth()->user()->role : 'Administrator' }}</div>
                     </div>
                 </div>
 

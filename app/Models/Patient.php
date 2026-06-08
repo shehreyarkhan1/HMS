@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patient extends Model
@@ -43,13 +46,11 @@ class Patient extends Model
 
         static::creating(function ($patient) {
             if (empty($patient->mrn)) {
-                // Latest patient fetch kar rahe hain chahe wo delete ho chuka ho (withTrashed)
                 $lastPatient = static::withTrashed()->latest('id')->first();
 
                 if (! $lastPatient) {
                     $number = 1;
                 } else {
-                    // MRN-00001 se number nikalne ka tareeka
                     $lastNumber = (int) str_replace('MRN-', '', $lastPatient->mrn);
                     $number = $lastNumber + 1;
                 }
@@ -62,17 +63,17 @@ class Patient extends Model
     /**
      * ===== RELATIONSHIPS =====
      */
-    public function doctor()
+    public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
     }
 
-    public function appointments()
+    public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
     }
 
-    public function bed()
+    public function bed(): HasOne
     {
         return $this->hasOne(Bed::class);
     }
@@ -82,58 +83,53 @@ class Patient extends Model
         return $this->hasMany(Bill::class, 'patient_id');
     }
 
-    // 2. If you want to count actual PAYMENTS (HasManyThrough)
-    // This allows you to go Patient -> Bill -> BillPayment
-    public function payments(): HasManyThrough
-    {
-        return $this->hasManyThrough(BillPayment::class, Bill::class);
-    }
-
-    // 3. Lab Orders (Matches your schema)
     public function labOrders(): HasMany
     {
-        return $this->hasMany(LabOrder::class, 'patient_id');
+        // latest() yahan add kar diya taake humesha new records pehle ayein
+        return $this->hasMany(LabOrder::class, 'patient_id')->latest();
     }
 
-    // 4. Radiology Orders (Matches your schema)
     public function radiologyOrders(): HasMany
     {
-        return $this->hasMany(RadiologyOrder::class, 'patient_id');
+        return $this->hasMany(RadiologyOrder::class, 'patient_id')->latest();
     }
 
-    // 5. OT Schedules (Matches your schema)
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class, 'patient_id')->latest();
+    }
+
     public function otSchedules(): HasMany
     {
         return $this->hasMany(OtSchedule::class, 'patient_id');
     }
 
-    // 6. Blood Requests (Matches your schema)
     public function bloodRequests(): HasMany
     {
         return $this->hasMany(BloodRequest::class, 'patient_id');
     }
 
-    // 7. Appointments (Matches your schema)
-
-
-    // 8. Prescriptions (Matches your schema)
-    public function prescriptions(): HasMany
+    public function mortuaryRecord(): HasOne
     {
-        return $this->hasMany(Prescription::class, 'patient_id');
+        return $this->hasOne(MortuaryRecord::class);
+    }
+
+    /**
+     * Allows you to go Patient -> Bill -> BillPayment
+     */
+    public function payments(): HasManyThrough
+    {
+        return $this->hasManyThrough(BillPayment::class, Bill::class);
     }
 
     /**
      * ===== ACCESSORS =====
      */
+
     // Age calculate karne ke liye
     public function getAgeAttribute()
     {
         return $this->date_of_birth ? $this->date_of_birth->age : null;
-    }
-
-    public function mortuaryRecord()
-    {
-        return $this->hasOne(MortuaryRecord::class);
     }
 
     // Name ke initials nikalne ke liye (e.g. Ahmed Ali -> AA)
@@ -161,17 +157,12 @@ class Patient extends Model
         return $query->where('patient_type', $type);
     }
 
-    /**
-     * Professional Search Scope (Database Agnostic)
-     * Yeh MySQL (like) aur PostgreSQL (ilike) dono ko support karega
-     */
     public function scopeSearch($query, $term)
     {
         if (empty($term)) {
             return $query;
         }
 
-        // Database driver detect karein
         $driver = $query->getConnection()->getDriverName();
         $operator = ($driver === 'pgsql') ? 'ilike' : 'like';
 

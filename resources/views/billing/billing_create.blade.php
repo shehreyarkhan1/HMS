@@ -562,42 +562,8 @@
 
                             {{-- Patient Search --}}
                             <div class="col-md-4">
-                                <div class="form-label-sm">Patient <span style="color:#dc2626">*</span></div>
-
-                                {{-- Hidden input jo actual patient_id submit karega --}}
-                                <input type="hidden" name="patient_id" id="patientId"
-                                    value="{{ old('patient_id', $selectedPatient?->id) }}">
-
-                                {{-- Search Input --}}
-                                <div style="position:relative">
-                                    <div style="position:relative">
-                                        <i class="bi bi-search"
-                                            style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;pointer-events:none"></i>
-                                        <input type="text" id="patientSearch" class="form-control-clean"
-                                            style="padding-left:30px" placeholder="Search by name, MRN, or phone..."
-                                            value="{{ $selectedPatient ? $selectedPatient->name . ' — ' . $selectedPatient->mrn : '' }}"
-                                            autocomplete="off">
-                                    </div>
-
-                                    {{-- Dropdown — position fixed, JS se coordinates set honge --}}
-                                    <div id="patientDropdown"></div>
-                                </div>
-
-                                {{-- Selected patient badge --}}
-                                <div id="patientBadge"
-                                    style="display:{{ $selectedPatient ? 'flex' : 'none' }};
-                                           align-items:center;gap:6px;margin-top:6px;
-                                           background:#eff6ff;border:1px solid #bfdbfe;
-                                           border-radius:8px;padding:6px 10px;font-size:12px;color:#1e40af">
-                                    <i class="bi bi-person-check-fill"></i>
-                                    <span id="patientBadgeText">
-                                        {{ $selectedPatient ? $selectedPatient->name . ' (' . $selectedPatient->patient_type . ')' : '' }}
-                                    </span>
-                                    <button type="button" onclick="clearPatient()"
-                                        style="margin-left:auto;background:none;border:none;color:#93c5fd;cursor:pointer;padding:0;font-size:14px">
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
-                                </div>
+                                {{-- Aapka existing component --}}
+                                <x-patient-search :patient="$selectedPatient" name="patient_id" required="true" />
                             </div>
 
                             <div class="col-md-2">
@@ -806,6 +772,21 @@
             let idx = 0;
             const serviceTypes = @json(\App\Models\BillItem::serviceTypes());
 
+            // Global variable to track selected patient ID from component
+            let pid = "{{ $selectedPatient?->id ?? '' }}";
+            const loadedRefs = new Set();
+
+            // ─── Listen for Component Events ───────────────────────────────
+            document.addEventListener('patient-selected', function(e) {
+                pid = e.detail.id; // Get ID from component
+                resetLoadBtn(); // Reset load button on patient change
+            });
+
+            document.addEventListener('patient-cleared', function() {
+                pid = ""; // Clear ID
+                resetLoadBtn();
+            });
+
             // ─── Utility ──────────────────────────────────────────────────
             function formatDecimalInput(input) {
                 let val = input.value.replace(/[^0-9.]/g, '');
@@ -839,9 +820,8 @@
                     behavior: 'smooth',
                     block: 'start'
                 });
-                // Highlight animation
                 card.classList.remove('bill-items-highlight');
-                void card.offsetWidth; // reflow to restart animation
+                void card.offsetWidth;
                 card.classList.add('bill-items-highlight');
                 setTimeout(() => card.classList.remove('bill-items-highlight'), 900);
             }
@@ -852,6 +832,12 @@
                 const qty = data.quantity ?? 1;
                 const prc = data.unit_price ?? 0;
                 const dsc = data.discount ?? 0;
+
+                // Check karein ke kya ye item auto-loaded hai ya manual
+                // Agar unit_price pehle se maujood hai (data.unit_price), toh usay readonly kar dein
+                const isReadOnly = data.unit_price !== undefined ?
+                    'readonly style="background-color: #f1f5f9; cursor: not-allowed;"' : '';
+
                 const rawTotal = (parseFloat(qty) * parseFloat(prc)) - parseFloat(dsc);
                 const tot = Math.max(0, Math.round(rawTotal * 100) / 100);
 
@@ -860,49 +846,50 @@
                 ).join('');
 
                 const row = `
-                <tr id="row-${i}">
-                    <td>
-                        <select name="items[${i}][service_type]" class="form-select-sm" required>
-                            ${typeOptions}
-                        </select>
-                        <input type="hidden" name="items[${i}][reference_type]" value="${escHtml(data.reference_type ?? '')}">
-                        <input type="hidden" name="items[${i}][reference_id]"   value="${escHtml(String(data.reference_id ?? ''))}">
-                    </td>
-                    <td>
-                        <input type="text" name="items[${i}][description]"
-                               class="form-control-sm"
-                               value="${escHtml(data.description ?? '')}"
-                               placeholder="Service description..." required>
-                    </td>
-                    <td>
-                        <input type="number" name="items[${i}][quantity]"
-                               class="qty form-control-sm"
-                               value="${qty}" min="0" step="any"
-                               onchange="recalcRow(${i})"
-                               oninput="formatDecimalInput(this)">
-                    </td>
-                    <td>
-                        <input type="number" name="items[${i}][unit_price]"
-                               class="prc form-control-sm"
-                               value="${prc}" min="0" step="0.01"
-                               onchange="recalcRow(${i})">
-                    </td>
-                    <td>
-                        <input type="number" name="items[${i}][discount]"
-                               class="dsc form-control-sm"
-                               value="${dsc}" min="0" step="0.01"
-                               onchange="recalcRow(${i})">
-                    </td>
-                    <td style="text-align:right;font-size:13px;font-weight:600;color:#1e293b;padding-right:12px">
-                        <span id="tot-${i}">${formatCurrency(tot)}</span>
-                    </td>
-                    <td style="text-align:center">
-                        <button type="button" onclick="removeRow(${i})"
-                                class="btn btn-link text-danger p-0" style="font-size:16px">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </td>
-                </tr>`;
+    <tr id="row-${i}">
+        <td>
+            <select name="items[${i}][service_type]" class="form-select-sm" required>
+                ${typeOptions}
+            </select>
+            <input type="hidden" name="items[${i}][reference_type]" value="${escHtml(data.reference_type ?? '')}">
+            <input type="hidden" name="items[${i}][reference_id]"   value="${escHtml(String(data.reference_id ?? ''))}">
+        </td>
+        <td>
+            <input type="text" name="items[${i}][description]"
+                   class="form-control-sm"
+                   value="${escHtml(data.description ?? '')}"
+                   placeholder="Service description..." required>
+        </td>
+        <td>
+            <input type="number" name="items[${i}][quantity]"
+                   class="qty form-control-sm"
+                   value="${qty}" min="0" step="any"
+                   onchange="recalcRow(${i})"
+                   oninput="formatDecimalInput(this)">
+        </td>
+        <td>
+            <input type="number" name="items[${i}][unit_price]"
+                   class="prc form-control-sm"
+                   value="${prc}" min="0" step="0.01"
+                   onchange="recalcRow(${i})"
+                   ${isReadOnly}>
+        </td>
+        <td>
+            <input type="number" name="items[${i}][discount]"
+                   class="dsc form-control-sm"
+                   value="${dsc}" min="0" step="0.01"
+                   onchange="recalcRow(${i})">
+        </td>
+        <td style="text-align:right;font-size:13px;font-weight:600;color:#1e293b;padding-right:12px">
+            <span id="tot-${i}">${formatCurrency(tot)}</span>
+        </td>
+        <td style="text-align:center">
+            <button type="button" onclick="removeRow(${i})"
+                    class="btn btn-link text-danger p-0" style="font-size:16px">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </td>
+    </tr>`;
 
                 document.getElementById('itemsBody').insertAdjacentHTML('beforeend', row);
                 document.getElementById('emptyMsg').style.display = 'none';
@@ -958,11 +945,7 @@
             }
 
             // ─── Load Pending Services ─────────────────────────────────────
-            // ─── Loaded items track karne ke liye ─────────────────────────
-            const loadedRefs = new Set();
-
             function loadPendingServices() {
-                const pid = document.getElementById('patientId')?.value;
                 if (!pid) {
                     alert('Please select a patient first.');
                     return;
@@ -970,13 +953,11 @@
 
                 const btn = document.querySelector('.load-pending-btn');
 
-                // Already loaded check
                 if (btn.dataset.loaded === pid) {
                     alert('Pending services already loaded for this patient.');
                     return;
                 }
 
-                // Button loading state
                 btn.disabled = true;
                 btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Loading...';
 
@@ -985,29 +966,17 @@
                     .then(list => {
                         if (!list || list.length === 0) {
                             alert('No pending unpaid services found for this patient.');
-                            // Button reset
                             btn.disabled = false;
                             btn.innerHTML =
                                 '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
                             return;
                         }
 
-                        let added = 0;
-                        let skipped = 0;
-
                         list.forEach(s => {
-                            // OT items sab ka same reference_id hota hai — description bhi add karo
                             const refKey = `${s.reference_type}_${s.reference_id}_${s.description}`;
+                            if (s.reference_type && s.reference_id && loadedRefs.has(refKey)) return;
 
-                            if (s.reference_type && s.reference_id && loadedRefs.has(refKey)) {
-                                skipped++;
-                                return; // skip duplicate
-                            }
-
-                            // Set mein add karo
-                            if (s.reference_type && s.reference_id) {
-                                loadedRefs.add(refKey);
-                            }
+                            if (s.reference_type && s.reference_id) loadedRefs.add(refKey);
 
                             addItemRow({
                                 service_type: s.service_type || 'Service',
@@ -1018,11 +987,9 @@
                                 unit_price: parseFloat(s.unit_price) || 0,
                                 discount: parseFloat(s.discount) || 0,
                             });
-                            added++;
                         });
 
-                        // Button — loaded state (dobara click nahi hoga)
-                        btn.dataset.loaded = pid; // is patient ke liye loaded mark karo
+                        btn.dataset.loaded = pid;
                         btn.disabled = true;
                         btn.innerHTML = '<i class="bi bi-check-circle-fill me-1 text-success"></i>Services Loaded';
                         btn.style.background = '#f0fdf4';
@@ -1030,162 +997,32 @@
                         btn.style.color = '#15803d';
                         btn.style.animation = 'none';
 
-                        if (skipped > 0) {
-                            console.info(`${skipped} duplicate service(s) skipped.`);
-                        }
-
                         scrollToBillItems();
                     })
                     .catch(err => {
                         console.error('Load error:', err);
-                        alert('Could not load services. Please add items manually.');
-                        // Error pe reset
+                        alert('Could not load services.');
                         btn.disabled = false;
                         btn.innerHTML =
                             '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
                     });
             }
 
-            // ─── Patient Live Search ───────────────────────────────────────
-            let searchTimeout = null;
-            const searchInput = document.getElementById('patientSearch');
-            const dropdown = document.getElementById('patientDropdown');
-
-            // Dropdown ko input ke bilkul neeche position karna — fixed coordinates
-            function positionDropdown() {
-                const rect = searchInput.getBoundingClientRect();
-                dropdown.style.top = (rect.bottom + 4) + 'px';
-                dropdown.style.left = rect.left + 'px';
-                dropdown.style.width = rect.width + 'px';
-            }
-
-            searchInput.addEventListener('input', function() {
-                const q = this.value.trim();
-
-                if (document.getElementById('patientId').value) {
-                    clearPatient(false);
-                }
-
-                clearTimeout(searchTimeout);
-
-                if (q.length < 2) {
-                    dropdown.style.display = 'none';
-                    return;
-                }
-
-                positionDropdown();
-                dropdown.style.display = 'block';
-                dropdown.innerHTML = `
-                    <div style="padding:14px;text-align:center;color:#94a3b8;font-size:13px">
-                        <i class="bi bi-hourglass-split me-1"></i>Searching...
-                    </div>`;
-
-                searchTimeout = setTimeout(() => {
-                    fetch(`/billing/ajax/patient-search?q=${encodeURIComponent(q)}`)
-                        .then(r => r.json())
-                        .then(patients => {
-                            if (!patients.length) {
-                                dropdown.innerHTML = `
-                                    <div style="padding:14px;text-align:center;color:#94a3b8;font-size:13px">
-                                        <i class="bi bi-person-x me-1"></i>No patient found
-                                    </div>`;
-                                return;
-                            }
-
-                            dropdown.innerHTML = patients.map(p => `
-                                <div class="patient-row"
-                                     onclick="selectPatient(${p.id}, '${escHtml(p.name)}', '${escHtml(p.mrn)}', '${escHtml(p.patient_type)}')">
-                                    <div class="patient-avatar">
-                                        ${escHtml(p.name.charAt(0).toUpperCase())}
-                                    </div>
-                                    <div style="min-width:0">
-                                        <div class="patient-name">${escHtml(p.name)}</div>
-                                        <div class="patient-meta">
-                                            MRN: ${escHtml(p.mrn)} &nbsp;·&nbsp; ${escHtml(p.patient_type)}
-                                            ${p.phone ? '&nbsp;·&nbsp; ' + escHtml(p.phone) : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('');
-                        })
-                        .catch(() => {
-                            dropdown.innerHTML = `
-                                <div style="padding:14px;text-align:center;color:#dc2626;font-size:13px">
-                                    Search failed. Try again.
-                                </div>`;
-                        });
-                }, 300);
-            });
-
-            // Scroll ya resize pe bhi dropdown reposition karo
-            window.addEventListener('scroll', () => {
-                if (dropdown.style.display !== 'none') positionDropdown();
-            }, {
-                passive: true
-            });
-
-            window.addEventListener('resize', () => {
-                if (dropdown.style.display !== 'none') positionDropdown();
-            });
-
-            function selectPatient(id, name, mrn, type) {
-                document.getElementById('patientId').value = id;
-                searchInput.value = name + ' — ' + mrn;
-                document.getElementById('patientBadgeText').textContent = name + ' (' + type + ')';
-                document.getElementById('patientBadge').style.display = 'flex';
-                dropdown.style.display = 'none';
-
-                // ← Patient change hone par button reset karo
-                resetLoadBtn();
-
-                setTimeout(() => scrollToBillItems(), 150);
-            }
-
-            function clearPatient(clearInput = true) {
-                document.getElementById('patientId').value = '';
-                document.getElementById('patientBadge').style.display = 'none';
-                if (clearInput) searchInput.value = '';
-
-                // ← Patient clear hone par button reset karo
-                resetLoadBtn();
-            }
-
-            // Click bahar — dropdown band karo
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('#patientSearch') && !e.target.closest('#patientDropdown')) {
-                    dropdown.style.display = 'none';
-                }
-            });
-
-            // ─── Pre-loaded patients (from query string) ──────────────────
-            @if ($selectedPatient && count($pendingServices))
-                document.addEventListener('DOMContentLoaded', () => {
-                    @foreach ($pendingServices as $s)
-                        addItemRow(@json($s));
-                    @endforeach
-                });
-            @endif
-
-            document.addEventListener('DOMContentLoaded', () => {
-                const discInput = document.getElementById('discountAmount');
-                const taxInput = document.getElementById('taxAmount');
-                if (discInput) discInput.addEventListener('input', recalcSummary);
-                if (taxInput) taxInput.addEventListener('input', recalcSummary);
-            });
-
             function resetLoadBtn() {
                 const btn = document.querySelector('.load-pending-btn');
                 if (!btn) return;
                 btn.disabled = false;
-                btn.dataset.loaded = ''; // loaded flag clear
+                btn.dataset.loaded = '';
                 btn.innerHTML =
                     '<i class="bi bi-cloud-download me-1 text-primary"></i>Load Pending Services<span class="dot"></span>';
-                btn.style.background = '';
-                btn.style.borderColor = '';
-                btn.style.color = '';
-                btn.style.animation = '';
-                loadedRefs.clear(); // track set bhi clear karo
+                btn.style = ""; // Clear custom styles
+                loadedRefs.clear();
             }
+
+            // Initialize Summary on Page Load
+            document.addEventListener('DOMContentLoaded', () => {
+                recalcSummary();
+            });
         </script>
     @endpush
 

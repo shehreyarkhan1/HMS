@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Appointment\AppointmentController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Billing\BillingController;
 use App\Http\Controllers\Billing\BillServiceChargeController;
 use App\Http\Controllers\BloodBank\BloodBankController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Death\DeathCertificateController;
 use App\Http\Controllers\Death\MortuaryController;
 use App\Http\Controllers\Dispensing\DispensingController;
 use App\Http\Controllers\Doctor\DoctorController;
+use App\Http\Controllers\DoctorDashboard\DoctorDashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Laboratory\LabOrderController;
 use App\Http\Controllers\Laboratory\LabSampleTypeController;
@@ -34,354 +36,312 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Ward\WardController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    // ── User Management ───────────────────────────────────────────────────
-    Route::resource('users', UserController::class);
-
-    // Toggle active/inactive status
-    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
-        ->name('users.toggle-status');
+// ══════════════════════════════════════════════════════════════════════════════
+//  AUTH ROUTES — No middleware (guest only)
+// ══════════════════════════════════════════════════════════════════════════════
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
 });
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
-// Patients - Full CRUD
-Route::resource('patients', PatientController::class);
-// Doctors - Full CRUD + availability toggle
-Route::resource('doctors', DoctorController::class);
-Route::post('doctors/{doctor}/toggle-availability', [DoctorController::class, 'toggleAvailability'])
-    ->name('doctors.toggle-availability');
+// ══════════════════════════════════════════════════════════════════════════════
+//  PROTECTED ROUTES — Auth + Active check (EnsureActive runs via web group)
+// ══════════════════════════════════════════════════════════════════════════════
+Route::middleware(['auth'])->group(function () {
 
-// APPOINTMENT ROUTES
-Route::prefix('appointments')->name('appointments.')->group(function () {
+    // ── DASHBOARD ─────────────────────────────────────────────────────────
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // Calendar view (before resource routes to avoid conflict)
-    Route::get('/calendar', [AppointmentController::class, 'calendar'])->name('calendar');
-
-    // Doctor availability check (AJAX)
-    Route::get('/availability', [AppointmentController::class, 'availability'])->name('availability');
-
-    // Quick status update (PATCH — called from dropdown in list)
-    Route::patch('/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('status');
-
-    // Standard CRUD
-    Route::get('/', [AppointmentController::class, 'index'])->name('index');
-    Route::get('/create', [AppointmentController::class, 'create'])->name('create');
-    Route::post('/', [AppointmentController::class, 'store'])->name('store');
-    Route::get('/{appointment}', [AppointmentController::class, 'show'])->name('show');
-    Route::get('/{appointment}/edit', [AppointmentController::class, 'edit'])->name('edit');
-    Route::put('/{appointment}', [AppointmentController::class, 'update'])->name('update');
-    Route::delete('/{appointment}', [AppointmentController::class, 'destroy'])->name('destroy');
-});
-
-// Bed actions
-Route::post('wards/assign-bed', [WardController::class, 'assignBed'])->name('wards.assign-bed');
-Route::post('wards/beds/{bed}/discharge', [WardController::class, 'discharge'])->name('wards.beds.discharge');
-Route::post('wards/beds/{bed}/status', [WardController::class, 'changeBedStatus'])->name('wards.beds.status');
-
-// ✅ Baad mein resource
-Route::resource('wards', WardController::class);
-
-// Medicine management routes
-
-Route::prefix('pharmacy')->name('pharmacy.')->group(function () {
-
-    // ── Medicines ──
-    Route::post('medicines/{medicine}/add-stock', [MedicineController::class, 'addStock'])
-        ->name('medicines.add-stock');
-
-    Route::resource('medicines', MedicineController::class);
-    // Medicines
-    Route::resource('medicines', MedicineController::class)->names('medicines');
-    Route::post('medicines/{medicine}/add-stock', [MedicineController::class, 'addStock'])
-        ->name('medicines.add-stock');
-
-    // Prescriptions
-    Route::resource('prescriptions', PrescriptionController::class)->except(['edit', 'update'])->names('prescriptions');
-    Route::post('prescriptions/{prescription}/cancel', [PrescriptionController::class, 'cancel'])
-        ->name('prescriptions.cancel');
-
-    // Dispensing
-    Route::resource('dispensings', DispensingController::class)->except(['edit', 'update', 'destroy'])->names('dispensings');
-
-});
-
-// Laboratory routes
-Route::prefix('lab')->name('lab.')->group(function () {
-
-    // ── Lab Orders ──────────────────────────────────
-    Route::get('orders', [LabOrderController::class, 'index'])->name('orders.index');
-    Route::get('orders/create', [LabOrderController::class, 'create'])->name('orders.create');
-    Route::post('orders', [LabOrderController::class, 'store'])->name('orders.store');
-    Route::get('orders/{labOrder}', [LabOrderController::class, 'show'])->name('orders.show');
-
-    Route::post('orders/{labOrder}/collect-sample', [LabOrderController::class, 'collectSample'])->name('orders.collectSample');
-    Route::post('orders/{labOrder}/store-results', [LabOrderController::class, 'storeResults'])->name('orders.storeResults');
-    Route::post('orders/{labOrder}/record-payment', [LabOrderController::class, 'recordPayment'])->name('orders.recordPayment');
-    Route::post('orders/{labOrder}/cancel', [LabOrderController::class, 'cancel'])->name('orders.cancel');
-    Route::post('orders/{labOrder}/deliver-report', [LabOrderController::class, 'deliverReport'])->name('orders.deliverReport');
-
-    // ── Results ─────────────────────────────────────
-    Route::post('results/{labResult}/verify', [LabOrderController::class, 'verifyResult'])->name('results.verify');
-
-    // ── Lab Tests ───────────────────────────────────
-    Route::get('tests', [LabTestController::class, 'index'])->name('tests.index');
-    Route::get('tests/create', [LabTestController::class, 'create'])->name('tests.create');
-    Route::post('tests', [LabTestController::class, 'store'])->name('tests.store');
-    Route::get('tests/{labTest}/edit', [LabTestController::class, 'edit'])->name('tests.edit');
-    Route::put('tests/{labTest}', [LabTestController::class, 'update'])->name('tests.update');
-    Route::post('tests/{labTest}/toggle', [LabTestController::class, 'toggleActive'])->name('tests.toggleActive');
-    Route::get('tests/{labTest}/price', [LabTestController::class, 'getPrice'])->name('tests.price');
-
-    // ── Test Categories (Settings) ───────────────────
-    Route::get('categories', [LabTestCategoryController::class, 'index'])->name('categories.index');
-    Route::post('categories', [LabTestCategoryController::class, 'store'])->name('categories.store');
-    Route::put('categories/{labTestCategory}', [LabTestCategoryController::class, 'update'])->name('categories.update');
-    Route::delete('categories/{labTestCategory}', [LabTestCategoryController::class, 'destroy'])->name('categories.destroy');
-    Route::post('categories/{labTestCategory}/toggle', [LabTestCategoryController::class, 'toggleActive'])->name('categories.toggleActive');
-
-    // ── Sample Types (Settings) ──────────────────────
-    Route::get('sample-types', [LabSampleTypeController::class, 'index'])->name('sample-types.index');
-    Route::post('sample-types', [LabSampleTypeController::class, 'store'])->name('sample-types.store');
-    Route::put('sample-types/{labSampleType}', [LabSampleTypeController::class, 'update'])->name('sample-types.update');
-    Route::delete('sample-types/{labSampleType}', [LabSampleTypeController::class, 'destroy'])->name('sample-types.destroy');
-    Route::post('sample-types/{labSampleType}/toggle', [LabSampleTypeController::class, 'toggleActive'])->name('sample-types.toggleActive');
-});
-
-Route::prefix('radiology')->name('radiology.')->group(function () {
-
-    // ══════════════════════════════════════════════════════
-    //  Orders
-    // ══════════════════════════════════════════════════════
-    Route::get('orders', [RadiologyController::class, 'index'])->name('orders.index');
-    Route::get('orders/create', [RadiologyController::class, 'create'])->name('orders.create');
-    Route::post('orders', [RadiologyController::class, 'store'])->name('orders.store');
-    Route::get('orders/{radiologyOrder}', [RadiologyController::class, 'show'])->name('orders.show');
-
-    Route::post('orders/{radiologyOrder}/start-scan', [RadiologyController::class, 'startScan'])->name('orders.startScan');
-    Route::post('orders/{radiologyOrder}/complete-scan', [RadiologyController::class, 'completeScan'])->name('orders.completeScan');
-    Route::post('orders/{radiologyOrder}/report', [RadiologyController::class, 'storeReport'])->name('orders.storeReport');
-    Route::post('orders/{radiologyOrder}/schedule', [RadiologyController::class, 'schedule'])->name('orders.schedule');
-    Route::post('orders/{radiologyOrder}/payment', [RadiologyController::class, 'recordPayment'])->name('orders.recordPayment');
-    Route::post('orders/{radiologyOrder}/deliver', [RadiologyController::class, 'deliverReport'])->name('orders.deliverReport');
-    Route::post('orders/{radiologyOrder}/cancel', [RadiologyController::class, 'cancel'])->name('orders.cancel');
-
-    Route::post('reports/{radiologyReport}/verify', [RadiologyController::class, 'verifyReport'])->name('reports.verify');
-    Route::post('reports/{radiologyReport}/amend', [RadiologyController::class, 'amendReport'])->name('reports.amend');
-
-    // ══════════════════════════════════════════════════════
-    //  Modalities  ← static, exams se PEHLE
-    // ══════════════════════════════════════════════════════
-    Route::get('exams/modalities', [RadiologyModalityController::class, 'index'])->name('modalities.index');
-    Route::get('exams/modalities/create', [RadiologyModalityController::class, 'create'])->name('modalities.create');
-    Route::post('exams/modalities', [RadiologyModalityController::class, 'store'])->name('modalities.store');
-    Route::get('exams/modalities/{modality}/edit', [RadiologyModalityController::class, 'edit'])->name('modalities.edit');
-    Route::put('exams/modalities/{modality}', [RadiologyModalityController::class, 'update'])->name('modalities.update');
-    Route::delete('exams/modalities/{modality}', [RadiologyModalityController::class, 'destroy'])->name('modalities.destroy');
-    Route::post('exams/modalities/{modality}/toggle', [RadiologyModalityController::class, 'toggleStatus'])->name('modalities.toggle');
-
-    // ══════════════════════════════════════════════════════
-    //  Body Parts  ← static, exams se PEHLE
-    // ══════════════════════════════════════════════════════
-    Route::get('exams/body-parts', [RadiologyBodyPartController::class, 'index'])->name('body-parts.index');
-    Route::get('exams/body-parts/create', [RadiologyBodyPartController::class, 'create'])->name('body-parts.create');
-    Route::post('exams/body-parts', [RadiologyBodyPartController::class, 'store'])->name('body-parts.store');
-    Route::get('exams/body-parts/{bodyPart}/edit', [RadiologyBodyPartController::class, 'edit'])->name('body-parts.edit');
-    Route::put('exams/body-parts/{bodyPart}', [RadiologyBodyPartController::class, 'update'])->name('body-parts.update');
-    Route::delete('exams/body-parts/{bodyPart}', [RadiologyBodyPartController::class, 'destroy'])->name('body-parts.destroy');
-    Route::post('exams/body-parts/{bodyPart}/toggle', [RadiologyBodyPartController::class, 'toggleStatus'])->name('body-parts.toggle');
-
-    // ══════════════════════════════════════════════════════
-    //  Exams  ← dynamic {radiologyExam} SABSE AAKHIR
-    // ══════════════════════════════════════════════════════
-    Route::get('exams', [RadiologyExamController::class, 'index'])->name('exams.index');
-    Route::get('exams/create', [RadiologyExamController::class, 'create'])->name('exams.create');
-    Route::post('exams', [RadiologyExamController::class, 'store'])->name('exams.store');
-    Route::get('exams/{radiologyExam}', [RadiologyExamController::class, 'show'])->name('exams.show');
-    Route::get('exams/{radiologyExam}/edit', [RadiologyExamController::class, 'edit'])->name('exams.edit');
-    Route::put('exams/{radiologyExam}', [RadiologyExamController::class, 'update'])->name('exams.update');
-    Route::delete('exams/{radiologyExam}', [RadiologyExamController::class, 'destroy'])->name('exams.destroy');
-    Route::post('exams/{radiologyExam}/toggle-status', [RadiologyExamController::class, 'toggleStatus'])->name('exams.toggleStatus');
-});
-
-// Employee management routes
-Route::resource('employees', EmployeeController::class);
-
-// OT Room management routes
-Route::prefix('ot')->name('ot.')->group(function () {
-    // ── OT SCHEDULES (Resource) ──────────────────────────────────────────
-    Route::resource('schedules', OtScheduleController::class)->except(['index'])
-        ->parameters(['schedules' => 'ot']);
-
-    // OT index is the main page
-    Route::get('/', [OtScheduleController::class, 'index'])->name('index');
-
-    // Quick status update (AJAX)
-    Route::patch('schedules/{ot}/status', [OtScheduleController::class, 'updateStatus'])
-        ->name('schedules.status');
-
-    // ── OT ROOMS (Master Data) ───────────────────────────────────────────
-    Route::prefix('rooms')->name('rooms.')->group(function () {
-        Route::get('/', [OtRoomController::class, 'index'])->name('index');
-        Route::post('/', [OtRoomController::class, 'store'])->name('store');
-        Route::put('/{room}', [OtRoomController::class, 'update'])->name('update');
-        Route::delete('/{room}', [OtRoomController::class, 'destroy'])->name('destroy');
-    });
-});
-
-// Blood Bank routes
-
-Route::prefix('blood-bank')->name('blood-bank.')->group(function () {
-
-    // ── DASHBOARD ────────────────────────────────────────────────────────
-    Route::get('/', [BloodBankController::class, 'index'])->name('index');
-
-    // ── DONORS ───────────────────────────────────────────────────────────
-    Route::resource('donors', BloodDonorController::class);
-
-    // ── DONATIONS ────────────────────────────────────────────────────────
-    Route::get('donations', [BloodDonationController::class, 'index'])->name('donations.index');
-    Route::post('donations', [BloodDonationController::class, 'store'])->name('donations.store');
-    Route::patch('donations/{donation}/screening', [BloodDonationController::class, 'updateScreening'])->name('donations.screening');
-    Route::delete('donations/{donation}', [BloodDonationController::class, 'destroy'])->name('donations.destroy');
-
-    // ── BLOOD REQUESTS ───────────────────────────────────────────────────
-    Route::get('requests', [BloodRequestController::class, 'index'])->name('requests.index');
-    Route::post('requests', [BloodRequestController::class, 'store'])->name('requests.store');
-    Route::get('requests/{request}', [BloodRequestController::class, 'show'])->name('requests.show');
-    Route::patch('requests/{request}/status', [BloodRequestController::class, 'updateStatus'])->name('requests.status');
-    Route::delete('requests/{bloodRequest}', [BloodRequestController::class, 'destroy'])
-        ->name('requests.destroy');
-
-    // ── BLOOD ISSUE (TRANSFUSION) ────────────────────────────────────────
-    Route::post('issues', [BloodIssueController::class, 'store'])->name('issues.store');
-    Route::patch('issues/{issue}/reaction', [BloodIssueController::class, 'updateReaction'])->name('issues.reaction');
-
-    // ── CROSS-MATCH ───────────────────────────────────────────────────────
-    Route::post('crossmatch', [BloodCrossmatchController::class, 'store'])->name('crossmatch.store');
-    Route::patch('crossmatch/{crossmatch}/result', [BloodCrossmatchController::class, 'updateResult'])->name('crossmatch.result');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Billing & Invoice Routes
-|--------------------------------------------------------------------------
-| In web.php, include this file inside your auth middleware group:
-|
-|   require base_path('routes/billing.php');
-|
-| Or paste these routes directly inside your Route::middleware(['auth'])
-| group in web.php.
-|--------------------------------------------------------------------------
-*/
-Route::prefix('billing')->name('billing.')->group(function () {
-
-    // ── Main Billing CRUD ────────────────────────────────────────────
-    Route::get('/', [BillingController::class, 'index'])->name('index');
-    Route::get('/create', [BillingController::class, 'create'])->name('create');
-    Route::post('/', [BillingController::class, 'store'])->name('store');
-
-    // ── AJAX Endpoints ───────────────────────────────────────────────
+    // ── SHARED AJAX ── (accessible by all authenticated roles) ────────────
     Route::get('/ajax/patient-search', [BillingController::class, 'patientSearch'])
         ->name('ajax.patient-search');
 
-    Route::get('/patient/{patientId}/pending-services', [BillingController::class, 'pendingServices'])
-        ->name('pending-services');
+    // ── USER MANAGEMENT (super_admin only) ────────────────────────────────
+    Route::middleware('role:super_admin')
+        ->prefix('admin')->name('admin.')
+        ->group(function () {
+            Route::resource('users', UserController::class);
+            Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+                ->name('users.toggle-status');
+        });
 
-    // ── Service Charges Master Data ──────────────────────────────────
-    Route::prefix('service-charges')->name('service-charges.')->group(function () {
+    // ── PATIENTS ──────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,receptionist,doctor,nurse')
+        ->group(function () {
+            Route::resource('patients', PatientController::class);
+        });
 
-        Route::get('/', [BillServiceChargeController::class, 'index'])
-            ->name('index');
+    // ── DOCTORS ───────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,receptionist,hr_manager')
+        ->group(function () {
+            Route::resource('doctors', DoctorController::class);
+            Route::post('doctors/{doctor}/toggle-availability',
+                [DoctorController::class, 'toggleAvailability'])
+                ->name('doctors.toggle-availability');
+        });
 
-        Route::get('/create', [BillServiceChargeController::class, 'create'])
-            ->name('create');
+    // ── APPOINTMENTS ──────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,receptionist,doctor,nurse')
+        ->prefix('appointments')->name('appointments.')
+        ->group(function () {
+            Route::get('/calendar', [AppointmentController::class, 'calendar'])->name('calendar');
+            Route::get('/availability', [AppointmentController::class, 'availability'])->name('availability');
+            Route::patch('/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('status');
+            Route::get('/', [AppointmentController::class, 'index'])->name('index');
+            Route::get('/create', [AppointmentController::class, 'create'])->name('create');
+            Route::post('/', [AppointmentController::class, 'store'])->name('store');
+            Route::get('/{appointment}', [AppointmentController::class, 'show'])->name('show');
+            Route::get('/{appointment}/edit', [AppointmentController::class, 'edit'])->name('edit');
+            Route::put('/{appointment}', [AppointmentController::class, 'update'])->name('update');
+            Route::delete('/{appointment}', [AppointmentController::class, 'destroy'])->name('destroy');
+        });
 
-        Route::post('/', [BillServiceChargeController::class, 'store'])
-            ->name('store');
+    // ── WARDS ─────────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,doctor,nurse,receptionist')
+        ->group(function () {
+            Route::post('wards/assign-bed', [WardController::class, 'assignBed'])->name('wards.assign-bed');
+            Route::post('wards/beds/{bed}/discharge', [WardController::class, 'discharge'])->name('wards.beds.discharge');
+            Route::post('wards/beds/{bed}/status', [WardController::class, 'changeBedStatus'])->name('wards.beds.status');
+            Route::resource('wards', WardController::class);
+        });
 
-        Route::get('/{charge}/edit', [BillServiceChargeController::class, 'edit'])
-            ->name('edit');
+    // ── PHARMACY ──────────────────────────────────────────────────────────
+    // Medicines — pharmacist + doctor dono
+    Route::middleware('role:super_admin,pharmacist')
+        ->prefix('pharmacy')->name('pharmacy.')
+        ->group(function () {
+            Route::post('medicines/{medicine}/add-stock', [MedicineController::class, 'addStock'])
+                ->name('medicines.add-stock');
+            Route::resource('medicines', MedicineController::class)->names('medicines');
+        });
 
-        Route::put('/{charge}', [BillServiceChargeController::class, 'update'])
-            ->name('update');
+    // Prescription CREATE/STORE — sirf doctor
+    Route::middleware('role:super_admin,doctor')
+        ->prefix('pharmacy')->name('pharmacy.')
+        ->group(function () {
+            Route::get('prescriptions/create', [PrescriptionController::class, 'create'])->name('prescriptions.create');
+            Route::post('prescriptions', [PrescriptionController::class, 'store'])->name('prescriptions.store');
+        });
 
-        Route::delete('/{charge}', [BillServiceChargeController::class, 'destroy'])
-            ->name('destroy');
+    // Prescription INDEX/SHOW/CANCEL — pharmacist + doctor dono
+    Route::middleware('role:super_admin,pharmacist,doctor')
+        ->prefix('pharmacy')->name('pharmacy.')
+        ->group(function () {
+            Route::get('prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+            Route::get('prescriptions/{prescription}', [PrescriptionController::class, 'show'])->name('prescriptions.show');
+            Route::post('prescriptions/{prescription}/cancel', [PrescriptionController::class, 'cancel'])->name('prescriptions.cancel');
+        });
 
-        Route::patch('/{charge}/toggle', [BillServiceChargeController::class, 'toggle'])
-            ->name('toggle');
-    });
+    // Dispensing — sirf pharmacist
+    Route::middleware('role:super_admin,pharmacist')
+        ->prefix('pharmacy')->name('pharmacy.')
+        ->group(function () {
+            Route::resource('dispensings', DispensingController::class)
+                ->except(['edit', 'update', 'destroy'])->names('dispensings');
+        });
 
-    // ── Dynamic Bill Routes LAST ─────────────────────────────────────
-    Route::get('/{bill}', [BillingController::class, 'show'])
-        ->whereNumber('bill')
-        ->name('show');
+    // ── LABORATORY ────────────────────────────────────────────────────────
 
-    Route::get('/{bill}/edit', [BillingController::class, 'edit'])
-        ->whereNumber('bill')
-        ->name('edit');
+    // Doctor — create, store, aur show
+    Route::middleware('role:super_admin,lab_technician,doctor')
+        ->prefix('lab')->name('lab.')
+        ->group(function () {
+            Route::get('orders/create', [LabOrderController::class, 'create'])->name('orders.create');
+            Route::post('orders', [LabOrderController::class, 'store'])->name('orders.store');
+            Route::get('orders/{labOrder}', [LabOrderController::class, 'show'])->name('orders.show');
+        });
 
-    Route::put('/{bill}', [BillingController::class, 'update'])
-        ->whereNumber('bill')
-        ->name('update');
+    // Baaki sab sirf super_admin aur lab_technician ke liye
+    Route::middleware('role:super_admin,lab_technician')
+        ->prefix('lab')->name('lab.')
+        ->group(function () {
+            // Orders
+            Route::get('orders', [LabOrderController::class, 'index'])->name('orders.index');
+            Route::post('orders/{labOrder}/collect-sample', [LabOrderController::class, 'collectSample'])->name('orders.collectSample');
+            Route::post('orders/{labOrder}/store-results', [LabOrderController::class, 'storeResults'])->name('orders.storeResults');
+            Route::post('orders/{labOrder}/record-payment', [LabOrderController::class, 'recordPayment'])->name('orders.recordPayment');
+            Route::post('orders/{labOrder}/cancel', [LabOrderController::class, 'cancel'])->name('orders.cancel');
+            Route::post('orders/{labOrder}/deliver-report', [LabOrderController::class, 'deliverReport'])->name('orders.deliverReport');
+            // Results
+            Route::post('results/{labResult}/verify', [LabOrderController::class, 'verifyResult'])->name('results.verify');
+            // Tests
+            Route::get('tests', [LabTestController::class, 'index'])->name('tests.index');
+            Route::get('tests/create', [LabTestController::class, 'create'])->name('tests.create');
+            Route::post('tests', [LabTestController::class, 'store'])->name('tests.store');
+            Route::get('tests/{labTest}/edit', [LabTestController::class, 'edit'])->name('tests.edit');
+            Route::put('tests/{labTest}', [LabTestController::class, 'update'])->name('tests.update');
+            Route::post('tests/{labTest}/toggle', [LabTestController::class, 'toggleActive'])->name('tests.toggleActive');
+            Route::get('tests/{labTest}/price', [LabTestController::class, 'getPrice'])->name('tests.price');
+            // Categories
+            Route::get('categories', [LabTestCategoryController::class, 'index'])->name('categories.index');
+            Route::post('categories', [LabTestCategoryController::class, 'store'])->name('categories.store');
+            Route::put('categories/{labTestCategory}', [LabTestCategoryController::class, 'update'])->name('categories.update');
+            Route::delete('categories/{labTestCategory}', [LabTestCategoryController::class, 'destroy'])->name('categories.destroy');
+            Route::post('categories/{labTestCategory}/toggle', [LabTestCategoryController::class, 'toggleActive'])->name('categories.toggleActive');
+            // Sample Types
+            Route::get('sample-types', [LabSampleTypeController::class, 'index'])->name('sample-types.index');
+            Route::post('sample-types', [LabSampleTypeController::class, 'store'])->name('sample-types.store');
+            Route::put('sample-types/{labSampleType}', [LabSampleTypeController::class, 'update'])->name('sample-types.update');
+            Route::delete('sample-types/{labSampleType}', [LabSampleTypeController::class, 'destroy'])->name('sample-types.destroy');
+            Route::post('sample-types/{labSampleType}/toggle', [LabSampleTypeController::class, 'toggleActive'])->name('sample-types.toggleActive');
+        });
 
-    // ── Bill Actions ─────────────────────────────────────────────────
-    Route::post('/{bill}/finalize', [BillingController::class, 'finalize'])
-        ->whereNumber('bill')
-        ->name('finalize');
+    // ── RADIOLOGY ─────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,radiologist,doctor')
+        ->prefix('radiology')->name('radiology.')
+        ->group(function () {
+            // Orders
+            Route::get('orders', [RadiologyController::class, 'index'])->name('orders.index');
+            Route::get('orders/create', [RadiologyController::class, 'create'])->name('orders.create');
+            Route::post('orders', [RadiologyController::class, 'store'])->name('orders.store');
+            Route::get('orders/{radiologyOrder}', [RadiologyController::class, 'show'])->name('orders.show');
+            Route::post('orders/{radiologyOrder}/start-scan', [RadiologyController::class, 'startScan'])->name('orders.startScan');
+            Route::post('orders/{radiologyOrder}/complete-scan', [RadiologyController::class, 'completeScan'])->name('orders.completeScan');
+            Route::post('orders/{radiologyOrder}/report', [RadiologyController::class, 'storeReport'])->name('orders.storeReport');
+            Route::post('orders/{radiologyOrder}/schedule', [RadiologyController::class, 'schedule'])->name('orders.schedule');
+            Route::post('orders/{radiologyOrder}/payment', [RadiologyController::class, 'recordPayment'])->name('orders.recordPayment');
+            Route::post('orders/{radiologyOrder}/deliver', [RadiologyController::class, 'deliverReport'])->name('orders.deliverReport');
+            Route::post('orders/{radiologyOrder}/cancel', [RadiologyController::class, 'cancel'])->name('orders.cancel');
+            Route::post('reports/{radiologyReport}/verify', [RadiologyController::class, 'verifyReport'])->name('reports.verify');
+            Route::post('reports/{radiologyReport}/amend', [RadiologyController::class, 'amendReport'])->name('reports.amend');
+            // Modalities (static — pehle)
+            Route::get('exams/modalities', [RadiologyModalityController::class, 'index'])->name('modalities.index');
+            Route::get('exams/modalities/create', [RadiologyModalityController::class, 'create'])->name('modalities.create');
+            Route::post('exams/modalities', [RadiologyModalityController::class, 'store'])->name('modalities.store');
+            Route::get('exams/modalities/{modality}/edit', [RadiologyModalityController::class, 'edit'])->name('modalities.edit');
+            Route::put('exams/modalities/{modality}', [RadiologyModalityController::class, 'update'])->name('modalities.update');
+            Route::delete('exams/modalities/{modality}', [RadiologyModalityController::class, 'destroy'])->name('modalities.destroy');
+            Route::post('exams/modalities/{modality}/toggle', [RadiologyModalityController::class, 'toggleStatus'])->name('modalities.toggle');
+            // Body Parts (static — pehle)
+            Route::get('exams/body-parts', [RadiologyBodyPartController::class, 'index'])->name('body-parts.index');
+            Route::get('exams/body-parts/create', [RadiologyBodyPartController::class, 'create'])->name('body-parts.create');
+            Route::post('exams/body-parts', [RadiologyBodyPartController::class, 'store'])->name('body-parts.store');
+            Route::get('exams/body-parts/{bodyPart}/edit', [RadiologyBodyPartController::class, 'edit'])->name('body-parts.edit');
+            Route::put('exams/body-parts/{bodyPart}', [RadiologyBodyPartController::class, 'update'])->name('body-parts.update');
+            Route::delete('exams/body-parts/{bodyPart}', [RadiologyBodyPartController::class, 'destroy'])->name('body-parts.destroy');
+            Route::post('exams/body-parts/{bodyPart}/toggle', [RadiologyBodyPartController::class, 'toggleStatus'])->name('body-parts.toggle');
+            // Exams (dynamic — aakhir mein)
+            Route::get('exams', [RadiologyExamController::class, 'index'])->name('exams.index');
+            Route::get('exams/create', [RadiologyExamController::class, 'create'])->name('exams.create');
+            Route::post('exams', [RadiologyExamController::class, 'store'])->name('exams.store');
+            Route::get('exams/{radiologyExam}', [RadiologyExamController::class, 'show'])->name('exams.show');
+            Route::get('exams/{radiologyExam}/edit', [RadiologyExamController::class, 'edit'])->name('exams.edit');
+            Route::put('exams/{radiologyExam}', [RadiologyExamController::class, 'update'])->name('exams.update');
+            Route::delete('exams/{radiologyExam}', [RadiologyExamController::class, 'destroy'])->name('exams.destroy');
+            Route::post('exams/{radiologyExam}/toggle-status', [RadiologyExamController::class, 'toggleStatus'])->name('exams.toggleStatus');
+        });
 
-    Route::post('/{bill}/payment', [BillingController::class, 'addPayment'])
-        ->whereNumber('bill')
-        ->name('payment');
+    // ── EMPLOYEES ─────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,hr_manager')
+        ->group(function () {
+            Route::resource('employees', EmployeeController::class);
+        });
 
-    Route::patch('/{bill}/cancel', [BillingController::class, 'cancel'])
-        ->whereNumber('bill')
-        ->name('cancel');
+    // ── OPERATION THEATER ─────────────────────────────────────────────────
+    Route::middleware('role:super_admin,doctor,nurse')
+        ->prefix('ot')->name('ot.')
+        ->group(function () {
+            Route::resource('schedules', OtScheduleController::class)
+                ->except(['index'])->parameters(['schedules' => 'ot']);
+            Route::get('/', [OtScheduleController::class, 'index'])->name('index');
+            Route::patch('schedules/{ot}/status', [OtScheduleController::class, 'updateStatus'])
+                ->name('schedules.status');
+            Route::prefix('rooms')->name('rooms.')->group(function () {
+                Route::get('/', [OtRoomController::class, 'index'])->name('index');
+                Route::post('/', [OtRoomController::class, 'store'])->name('store');
+                Route::put('/{room}', [OtRoomController::class, 'update'])->name('update');
+                Route::delete('/{room}', [OtRoomController::class, 'destroy'])->name('destroy');
+            });
+        });
 
-    Route::get('/{bill}/print', [BillingController::class, 'printInvoice'])
-        ->whereNumber('bill')
-        ->name('print');
-});
+    // ── BLOOD BANK (super_admin only) ─────────────────────────────────────
+    Route::middleware('role:super_admin')
+        ->prefix('blood-bank')->name('blood-bank.')
+        ->group(function () {
+            Route::get('/', [BloodBankController::class, 'index'])->name('index');
+            Route::resource('donors', BloodDonorController::class);
+            Route::get('donations', [BloodDonationController::class, 'index'])->name('donations.index');
+            Route::post('donations', [BloodDonationController::class, 'store'])->name('donations.store');
+            Route::patch('donations/{donation}/screening', [BloodDonationController::class, 'updateScreening'])->name('donations.screening');
+            Route::delete('donations/{donation}', [BloodDonationController::class, 'destroy'])->name('donations.destroy');
+            Route::get('requests', [BloodRequestController::class, 'index'])->name('requests.index');
+            Route::post('requests', [BloodRequestController::class, 'store'])->name('requests.store');
+            Route::get('requests/{request}', [BloodRequestController::class, 'show'])->name('requests.show');
+            Route::patch('requests/{request}/status', [BloodRequestController::class, 'updateStatus'])->name('requests.status');
+            Route::delete('requests/{bloodRequest}', [BloodRequestController::class, 'destroy'])->name('requests.destroy');
+            Route::post('issues', [BloodIssueController::class, 'store'])->name('issues.store');
+            Route::patch('issues/{issue}/reaction', [BloodIssueController::class, 'updateReaction'])->name('issues.reaction');
+            Route::post('crossmatch', [BloodCrossmatchController::class, 'store'])->name('crossmatch.store');
+            Route::patch('crossmatch/{crossmatch}/result', [BloodCrossmatchController::class, 'updateResult'])->name('crossmatch.result');
+        });
 
-// Mortuary and death
+    // ── BILLING ───────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,accountant,receptionist')
+        ->prefix('billing')->name('billing.')
+        ->group(function () {
+            Route::get('/', [BillingController::class, 'index'])->name('index');
+            Route::get('/create', [BillingController::class, 'create'])->name('create');
+            Route::post('/', [BillingController::class, 'store'])->name('store');
+            // Patient search is shared — defined globally above (accessible to all roles)
+            Route::get('/patient/{patientId}/pending-services', [BillingController::class, 'pendingServices'])->name('pending-services');
+            Route::prefix('service-charges')->name('service-charges.')->group(function () {
+                Route::get('/', [BillServiceChargeController::class, 'index'])->name('index');
+                Route::get('/create', [BillServiceChargeController::class, 'create'])->name('create');
+                Route::post('/', [BillServiceChargeController::class, 'store'])->name('store');
+                Route::get('/{charge}/edit', [BillServiceChargeController::class, 'edit'])->name('edit');
+                Route::put('/{charge}', [BillServiceChargeController::class, 'update'])->name('update');
+                Route::delete('/{charge}', [BillServiceChargeController::class, 'destroy'])->name('destroy');
+                Route::patch('/{charge}/toggle', [BillServiceChargeController::class, 'toggle'])->name('toggle');
+            });
+            Route::get('/{bill}', [BillingController::class, 'show'])->whereNumber('bill')->name('show');
+            Route::get('/{bill}/edit', [BillingController::class, 'edit'])->whereNumber('bill')->name('edit');
+            Route::put('/{bill}', [BillingController::class, 'update'])->whereNumber('bill')->name('update');
+            Route::post('/{bill}/finalize', [BillingController::class, 'finalize'])->whereNumber('bill')->name('finalize');
+            Route::post('/{bill}/payment', [BillingController::class, 'addPayment'])->whereNumber('bill')->name('payment');
+            Route::patch('/{bill}/cancel', [BillingController::class, 'cancel'])->whereNumber('bill')->name('cancel');
+            Route::get('/{bill}/print', [BillingController::class, 'printInvoice'])->whereNumber('bill')->name('print');
+        });
 
-Route::prefix('mortuary')->name('mortuary.')->group(function () {
+    // ── MORTUARY (super_admin only) ───────────────────────────────────────
+    Route::middleware('role:super_admin')
+        ->prefix('mortuary')->name('mortuary.')
+        ->group(function () {
+            Route::get('/', [MortuaryController::class, 'index'])->name('index');
+            Route::get('/create', [MortuaryController::class, 'create'])->name('create');
+            Route::post('/', [MortuaryController::class, 'store'])->name('store');
+            Route::get('/{mortuary}', [MortuaryController::class, 'show'])->name('show');
+            Route::get('/{mortuary}/edit', [MortuaryController::class, 'edit'])->name('edit');
+            Route::put('/{mortuary}', [MortuaryController::class, 'update'])->name('update');
+            Route::delete('/{mortuary}', [MortuaryController::class, 'destroy'])->name('destroy');
+            Route::patch('/{mortuary}/status', [MortuaryController::class, 'updateStatus'])->name('status');
+            Route::get('/{mortuary}/certificates/create', [DeathCertificateController::class, 'create'])->name('certificates.create');
+            Route::post('/{mortuary}/certificates', [DeathCertificateController::class, 'store'])->name('certificates.store');
+            Route::get('/certificates/{certificate}/print', [DeathCertificateController::class, 'print'])->name('certificates.print');
+            Route::post('/certificates/{certificate}/verify', [DeathCertificateController::class, 'verify'])->name('certificates.verify');
+            Route::delete('/certificates/{certificate}', [DeathCertificateController::class, 'destroy'])->name('certificates.destroy');
+            Route::get('/{mortuary}/release/create', [BodyReleaseController::class, 'create'])->name('release.create');
+            Route::post('/{mortuary}/release', [BodyReleaseController::class, 'store'])->name('release.store');
+        });
 
-    // ── MORTUARY RECORDS ──────────────────────────────────────────────
-    Route::get('/', [MortuaryController::class, 'index'])->name('index');
-    Route::get('/create', [MortuaryController::class, 'create'])->name('create');
-    Route::post('/', [MortuaryController::class, 'store'])->name('store');
-    Route::get('/{mortuary}', [MortuaryController::class, 'show'])->name('show');
-    Route::get('/{mortuary}/edit', [MortuaryController::class, 'edit'])->name('edit');
-    Route::put('/{mortuary}', [MortuaryController::class, 'update'])->name('update');
-    Route::delete('/{mortuary}', [MortuaryController::class, 'destroy'])->name('destroy');
-    Route::patch('/{mortuary}/status', [MortuaryController::class, 'updateStatus'])->name('status');
+    // ── REPORTS ───────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,accountant,hr_manager')
+        ->prefix('reports')->name('reports.')
+        ->group(function () {
+            Route::get('/patients', [PatientReportController::class, 'index'])->name('patients.index');
+            Route::get('/patients/{patient}', [PatientReportController::class, 'show'])->name('patients.show');
+        });
 
-    // ── DEATH CERTIFICATES ────────────────────────────────────────────
-    Route::get('/{mortuary}/certificates/create', [DeathCertificateController::class, 'create'])->name('certificates.create');
-    Route::post('/{mortuary}/certificates', [DeathCertificateController::class, 'store'])->name('certificates.store');
+    // ── DOCTOR DASHBOARD ──────────────────────────────────────────────────
+    Route::middleware('role:super_admin,doctor')
+        ->prefix('doctor')->name('doctor.')
+        ->group(function () {
+            Route::get('/dashboard', [DoctorDashboardController::class, 'index'])
+                ->name('dashboard');
+        });
 
-    Route::get('/certificates/{certificate}/print', [DeathCertificateController::class, 'print'])->name('certificates.print');
-    Route::post('/certificates/{certificate}/verify', [DeathCertificateController::class, 'verify'])->name('certificates.verify');
-    Route::delete('/certificates/{certificate}', [DeathCertificateController::class, 'destroy'])->name('certificates.destroy');
-
-    // ── BODY RELEASE ──────────────────────────────────────────────────
-    Route::get('/{mortuary}/release/create', [BodyReleaseController::class, 'create'])->name('release.create');
-    Route::post('/{mortuary}/release', [BodyReleaseController::class, 'store'])->name('release.store');
-});
-
-// Patient Report routes
-
-Route::prefix('reports')->name('reports.')->group(function () {
-
-    // Patient search / select page
-    Route::get('/patients', [PatientReportController::class, 'index'])
-        ->name('patients.index');
-
-    // Patient complete report
-    Route::get('/patients/{patient}', [PatientReportController::class, 'show'])
-        ->name('patients.show');
 });

@@ -54,6 +54,11 @@ class LabOrder extends Model
         return $this->belongsTo(Doctor::class);
     }
 
+    public function labResults()
+    {
+        return $this->hasMany(LabResult::class);
+    }
+
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
