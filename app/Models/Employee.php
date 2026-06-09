@@ -2,14 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
 
 class Employee extends Model
 {
@@ -131,7 +126,7 @@ class Employee extends Model
         static::creating(function ($employee) {
             $last = static::withTrashed()->latest('id')->first();
             $number = $last ? ($last->id + 1) : 1;
-            $employee->employee_id = 'EMP-' . str_pad($number, 5, '0', STR_PAD_LEFT);
+            $employee->employee_id = 'EMP-'.str_pad($number, 5, '0', STR_PAD_LEFT);
         });
     }
 
@@ -161,24 +156,52 @@ class Employee extends Model
         return $this->hasOne(User::class, 'employee_id', 'id');
     }
 
-    // Future tables (uncomment when ready)
-    // public function salaries()    { return $this->hasMany(EmployeeSalary::class); }
-    // public function leaves()      { return $this->hasMany(EmployeeLeave::class); }
-    // public function attendance()  { return $this->hasMany(EmployeeAttendance::class); }
-    // public function documents()   { return $this->hasMany(EmployeeDocument::class); }
-    // public function increments()  { return $this->hasMany(EmployeeIncrement::class); }
+    public function salaryStructure()
+    {
+        return $this->hasOne(SalaryStructure::class)->where('is_current', true);
+    }
+
+    public function salaryStructures()
+    {
+        return $this->hasMany(SalaryStructure::class)->orderByDesc('effective_from');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function leaveBalances()
+    {
+        return $this->hasMany(LeaveBalance::class);
+    }
+
+    public function payslips()
+    {
+        return $this->hasMany(Payslip::class)->orderByDesc('created_at');
+    }
+
+    public function disciplinaryActions()
+    {
+        return $this->hasMany(DisciplinaryAction::class);
+    }
 
     // ── ACCESSORS ────────────────────────────────────────────────────
 
     public function getFullNameAttribute(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     public function getInitialsAttribute(): string
     {
         return strtoupper(
-            substr($this->first_name, 0, 1) .
+            substr($this->first_name, 0, 1).
             substr($this->last_name, 0, 1)
         );
     }
@@ -204,7 +227,7 @@ class Employee extends Model
 
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? asset('storage/' . $this->photo) : null;
+        return $this->photo ? asset('storage/'.$this->photo) : null;
     }
 
     public function getIsOnProbationAttribute(): bool
@@ -249,19 +272,19 @@ class Employee extends Model
         return $query->where('employment_type', $type);
     }
 
-   public function scopeSearch($query, string $term)
-{
-    $operator = config('database.default') === 'pgsql' ? 'ilike' : 'like';
+    public function scopeSearch($query, string $term)
+    {
+        $operator = config('database.default') === 'pgsql' ? 'ilike' : 'like';
 
-    return $query->where(function ($q) use ($term, $operator) {
-        $q->where('first_name', $operator, "%$term%")
-            ->orWhere('last_name', $operator, "%$term%")
-            ->orWhere('employee_id', $operator, "%$term%")
-            ->orWhere('cnic', 'like', "%$term%")
-            ->orWhere('designation', $operator, "%$term%")
-            ->orWhere('department', $operator, "%$term%");
-    });
-}
+        return $query->where(function ($q) use ($term, $operator) {
+            $q->where('first_name', $operator, "%$term%")
+                ->orWhere('last_name', $operator, "%$term%")
+                ->orWhere('employee_id', $operator, "%$term%")
+                ->orWhere('cnic', 'like', "%$term%")
+                ->orWhere('designation', $operator, "%$term%")
+                ->orWhere('department', $operator, "%$term%");
+        });
+    }
 
     public function scopeContractExpiringSoon($query)
     {

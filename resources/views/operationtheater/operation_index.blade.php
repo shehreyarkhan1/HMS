@@ -257,19 +257,19 @@
 @endpush
 
 @section('content')
-
-    {{-- ── TOP ACTIONS ──────────────────────────────────────────────────── --}}
-    <div class="d-flex justify-content-end gap-2 mb-3">
-        <a href="{{ route('ot.rooms.index') }}" class="btn btn-sm btn-outline-secondary px-3"
-            style="height:36px;font-size:13px;display:flex;align-items:center">
-            <i class="bi bi-door-open me-1"></i>Manage OT Rooms
-        </a>
-        <a href="{{ route('ot.schedules.create') }}" class="btn btn-sm btn-success px-3"
-            style="height:36px;font-size:13px;display:flex;align-items:center">
-            <i class="bi bi-plus-lg me-1"></i>Schedule Surgery
-        </a>
-    </div>
-
+    @if (!auth()->user()->hasRole('doctor'))
+        {{-- ── TOP ACTIONS ──────────────────────────────────────────────────── --}}
+        <div class="d-flex justify-content-end gap-2 mb-3">
+            <a href="{{ route('ot.rooms.index') }}" class="btn btn-sm btn-outline-secondary px-3"
+                style="height:36px;font-size:13px;display:flex;align-items:center">
+                <i class="bi bi-door-open me-1"></i>Manage OT Rooms
+            </a>
+            <a href="{{ route('ot.schedules.create') }}" class="btn btn-sm btn-success px-3"
+                style="height:36px;font-size:13px;display:flex;align-items:center">
+                <i class="bi bi-plus-lg me-1"></i>Schedule Surgery
+            </a>
+        </div>
+    @endif
     {{-- ── STATS ───────────────────────────────────────────────────────── --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-2">
@@ -502,14 +502,16 @@
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                 @endif
-                                <form method="POST" action="{{ route('ot.schedules.destroy', $schedule->id) }}"
-                                    onsubmit="return confirm('Remove {{ $schedule->surgery_id }}?')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:12px"
-                                        title="Delete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                @if (!auth()->user()->hasRole('doctor'))
+                                    <form method="POST" action="{{ route('ot.schedules.destroy', $schedule->id) }}"
+                                        onsubmit="return confirm('Remove {{ $schedule->surgery_id }}?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:12px"
+                                            title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
 
                             {{-- Quick status change --}}

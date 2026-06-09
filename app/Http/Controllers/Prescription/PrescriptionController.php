@@ -77,6 +77,7 @@ class PrescriptionController extends Controller
                 ->orderBy('name')
                 ->get();
 
+
             $selectedPatient = null;
             $selectedDoctor = null;
 

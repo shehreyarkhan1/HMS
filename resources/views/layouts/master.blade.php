@@ -410,7 +410,7 @@
                 <div class="nav-section-label">Pharmacy</div>
 
                 {{-- Medicines Inventory — sirf pharmacist --}}
-                @if ($user->hasRole('pharmacist'))
+                @if ($user->hasRole('pharmacist') || $user->isSuperAdmin())
                     <a href="{{ route('pharmacy.medicines.index') }}"
                         class="nav-item {{ request()->routeIs('pharmacy.medicines.*') ? 'active' : '' }}">
                         <i class="bi bi-capsule"></i> Medicines Inventory
@@ -418,7 +418,7 @@
                 @endif
 
                 {{-- Prescriptions index — sirf pharmacist --}}
-                @if ($user->hasRole('pharmacist'))
+                @if ($user->hasRole('pharmacist') || $user->isSuperAdmin())
                     <a href="{{ route('pharmacy.prescriptions.index') }}"
                         class="nav-item {{ request()->routeIs('pharmacy.prescriptions.index') ? 'active' : '' }}">
                         <i class="bi bi-file-medical"></i> Prescriptions
@@ -426,7 +426,7 @@
                 @endif
 
                 {{-- New Prescription — sirf doctor --}}
-                @if ($user->hasRole('doctor'))
+                @if ($user->hasRole('doctor') || $user->isSuperAdmin())
                     <a href="{{ route('pharmacy.prescriptions.create') }}"
                         class="nav-item {{ request()->routeIs('pharmacy.prescriptions.create') ? 'active' : '' }}">
                         <i class="bi bi-plus-circle"></i> New Prescription
@@ -434,7 +434,7 @@
                 @endif
 
                 {{-- Dispensing — sirf pharmacist --}}
-                @if ($user->hasRole('pharmacist'))
+                @if ($user->hasRole('pharmacist') || $user->isSuperAdmin())
                     <a href="{{ route('pharmacy.dispensings.index') }}"
                         class="nav-item {{ request()->routeIs('pharmacy.dispensings.*') ? 'active' : '' }}">
                         <i class="bi bi-bag-check"></i> Dispensing
@@ -483,34 +483,52 @@
             @if ($user && $user->canAccess('radiology'))
                 <div class="nav-section-label">Radiology</div>
 
-                <a href="{{ route('radiology.orders.index') }}"
-                    class="nav-item {{ request()->routeIs('radiology.orders.*') ? 'active' : '' }}">
-                    <i class="bi bi-radioactive"></i> Radiology Orders
-                </a>
+                {{-- Orders index — doctor nahi dekhe --}}
+                @if (!$user->hasRole('doctor'))
+                    <a href="{{ route('radiology.orders.index') }}"
+                        class="nav-item {{ request()->routeIs('radiology.orders.index') ? 'active' : '' }}">
+                        <i class="bi bi-radioactive"></i> Radiology Orders
+                    </a>
+                @endif
 
-                <div class="nav-section-label">Radiology Settings</div>
-                <a href="{{ route('radiology.exams.index') }}"
-                    class="nav-item {{ request()->routeIs('radiology.exams.*') ? 'active' : '' }}">
-                    <i class="bi bi-collection"></i> Manage Exams
-                </a>
-                <a href="{{ route('radiology.modalities.index') }}"
-                    class="nav-item {{ request()->routeIs('radiology.modalities.*') ? 'active' : '' }}">
-                    <i class="bi bi-camera"></i> Modalities
-                </a>
-                <a href="{{ route('radiology.body-parts.index') }}"
-                    class="nav-item {{ request()->routeIs('radiology.body-parts.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-bounding-box"></i> Body Parts
-                </a>
+                {{-- New Radiology Order — doctor ke liye --}}
+                @if ($user->hasRole('doctor'))
+                    <a href="{{ route('radiology.orders.create') }}"
+                        class="nav-item {{ request()->routeIs('radiology.orders.create') ? 'active' : '' }}">
+                        <i class="bi bi-plus-circle"></i> New Radiology Order
+                    </a>
+                @endif
+
+                {{-- Settings — doctor nahi dekhe --}}
+                @if (!$user->hasRole('doctor'))
+                    <div class="nav-section-label">Radiology Settings</div>
+                    <a href="{{ route('radiology.exams.index') }}"
+                        class="nav-item {{ request()->routeIs('radiology.exams.*') ? 'active' : '' }}">
+                        <i class="bi bi-collection"></i> Manage Exams
+                    </a>
+                    <a href="{{ route('radiology.modalities.index') }}"
+                        class="nav-item {{ request()->routeIs('radiology.modalities.*') ? 'active' : '' }}">
+                        <i class="bi bi-camera"></i> Modalities
+                    </a>
+                    <a href="{{ route('radiology.body-parts.index') }}"
+                        class="nav-item {{ request()->routeIs('radiology.body-parts.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-bounding-box"></i> Body Parts
+                    </a>
+                @endif
             @endif
 
-            {{-- ── OPERATION THEATER ── (super_admin only for now) ── --}}
+            {{-- ── OPERATION THEATER ── --}}
             @if ($user && ($user->isSuperAdmin() || $user->hasAnyRole(['doctor', 'nurse'])))
                 <div class="nav-section-label">Operation Theater</div>
 
-                <a href="{{ route('ot.rooms.index') }}"
-                    class="nav-item {{ request()->routeIs('ot.rooms.*') ? 'active' : '' }}">
-                    <i class="bi bi-hospital"></i> OT Rooms
-                </a>
+                {{-- OT Rooms — doctor nahi dekhe --}}
+                @if (!$user->hasRole('doctor'))
+                    <a href="{{ route('ot.rooms.index') }}"
+                        class="nav-item {{ request()->routeIs('ot.rooms.*') ? 'active' : '' }}">
+                        <i class="bi bi-hospital"></i> OT Rooms
+                    </a>
+                @endif
+
                 <a href="{{ route('ot.index') }}"
                     class="nav-item {{ request()->routeIs('ot.index') || request()->routeIs('ot.schedules.*') ? 'active' : '' }}">
                     <i class="bi bi-calendar2-week"></i> OT Schedules
@@ -549,7 +567,7 @@
                 </a>
             @endif
 
-            {{-- ── HR / EMPLOYEES ── --}}
+            {{-- ── HR / EMPLOYEES ──
             @if ($user && $user->canAccess('staff'))
                 <div class="nav-section-label">Employee Management</div>
 
@@ -557,7 +575,61 @@
                     class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i> Employees
                 </a>
+            @endif --}}
+
+
+
+
+
+            @if ($user->canAccess('staff'))
+                <div class="nav-section-label">HR Management</div>
+
+                <a href="{{ route('employees.index') }}"
+                    class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i> Employees
+                </a>
+                <a href="{{ route('hr.attendance.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.attendance.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar-check"></i> Attendance
+                </a>
+                <a href="{{ route('hr.leaves.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.leaves.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar-x"></i> Leave Management
+                </a>
+                <a href="{{ route('hr.salary.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.salary.*') ? 'active' : '' }}">
+                    <i class="bi bi-cash-stack"></i> Salary Structures
+                </a>
+                <a href="{{ route('hr.payroll.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.payroll.*') ? 'active' : '' }}">
+                    <i class="bi bi-receipt"></i> Payroll
+                </a>
+                <a href="{{ route('hr.disciplinary.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.disciplinary.*') ? 'active' : '' }}">
+                    <i class="bi bi-shield-exclamation"></i> Disciplinary
+                </a>
+                <a href="{{ route('hr.holidays.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.holidays.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar-heart"></i> Holidays
+                </a>
+                <a href="{{ route('hr.leave-types.index') }}"
+                    class="nav-item {{ request()->routeIs('hr.leave-types.*') ? 'active' : '' }}">
+                    <i class="bi bi-tags"></i> Leave Types
+                </a>
             @endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             {{-- ── FINANCE ── --}}
             @if ($user && $user->canAccess('billing'))

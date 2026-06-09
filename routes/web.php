@@ -18,6 +18,7 @@ use App\Http\Controllers\Dispensing\DispensingController;
 use App\Http\Controllers\Doctor\DoctorController;
 use App\Http\Controllers\DoctorDashboard\DoctorDashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
+use App\Http\Controllers\HR\LeaveTypeController;
 use App\Http\Controllers\Laboratory\LabOrderController;
 use App\Http\Controllers\Laboratory\LabSampleTypeController;
 use App\Http\Controllers\Laboratory\LabTestCategoryController;
@@ -34,7 +35,14 @@ use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Ward\WardController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HR\AttendanceController;
+use App\Http\Controllers\HR\HolidayController;
+use App\Http\Controllers\HR\LeaveController;
+use App\Http\Controllers\HR\SalaryController;
+use App\Http\Controllers\HR\PayrollController;
+use App\Http\Controllers\HR\DisciplinaryController;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AUTH ROUTES — No middleware (guest only)
@@ -247,7 +255,7 @@ Route::middleware(['auth'])->group(function () {
         ->prefix('ot')->name('ot.')
         ->group(function () {
             Route::resource('schedules', OtScheduleController::class)
-                ->except(['index'])->parameters(['schedules' => 'ot']);
+                ->except(['index', 'destroy'])->parameters(['schedules' => 'ot']);
             Route::get('/', [OtScheduleController::class, 'index'])->name('index');
             Route::patch('schedules/{ot}/status', [OtScheduleController::class, 'updateStatus'])
                 ->name('schedules.status');
@@ -257,6 +265,14 @@ Route::middleware(['auth'])->group(function () {
                 Route::put('/{room}', [OtRoomController::class, 'update'])->name('update');
                 Route::delete('/{room}', [OtRoomController::class, 'destroy'])->name('destroy');
             });
+        });
+
+    // OT Schedule delete — sirf super_admin
+    Route::middleware('role:super_admin')
+        ->prefix('ot')->name('ot.')
+        ->group(function () {
+            Route::delete('schedules/{ot}', [OtScheduleController::class, 'destroy'])
+                ->name('schedules.destroy');
         });
 
     // ── BLOOD BANK (super_admin only) ─────────────────────────────────────
@@ -329,7 +345,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     // ── REPORTS ───────────────────────────────────────────────────────────
-    Route::middleware('role:super_admin,accountant,hr_manager')
+    Route::middleware('role:super_admin,accountant,hr_manager,doctor')
         ->prefix('reports')->name('reports.')
         ->group(function () {
             Route::get('/patients', [PatientReportController::class, 'index'])->name('patients.index');
@@ -344,4 +360,79 @@ Route::middleware(['auth'])->group(function () {
                 ->name('dashboard');
         });
 
+    // ROUTES FOR HR
+    Route::middleware('role:super_admin,hr_manager')->prefix('hr')->name('hr.')->group(function () {
+        // Leave types setting
+        Route::prefix('leave-types')->name('leave-types.')->group(function () {
+            Route::get('/', [LeaveTypeController::class, 'index'])->name('index');
+            Route::post('/', [LeaveTypeController::class, 'store'])->name('store');
+            Route::put('/{leaveType}', [LeaveTypeController::class, 'update'])->name('update');
+            Route::delete('/{leaveType}', [LeaveTypeController::class, 'destroy'])->name('destroy');
+            Route::post('/{leaveType}/toggle', [LeaveTypeController::class, 'toggle'])->name('toggle');
+
+        });
+        // ── Leave Requests ─────────────────────────────────────────
+        Route::prefix('leaves')->name('leaves.')->group(function () {
+            Route::get('/', [LeaveController::class, 'index'])->name('index');
+            Route::get('/create', [LeaveController::class, 'create'])->name('create');
+            Route::post('/', [LeaveController::class, 'store'])->name('store');
+            Route::get('/{leave}', [LeaveController::class, 'show'])->name('show');
+            Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->name('approve');
+            Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->name('reject');
+            Route::post('/{leave}/cancel', [LeaveController::class, 'cancel'])->name('cancel');
+            Route::get('/balances', [LeaveController::class, 'balances'])->name('balances');
+        });
+
+        // ── Attendance ─────────────────────────────────────────────
+        Route::prefix('attendance')->name('attendance.')->group(function () {
+            Route::get('/', [AttendanceController::class, 'index'])->name('index');
+            Route::get('/monthly', [AttendanceController::class, 'monthly'])->name('monthly');
+            Route::post('/', [AttendanceController::class, 'store'])->name('store');
+            Route::post('/bulk', [AttendanceController::class, 'bulkStore'])->name('bulk');
+            Route::patch('/{attendance}/regularize', [AttendanceController::class, 'regularize'])->name('regularize');
+            Route::get('/employee/{employee}', [AttendanceController::class, 'summary'])->name('summary');
+        });
+        // ── Salary ─────────────────────────────────────────────────
+        Route::prefix('salary')->name('salary.')->group(function () {
+            Route::get('/', [SalaryController::class, 'index'])->name('index');
+            Route::get('/employee/{employee}', [SalaryController::class, 'show'])->name('show');
+            Route::get('/employee/{employee}/create', [SalaryController::class, 'create'])->name('create');
+            Route::post('/employee/{employee}', [SalaryController::class, 'store'])->name('store');
+            Route::get('/employee/{employee}/{structure}/edit', [SalaryController::class, 'edit'])->name('edit');
+            Route::put('/employee/{employee}/{structure}', [SalaryController::class, 'update'])->name('update');
+        });
+        // ── Payroll ─────────────────────────────────────────────────
+        Route::prefix('payroll')->name('payroll.')->group(function () {
+            Route::get('/', [PayrollController::class, 'index'])->name('index');
+            Route::get('/create', [PayrollController::class, 'create'])->name('create');
+            Route::post('/', [PayrollController::class, 'store'])->name('store');
+            Route::get('/{payroll}', [PayrollController::class, 'show'])->name('show');
+            Route::post('/{payroll}/approve', [PayrollController::class, 'approve'])->name('approve');
+            Route::post('/{payroll}/mark-paid', [PayrollController::class, 'markPaid'])->name('mark-paid');
+            Route::get('/payslip/{payslip}', [PayrollController::class, 'payslip'])->name('payslip');
+            Route::get('/payslip/{payslip}/print', [PayrollController::class, 'printPayslip'])->name('payslip.print');
+        });
+
+        // ── Disciplinary ───────────────────────────────────────────
+        Route::prefix('disciplinary')->name('disciplinary.')->group(function () {
+            Route::get('/', [DisciplinaryController::class, 'index'])->name('index');
+            Route::get('/create', [DisciplinaryController::class, 'create'])->name('create');
+            Route::post('/', [DisciplinaryController::class, 'store'])->name('store');
+            Route::get('/{disciplinary}', [DisciplinaryController::class, 'show'])->name('show');
+            Route::get('/{disciplinary}/edit', [DisciplinaryController::class, 'edit'])->name('edit');
+            Route::put('/{disciplinary}', [DisciplinaryController::class, 'update'])->name('update');
+            Route::post('/{disciplinary}/response', [DisciplinaryController::class, 'recordResponse'])->name('response');
+            Route::post('/{disciplinary}/resolve', [DisciplinaryController::class, 'resolve'])->name('resolve');
+            Route::post('/{disciplinary}/appeal', [DisciplinaryController::class, 'appeal'])->name('appeal');
+        });
+
+        // ── Holidays ───────────────────────────────────────────────
+        Route::prefix('holidays')->name('holidays.')->group(function () {
+            Route::get('/', [HolidayController::class, 'index'])->name('index');
+            Route::post('/', [HolidayController::class, 'store'])->name('store');
+            Route::put('/{holiday}', [HolidayController::class, 'update'])->name('update');
+            Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('destroy');
+        });
+
+    });
 });

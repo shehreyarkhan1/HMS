@@ -65,7 +65,7 @@ class User extends Authenticatable
             'lab' => ['lab_technician', 'doctor'],
             'radiology' => ['radiologist', 'doctor'],
             'billing' => ['accountant', 'receptionist'],
-            'reports' => ['accountant', 'hr_manager'],
+            'reports' => ['accountant', 'hr_manager','doctor'],
             'settings' => [],
             'users' => [],
         ];

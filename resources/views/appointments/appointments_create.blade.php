@@ -229,148 +229,169 @@
                     <span class="section-title">Patient &amp; Doctor</span>
                 </div>
                 <div class="form-card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <x-patient-search :patient="$selectedPatient" />
-                            @error('patient_id')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
+    <div class="row g-4 align-items-start"> {{-- g-4 for better spacing --}}
 
-
-                        <div class="col-md-6">
-                            <div class="form-label-custom">Doctor</div>
-                            <select name="doctor_id" id="doctor_id"
-                                class="form-select-custom @error('doctor_id') is-invalid @enderror">
-                                <option value="">— No preference —</option>
-                                @foreach ($doctors as $d)
-                                    <option value="{{ $d->id }}" {{ old('doctor_id') == $d->id ? 'selected' : '' }}>
-                                        {{ $d->full_display }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('doctor_id')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
+        <!-- Patient Side -->
+        <div class="col-md-6">
+            <label class="form-label fw-bold mb-2">Patient</label>
+            <div class="patient-search-wrapper">
+                <x-patient-search :patient="$selectedPatient" />
             </div>
+            @error('patient_id')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
+        </div>
 
-            {{-- ② Schedule --}}
-            <div class="form-card">
-                <div class="form-card-header">
-                    <div class="section-icon" style="background:#dcfce7;color:#15803d"><i
-                            class="bi bi-calendar-check-fill"></i></div>
-                    <span class="section-title">Schedule</span>
+        <!-- Doctor Side -->
+        <div class="col-md-6">
+            <label class="form-label fw-bold mb-2">Doctor</label>
+
+            {{-- Ye div "PATIENT *" wali space ko balance karega --}}
+            <div style="margin-top: 20px;">
+                @if (auth()->user()->hasRole('doctor') && $selectedDoctor)
+                    <input type="hidden" name="doctor_id" value="{{ $selectedDoctor->id }}">
+
+                    <input type="text" class="form-control"
+                        value="Dr. {{ $selectedDoctor->employee->first_name }} {{ $selectedDoctor->employee->last_name }}"
+                        readonly
+                        style="background-color: #f8f9fa; color: #495057; border: 1px solid #dee2e6; border-radius: 5px; cursor: not-allowed;">
+
+                    <small class="text-muted mt-1 d-block">You are booking as your own profile.</small>
+
+                @else
+                    <select name="doctor_id" class="form-select @error('doctor_id') is-invalid @enderror" style="height: 45px; border-radius: 8px;">
+                        <option value="">Select doctor...</option>
+                        @foreach ($doctors as $d)
+                            <option value="{{ $d->id }}"
+                                {{ (old('doctor_id') ?? optional($selectedDoctor)->id) == $d->id ? 'selected' : '' }}>
+                                Dr. {{ $d->employee->first_name }} {{ $d->employee->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('doctor_id')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
+                @endif
+            </div>
+        </div>
+
+    </div>
+</div>
+            </div>
+    </div>
+
+    {{-- ② Schedule --}}
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="section-icon" style="background:#dcfce7;color:#15803d"><i class="bi bi-calendar-check-fill"></i>
+            </div>
+            <span class="section-title">Schedule</span>
+        </div>
+        <div class="form-card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="form-label-custom">Date <span class="text-danger">*</span></div>
+                    <input type="date" name="appointment_date" id="appt_date"
+                        class="form-control-custom @error('appointment_date') is-invalid @enderror"
+                        value="{{ old('appointment_date', today()->format('Y-m-d')) }}"
+                        min="{{ today()->format('Y-m-d') }}">
+                    @error('appointment_date')
+                        <div class="field-error">{{ $message }}</div>
+                    @enderror
                 </div>
-                <div class="form-card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="form-label-custom">Date <span class="text-danger">*</span></div>
-                            <input type="date" name="appointment_date" id="appt_date"
-                                class="form-control-custom @error('appointment_date') is-invalid @enderror"
-                                value="{{ old('appointment_date', today()->format('Y-m-d')) }}"
-                                min="{{ today()->format('Y-m-d') }}">
-                            @error('appointment_date')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
 
-                        <div class="col-md-4">
-                            <div class="form-label-custom">Time</div>
-                            <input type="time" name="appointment_time" id="appt_time"
-                                class="form-control-custom @error('appointment_time') is-invalid @enderror"
-                                value="{{ old('appointment_time') }}">
-                            {{-- Availability indicator --}}
-                            <div id="avail-indicator" style="display:none"></div>
-                            @error('appointment_time')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
+                <div class="col-md-4">
+                    <div class="form-label-custom">Time</div>
+                    <input type="time" name="appointment_time" id="appt_time"
+                        class="form-control-custom @error('appointment_time') is-invalid @enderror"
+                        value="{{ old('appointment_time') }}">
+                    {{-- Availability indicator --}}
+                    <div id="avail-indicator" style="display:none"></div>
+                    @error('appointment_time')
+                        <div class="field-error">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                        <div class="col-md-4">
-                            <div class="form-label-custom">Duration (minutes)</div>
-                            <select name="duration_minutes" class="form-select-custom">
-                                @foreach ([10, 15, 20, 30, 45, 60] as $d)
-                                    <option value="{{ $d }}"
-                                        {{ old('duration_minutes', 15) == $d ? 'selected' : '' }}>
-                                        {{ $d }} min
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="col-md-4">
+                    <div class="form-label-custom">Duration (minutes)</div>
+                    <select name="duration_minutes" class="form-select-custom">
+                        @foreach ([10, 15, 20, 30, 45, 60] as $d)
+                            <option value="{{ $d }}" {{ old('duration_minutes', 15) == $d ? 'selected' : '' }}>
+                                {{ $d }} min
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                        <div class="col-12">
-                            <div class="form-label-custom">Appointment Type <span class="text-danger">*</span></div>
-                            <div class="type-radio-group">
-                                @foreach (['OPD', 'IPD', 'Follow-up', 'Emergency'] as $t)
-                                    <div class="type-radio">
-                                        <input type="radio" id="type_{{ $t }}" name="type"
-                                            value="{{ $t }}" {{ old('type', 'OPD') == $t ? 'checked' : '' }}>
-                                        <label for="type_{{ $t }}">{{ $t }}</label>
-                                    </div>
-                                @endforeach
+                <div class="col-12">
+                    <div class="form-label-custom">Appointment Type <span class="text-danger">*</span></div>
+                    <div class="type-radio-group">
+                        @foreach (['OPD', 'IPD', 'Follow-up', 'Emergency'] as $t)
+                            <div class="type-radio">
+                                <input type="radio" id="type_{{ $t }}" name="type"
+                                    value="{{ $t }}" {{ old('type', 'OPD') == $t ? 'checked' : '' }}>
+                                <label for="type_{{ $t }}">{{ $t }}</label>
                             </div>
-                            @error('type')
-                                <div class="field-error mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        @endforeach
                     </div>
+                    @error('type')
+                        <div class="field-error mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- ③ Visit Details --}}
-            <div class="form-card">
-                <div class="form-card-header">
-                    <div class="section-icon" style="background:#fef3c7;color:#b45309"><i class="bi bi-clipboard2-fill"></i>
-                    </div>
-                    <span class="section-title">Visit Details</span>
+    {{-- ③ Visit Details --}}
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="section-icon" style="background:#fef3c7;color:#b45309"><i class="bi bi-clipboard2-fill"></i>
+            </div>
+            <span class="section-title">Visit Details</span>
+        </div>
+        <div class="form-card-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-label-custom">Chief Complaint / Reason</div>
+                    <input type="text" name="reason" class="form-control-custom @error('reason') is-invalid @enderror"
+                        value="{{ old('reason') }}" placeholder="e.g. Fever, Follow-up for diabetes, Chest pain…">
+                    @error('reason')
+                        <div class="field-error">{{ $message }}</div>
+                    @enderror
                 </div>
-                <div class="form-card-body">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <div class="form-label-custom">Chief Complaint / Reason</div>
-                            <input type="text" name="reason"
-                                class="form-control-custom @error('reason') is-invalid @enderror"
-                                value="{{ old('reason') }}" placeholder="e.g. Fever, Follow-up for diabetes, Chest pain…">
-                            @error('reason')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-label-custom">Notes</div>
-                            <textarea name="notes" rows="3" class="form-control-custom @error('notes') is-invalid @enderror"
-                                placeholder="Reception or clinical notes…">{{ old('notes') }}</textarea>
-                            @error('notes')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-label-custom">Follow-up Date</div>
-                            <input type="date" name="follow_up_date"
-                                class="form-control-custom @error('follow_up_date') is-invalid @enderror"
-                                value="{{ old('follow_up_date') }}">
-                            @error('follow_up_date')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
+                <div class="col-md-6">
+                    <div class="form-label-custom">Notes</div>
+                    <textarea name="notes" rows="3" class="form-control-custom @error('notes') is-invalid @enderror"
+                        placeholder="Reception or clinical notes…">{{ old('notes') }}</textarea>
+                    @error('notes')
+                        <div class="field-error">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <div class="form-label-custom">Follow-up Date</div>
+                    <input type="date" name="follow_up_date"
+                        class="form-control-custom @error('follow_up_date') is-invalid @enderror"
+                        value="{{ old('follow_up_date') }}">
+                    @error('follow_up_date')
+                        <div class="field-error">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- Action Bar --}}
-            <div class="form-card" style="padding:16px 22px">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <a href="{{ route('appointments.index') }}" class="btn-cancel">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-                    <button type="submit" class="btn-save">
-                        <i class="bi bi-calendar-plus"></i> Book Appointment
-                    </button>
-                </div>
-            </div>
-        </form>
+    {{-- Action Bar --}}
+    <div class="form-card" style="padding:16px 22px">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <a href="{{ route('appointments.index') }}" class="btn-cancel">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn-save">
+                <i class="bi bi-calendar-plus"></i> Book Appointment
+            </button>
+        </div>
+    </div>
+    </form>
     </div>
 @endsection
 

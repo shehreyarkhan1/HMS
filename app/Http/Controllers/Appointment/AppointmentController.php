@@ -74,19 +74,29 @@ class AppointmentController extends Controller
     // =============================================
     public function create(Request $request)
     {
-        $doctors = Doctor::with('employee')
-            ->active()
-            ->available()
-            ->get();
+        // 1. Saare active doctors dropdown ke liye
+        $doctors = Doctor::with('employee')->where('is_active', true)
+            ->get()
+            ->sortBy('employee.first_name');
 
-        // $patients = Patient::orderBy('name')->get();
+        $selectedDoctor = null;
 
-        // Pre-fill patient if coming from patient profile
+        // 2. Agar login banda Doctor hai
+        if (auth()->user()->hasRole('doctor')) {
+            // Hum user table se employee_id uthayenge aur Doctors table mein check karenge
+            $employeeId = auth()->user()->employee_id;
+
+            if ($employeeId) {
+                $selectedDoctor = Doctor::where('employee_id', $employeeId)->first();
+            }
+        }
+
+        // 3. Pre-fill patient (agar kisi specific patient ke page se aa rahe hain)
         $selectedPatient = $request->filled('patient_id')
             ? Patient::find($request->patient_id)
             : null;
 
-        return view('appointments.appointments_create', compact('doctors', 'selectedPatient'));
+        return view('appointments.appointments_create', compact('doctors', 'selectedPatient', 'selectedDoctor'));
     }
 
     // =============================================
