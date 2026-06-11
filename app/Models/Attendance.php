@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Employee;
+use App\Models\User;
 
 class Attendance extends Model
 {
@@ -31,7 +33,7 @@ class Attendance extends Model
 
     public function regularizedBy(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'regularized_by');
+        return $this->belongsTo(User::class, 'regularized_by');
     }
 
     // ── Scopes ────────────────────────────────────────────────────────

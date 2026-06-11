@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('disciplinary_actions', function (Blueprint $table) {
-             $table->id();
+            $table->id();
 
-            $table->string('action_number')->unique();       // DA-00001
+            $table->string('action_number')->unique(); // DA-00001
 
+            // Ye employee ke liye hai (Target Person)
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
 
             // ── Incident ─────────────────────────────────────────────
@@ -55,7 +56,7 @@ return new class extends Migration
             $table->boolean('suspension_paid')->default(false);
 
             // ── Salary deduction ─────────────────────────────────────
-            $table->decimal('deduction_amount', 10, 2)->default(0);
+            $table->decimal('deduction_amount', 10, 2)->nullable()->default(0);
             $table->string('deduction_month')->nullable();   // Which month payroll
 
             // ── Employee response ─────────────────────────────────────
@@ -82,17 +83,19 @@ return new class extends Migration
                 'Modified',
             ])->nullable();
 
-            // ── Issued by ────────────────────────────────────────────
+            // ── Issued by (Ab ye USERS table se link hai) ────────────────
             $table->foreignId('issued_by')
-                ->constrained('employees')
+                ->constrained('users') // Changed from 'employees' to 'users'
                 ->restrictOnDelete();
+
+            // ── Reviewed by (Ab ye USERS table se link hai) ──────────────
             $table->foreignId('reviewed_by')
                 ->nullable()
-                ->constrained('employees')
+                ->constrained('users') // Changed from 'employees' to 'users'
                 ->nullOnDelete();
 
             $table->text('notes')->nullable();
-            $table->string('document_path')->nullable();     // Show cause letter etc
+            $table->string('document_path')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

@@ -200,7 +200,7 @@ class AttendanceController extends Controller
             'check_in' => $request->check_in,
             'check_out' => $request->check_out,
             'is_regularized' => true,
-            'regularized_by' => auth()->user()->employee?->id,
+            'regularized_by' => Auth::id(),
             'regularization_reason' => $request->regularization_reason,
         ]);
 

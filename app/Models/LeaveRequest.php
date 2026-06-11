@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Employee;
+use App\Models\LeaveType;
+use App\Models\User;
 
 class LeaveRequest extends Model
 {
-     use SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = [
         'leave_number', 'employee_id', 'leave_type_id',
@@ -23,10 +23,10 @@ class LeaveRequest extends Model
     ];
 
     protected $casts = [
-        'from_date'    => 'date',
-        'to_date'      => 'date',
-        'half_day'     => 'boolean',
-        'reviewed_at'  => 'datetime',
+        'from_date' => 'date',
+        'to_date' => 'date',
+        'half_day' => 'boolean',
+        'reviewed_at' => 'datetime',
         'cancelled_at' => 'datetime',
     ];
 
@@ -44,12 +44,12 @@ class LeaveRequest extends Model
 
     public function reviewedBy(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'reviewed_by');
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function cancelledBy(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'cancelled_by');
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     // ── Scopes ────────────────────────────────────────────────────────
@@ -76,19 +76,34 @@ class LeaveRequest extends Model
 
     // ── Helpers ───────────────────────────────────────────────────────
 
-    public function isPending(): bool   { return $this->status === 'Pending'; }
-    public function isApproved(): bool  { return $this->status === 'Approved'; }
-    public function isRejected(): bool  { return $this->status === 'Rejected'; }
-    public function isCancelled(): bool { return $this->status === 'Cancelled'; }
+    public function isPending(): bool
+    {
+        return $this->status === 'Pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'Approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'Rejected';
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === 'Cancelled';
+    }
 
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'Approved'  => 'success',
-            'Rejected'  => 'danger',
+            'Approved' => 'success',
+            'Rejected' => 'danger',
             'Cancelled' => 'secondary',
-            'Revoked'   => 'warning',
-            default     => 'warning',   // Pending
+            'Revoked' => 'warning',
+            default => 'warning',   // Pending
         };
     }
 
@@ -100,7 +115,7 @@ class LeaveRequest extends Model
 
         static::creating(function ($request) {
             if (empty($request->leave_number)) {
-                $request->leave_number = 'LR-' . str_pad(
+                $request->leave_number = 'LR-'.str_pad(
                     self::withTrashed()->max('id') + 1, 5, '0', STR_PAD_LEFT
                 );
             }

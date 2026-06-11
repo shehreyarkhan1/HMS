@@ -43,7 +43,7 @@ return new class extends Migration
 
             $table->foreignId('reviewed_by')
                 ->nullable()
-                ->constrained('employees')
+                ->constrained('users')
                 ->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
             $table->text('review_notes')->nullable();
@@ -51,7 +51,7 @@ return new class extends Migration
             // ── Cancellation ─────────────────────────────────────────
             $table->foreignId('cancelled_by')
                 ->nullable()
-                ->constrained('employees')
+                ->constrained('users')
                 ->nullOnDelete();
             $table->timestamp('cancelled_at')->nullable();
             $table->string('cancellation_reason')->nullable();

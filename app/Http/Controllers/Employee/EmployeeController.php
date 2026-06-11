@@ -98,6 +98,7 @@ class EmployeeController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+
         $data = $request->except('photo');
         $data['is_tax_filer'] = $request->has('is_tax_filer');
         $data['has_system_access'] = $request->has('has_system_access');

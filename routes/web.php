@@ -18,7 +18,13 @@ use App\Http\Controllers\Dispensing\DispensingController;
 use App\Http\Controllers\Doctor\DoctorController;
 use App\Http\Controllers\DoctorDashboard\DoctorDashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
+use App\Http\Controllers\HR\AttendanceController;
+use App\Http\Controllers\HR\DisciplinaryController;
+use App\Http\Controllers\HR\HolidayController;
+use App\Http\Controllers\HR\LeaveController;
 use App\Http\Controllers\HR\LeaveTypeController;
+use App\Http\Controllers\HR\PayrollController;
+use App\Http\Controllers\HR\SalaryController;
 use App\Http\Controllers\Laboratory\LabOrderController;
 use App\Http\Controllers\Laboratory\LabSampleTypeController;
 use App\Http\Controllers\Laboratory\LabTestCategoryController;
@@ -37,12 +43,6 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Ward\WardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HR\AttendanceController;
-use App\Http\Controllers\HR\HolidayController;
-use App\Http\Controllers\HR\LeaveController;
-use App\Http\Controllers\HR\SalaryController;
-use App\Http\Controllers\HR\PayrollController;
-use App\Http\Controllers\HR\DisciplinaryController;
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AUTH ROUTES — No middleware (guest only)
@@ -376,11 +376,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [LeaveController::class, 'index'])->name('index');
             Route::get('/create', [LeaveController::class, 'create'])->name('create');
             Route::post('/', [LeaveController::class, 'store'])->name('store');
+            Route::post('/balances/allocate', [LeaveController::class, 'allocateBalances'])
+                ->name('balances.allocate');
+            Route::get('/balances', [LeaveController::class, 'balances'])->name('balances');
             Route::get('/{leave}', [LeaveController::class, 'show'])->name('show');
             Route::post('/{leave}/approve', [LeaveController::class, 'approve'])->name('approve');
             Route::post('/{leave}/reject', [LeaveController::class, 'reject'])->name('reject');
             Route::post('/{leave}/cancel', [LeaveController::class, 'cancel'])->name('cancel');
-            Route::get('/balances', [LeaveController::class, 'balances'])->name('balances');
         });
 
         // ── Attendance ─────────────────────────────────────────────

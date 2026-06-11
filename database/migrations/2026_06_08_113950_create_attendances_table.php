@@ -49,7 +49,7 @@ return new class extends Migration
             $table->boolean('is_regularized')->default(false); // Manual correction
             $table->foreignId('regularized_by')
                 ->nullable()
-                ->constrained('employees')
+                ->constrained('users')
                 ->nullOnDelete();
             $table->text('regularization_reason')->nullable();
 

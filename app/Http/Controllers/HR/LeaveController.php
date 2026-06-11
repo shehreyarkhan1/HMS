@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\LeaveType;
-use App\Models\Holiday;
-use App\Models\LeaveRequest;
-use App\Models\LeaveBalance;
 use App\Models\Employee;
+use App\Models\LeaveBalance;
+use App\Models\LeaveRequest;
+use App\Models\LeaveType;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Holiday;
 
 class LeaveController extends Controller
 {
@@ -57,7 +60,8 @@ class LeaveController extends Controller
                 ->count(),
         ];
 
-        return view('hr.leave_type_index', compact('requests', 'leaveTypes', 'stats'));
+        // ✅ Fix: dot notation — hr/leaves/index.blade.php
+        return view('hr.leave_request_index', compact('requests', 'leaveTypes', 'stats'));
     }
 
     // ── CREATE ────────────────────────────────────────────────────────
@@ -132,8 +136,6 @@ class LeaveController extends Controller
         }
 
         DB::transaction(function () use ($validated, $request, $totalDays, $balance) {
-
-            // Document upload
             if ($request->hasFile('document_path')) {
                 $validated['document_path'] = $request->file('document_path')
                     ->store('leave-documents', 'public');
@@ -142,9 +144,8 @@ class LeaveController extends Controller
             $validated['total_days'] = $totalDays;
             $validated['half_day'] = $request->boolean('half_day');
 
-            $leaveRequest = LeaveRequest::create($validated);
+            LeaveRequest::create($validated);
 
-            // Update pending days in balance
             if ($balance) {
                 $balance->pending_days += $totalDays;
                 $balance->recalculate();
@@ -177,12 +178,11 @@ class LeaveController extends Controller
         DB::transaction(function () use ($leave, $request) {
             $leave->update([
                 'status' => 'Approved',
-                'reviewed_by' => Auth::user()->employee?->id,
+                'reviewed_by' => Auth::id(),
                 'reviewed_at' => now(),
                 'review_notes' => $request->review_notes,
             ]);
 
-            // Move from pending to used in balance
             $balance = LeaveBalance::where('employee_id', $leave->employee_id)
                 ->where('leave_type_id', $leave->leave_type_id)
                 ->where('year', Carbon::parse($leave->from_date)->year)
@@ -212,12 +212,11 @@ class LeaveController extends Controller
         DB::transaction(function () use ($leave, $request) {
             $leave->update([
                 'status' => 'Rejected',
-                'reviewed_by' => Auth::user()->employee?->id,
+                'reviewed_by' => Auth::id(), // ✅ Fix: users.id
                 'reviewed_at' => now(),
                 'review_notes' => $request->review_notes,
             ]);
 
-            // Remove from pending in balance
             $balance = LeaveBalance::where('employee_id', $leave->employee_id)
                 ->where('leave_type_id', $leave->leave_type_id)
                 ->where('year', Carbon::parse($leave->from_date)->year)
@@ -249,12 +248,11 @@ class LeaveController extends Controller
 
             $leave->update([
                 'status' => 'Cancelled',
-                'cancelled_by' => Auth::user()->employee?->id,
+                'cancelled_by' => Auth::id(), // ✅ Fix: users.id
                 'cancelled_at' => now(),
                 'cancellation_reason' => $request->cancellation_reason,
             ]);
 
-            // Restore balance
             $balance = LeaveBalance::where('employee_id', $leave->employee_id)
                 ->where('leave_type_id', $leave->leave_type_id)
                 ->where('year', Carbon::parse($leave->from_date)->year)
@@ -294,14 +292,83 @@ class LeaveController extends Controller
         $days = 0;
         $current = $from->copy();
 
+        // 1. Database se wo saari holidays nikalen jo is leave period ke darmiyan hain
+        $holidayRecords = Holiday::where('is_active', true)
+            ->where(function ($query) use ($from, $to) {
+                $query->whereBetween('date', [$from->format('Y-m-d'), $to->format('Y-m-d')])
+                    ->orWhereBetween('date_to', [$from->format('Y-m-d'), $to->format('Y-m-d')])
+                    ->orWhere(function ($q) use ($from, $to) {
+                        $q->where('date', '<=', $from->format('Y-m-d'))
+                            ->where('date_to', '>=', $to->format('Y-m-d'));
+                    });
+            })->get();
+
+        // 2. In holidays ki saari dates ko ek array mein jama karein (taake multi-day handle ho sake)
+        $holidayDates = [];
+        foreach ($holidayRecords as $h) {
+            $hStart = Carbon::parse($h->date);
+            $hEnd = $h->date_to ? Carbon::parse($h->date_to) : $hStart;
+
+            while ($hStart->lte($hEnd)) {
+                $holidayDates[] = $hStart->format('Y-m-d');
+                $hStart->addDay();
+            }
+        }
+        // Duplicate dates khatam karein (agar koi overlap ho)
+        $holidayDates = array_unique($holidayDates);
+
+        // 3. Main Loop: Har din ko check karein
         while ($current->lte($to)) {
-            // Skip weekends (Friday=5, Saturday=6 for Pakistan)
-            if (! $current->isFriday() && ! $current->isSaturday()) {
+            $dateStr = $current->format('Y-m-d');
+
+            $isWeekend = $current->isFriday() || $current->isSaturday();
+            $isHoliday = in_array($dateStr, $holidayDates);
+
+            // Sirf tab count karein agar na weekend ho aur na hi holiday
+            if (! $isWeekend && ! $isHoliday) {
                 $days++;
             }
             $current->addDay();
         }
 
         return (float) $days;
+    }
+
+    // ── ALLOCATE BALANCES (Yearly) ────────────────────────────
+    public function allocateBalances(Request $request)
+    {
+        $year = $request->integer('year', now()->year);
+
+        $employees = Employee::where('employment_status', 'Active')->get();
+        $leaveTypes = LeaveType::active()->get();
+
+        $count = 0;
+
+        DB::transaction(function () use ($employees, $leaveTypes, $year, &$count) {
+            foreach ($employees as $emp) {
+                foreach ($leaveTypes as $lt) {
+                    // Already exists toh skip karo
+                    $exists = LeaveBalance::where('employee_id', $emp->id)
+                        ->where('leave_type_id', $lt->id)
+                        ->where('year', $year)
+                        ->exists();
+
+                    if (! $exists) {
+                        LeaveBalance::create([
+                            'employee_id' => $emp->id,
+                            'leave_type_id' => $lt->id,
+                            'year' => $year,
+                            'allocated_days' => $lt->days_per_year,
+                            'used_days' => 0,
+                            'pending_days' => 0,
+                            'remaining_days' => $lt->days_per_year,
+                        ]);
+                        $count++;
+                    }
+                }
+            }
+        });
+
+        return back()->with('success', "{$count} leave balances allocated for {$year}.");
     }
 }

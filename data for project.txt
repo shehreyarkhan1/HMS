@@ -1,0 +1,806 @@
+
+
+INSERT INTO `employees` (`id`, `employee_id`, `badge_number`, `first_name`, `last_name`, `father_name`, `mother_name`, `date_of_birth`, `gender`, `marital_status`, `religion`, `nationality`, `cnic`, `cnic_expiry`, `blood_group`, `photo`, `personal_phone`, `office_phone`, `personal_email`, `office_email`, `emergency_contact_name`, `emergency_contact_phone`, `emergency_contact_relation`, `present_address`, `permanent_address`, `city`, `province`, `postal_code`, `department`, `designation`, `job_grade`, `employment_type`, `employment_status`, `joining_date`, `confirmation_date`, `contract_end_date`, `resignation_date`, `termination_date`, `termination_reason`, `shift`, `shift_start`, `shift_end`, `weekly_hours`, `working_days`, `highest_qualification`, `specialization`, `institution`, `graduation_year`, `total_experience_years`, `previous_employer`, `previous_designation`, `bank_name`, `bank_account_number`, `bank_branch`, `iban`, `salary_type`, `basic_salary`, `ntn_number`, `eobi_number`, `socso_number`, `is_tax_filer`, `has_system_access`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'EMP-00001', NULL, 'Samin', 'Afridi', 'Hussain Gul', NULL, '2000-01-01', 'Male', 'Married', 'Islam', 'Pakistani', '17320-0123456', NULL, 'AB+', NULL, '03334504157', '03335583974', 'samin@gmail.com', 'saminhos@gmail.com', 'Hussain Gul', '03335583974', 'Father', 'dora school suffaid dheri khatama nabowat chowk peshawar', 'malak din khyl umar khan khyl nala khur bara', 'KHYBER', 'KPK', '25000', 'Clinical — Surgery', 'Senior Medical Officer', 'BPS-17-GRAD', 'Permanent', 'Active', '2020-02-01', '2021-01-01', NULL, NULL, NULL, NULL, 'Morning', '08:30:00', '16:30:00', 48, '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\"]', 'MBBS FCPS', 'Medical Specilist', 'Sarhad University Of Science and Information Technology', '2000', 15, 'Shaukat Khanam', NULL, 'The Bank Of Khyber', '3003950227', '0128', 'PK76KHYB0128003003950227', 'Monthly', 200000.00, NULL, NULL, NULL, 0, 0, NULL, '2026-05-10 06:19:42', '2026-06-10 02:19:45', NULL),
+(2, 'EMP-000021', NULL, 'Ahmed', 'Khan', 'Bashir Khan', NULL, '1985-05-12', 'Male', 'Married', NULL, 'Pakistani', '4210112345671', NULL, NULL, 'employees/PLeADXzUKX3DQY9ceGgeCHAgGS2uoQPBg0asasFU.jpg', '03001234567', NULL, NULL, 'ahmed.cardio@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — Cardiology', 'Consultant', NULL, 'Permanent', 'Active', '2020-01-15', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 160000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-06-10 02:06:55', NULL),
+(3, 'EMP-00002', NULL, 'Sara', 'Ali', 'Zulfiqar Ali', NULL, '1988-08-22', 'Female', 'Married', NULL, 'Pakistani', '4220198765432', NULL, NULL, NULL, '03217654321', NULL, NULL, 'sara.gyn@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — Surgery', 'Specialist', NULL, 'Permanent', 'Active', '2021-03-10', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 220000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 00:54:44', NULL),
+(4, 'EMP-00003', NULL, 'Bilal', 'Malik', 'Abdul Malik', NULL, '1990-11-05', 'Male', 'Single', NULL, 'Pakistani', '3520211223344', NULL, NULL, 'employees/bOsyADiTtQwZMeIeVMEFGD64YuArwPegGpBZK1Dr.png', '03334455667', NULL, NULL, 'bilal.mo@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — General OPD', 'Medical Officer', NULL, 'Permanent', 'Active', '2022-06-01', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 120000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-06-02 01:43:01', NULL),
+(5, 'EMP-00004', NULL, 'Zoya', 'Hassan', 'Hassan Mehmood', NULL, '1987-02-14', 'Female', 'Married', NULL, 'Pakistani', '6110155667788', NULL, NULL, NULL, '03451122334', NULL, NULL, 'zoya.peds@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — Pediatrics', 'Senior Medical Officer', NULL, 'Permanent', 'Active', '2019-11-20', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 180000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(6, 'EMP-00005', NULL, 'Usman', 'Shah', 'Syed Shah', NULL, '1983-09-30', 'Male', 'Married', NULL, 'Pakistani', '3740599887766', NULL, NULL, NULL, '03120099887', NULL, NULL, 'usman.ortho@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — Orthopedic', 'Specialist', NULL, 'Permanent', 'Active', '2018-05-12', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 210000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(7, 'EMP-00006', NULL, 'Maria', 'Qureshi', 'Irfan Qureshi', NULL, '1992-04-18', 'Female', 'Single', NULL, 'Pakistani', '3310244556677', NULL, NULL, NULL, '03012233445', NULL, NULL, 'maria.anes@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — Anesthesia', 'Anesthesiologist', NULL, 'Permanent', 'Active', '2023-01-05', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 190000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(8, 'EMP-00007', NULL, 'Faisal', 'Aziz', 'Aziz Ahmed', NULL, '1989-12-25', 'Male', 'Married', NULL, 'Pakistani', '4130311223344', NULL, NULL, NULL, '03009876543', NULL, NULL, 'faisal.icu@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — ICU', 'Medical Officer', NULL, 'Permanent', 'Active', '2022-02-28', NULL, NULL, NULL, NULL, NULL, 'Night', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 125000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(9, 'EMP-00008', NULL, 'Kamran', 'Akmal', 'M. Akmal', NULL, '1980-01-01', 'Male', 'Married', NULL, 'Pakistani', '3520188776655', NULL, NULL, NULL, '03221122334', NULL, NULL, 'kamran.hr@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Human Resources', 'HR Manager', NULL, 'Permanent', 'Active', '2015-06-15', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 95000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(10, 'EMP-00009', NULL, 'Asma', 'Javed', 'Javed Iqbal', NULL, '1994-03-10', 'Female', 'Single', NULL, 'Pakistani', '3520177665544', NULL, NULL, NULL, '03215544332', NULL, NULL, 'asma.nurse@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Nursing', 'Head Nurse', NULL, 'Permanent', 'Active', '2018-09-10', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 85000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(11, 'EMP-00010', NULL, 'Tariq', 'Mahmood', 'Sultan Mahmood', NULL, '1975-07-20', 'Male', 'Married', NULL, 'Pakistani', '3410122334455', NULL, NULL, NULL, '03004433221', NULL, NULL, 'tariq.fin@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Finance & Accounts', 'CFO', NULL, 'Permanent', 'Active', '2010-01-01', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 180000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(12, 'EMP-00011', NULL, 'Saima', 'Raza', 'Raza Ali', NULL, '1995-05-05', 'Female', 'Single', NULL, 'Pakistani', '3110233445566', NULL, NULL, NULL, '03316655443', NULL, NULL, 'saima.pharma@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pharmacy', 'Pharmacist', NULL, 'Permanent', 'Active', '2023-05-20', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 70000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(13, 'EMP-00012', NULL, 'Irfan', 'Haider', 'Haider Abbas', NULL, '1991-10-12', 'Male', 'Married', NULL, 'Pakistani', '3840344556677', NULL, NULL, NULL, '03441122334', NULL, NULL, 'irfan.lab@hospital.com', NULL, NULL, NULL, NULL, NULL, 'Khyber Agency', NULL, NULL, 'Laboratory', 'Lab Technician', NULL, 'Permanent', 'Active', '2020-08-15', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 45000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-06-04 04:38:50', NULL),
+(14, 'EMP-00013', NULL, 'Noman', 'Ijaz', 'Ijaz Ahmed', NULL, '1996-12-30', 'Male', 'Single', NULL, 'Pakistani', '1210155667788', NULL, NULL, NULL, '03135544332', NULL, NULL, 'noman.it@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Information Technology', 'Data Entry Operator', NULL, 'Permanent', 'Active', '2024-01-10', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 40000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(15, 'EMP-00014', NULL, 'Sadia', 'Imran', 'Imran Khan', NULL, '1998-06-25', 'Female', 'Single', NULL, 'Pakistani', '1730166778899', NULL, NULL, NULL, '03006677889', NULL, NULL, 'sadia.front@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Administration', 'Receptionist', NULL, 'Permanent', 'Active', '2023-11-01', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 35000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(16, 'EMP-00015', NULL, 'Gul', 'Khan', 'Sher Khan', NULL, '1985-02-02', 'Male', 'Married', NULL, 'Pakistani', '1560277889900', NULL, NULL, NULL, '03159988776', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Security', 'Security Guard', NULL, 'Permanent', 'Active', '2017-03-20', NULL, NULL, NULL, NULL, NULL, 'Night', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 28000.00, NULL, NULL, NULL, 0, 0, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(17, 'EMP-00016', NULL, 'Pervaiz', 'Masih', 'Sadiq Masih', NULL, '1982-04-04', 'Male', 'Married', NULL, 'Pakistani', '3520288990011', NULL, NULL, NULL, '03331122334', NULL, NULL, 'shehreyar882@gmail.com', NULL, NULL, NULL, NULL, NULL, 'KHYBER', NULL, NULL, 'Clinical — Radiology', 'Radiographer', NULL, 'Permanent', 'Active', '2016-05-15', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 25000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-06-05 00:47:33', NULL),
+(18, 'EMP-00017', NULL, 'Shazia', 'Bibi', 'M. Ramzan', NULL, '1993-09-09', 'Female', 'Married', NULL, 'Pakistani', '3540499001122', NULL, NULL, NULL, '03214455667', NULL, NULL, 'shazia.nurse@hospital.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Nursing', 'Staff Nurse', NULL, 'Permanent', 'Active', '2021-07-22', NULL, NULL, NULL, NULL, NULL, 'Evening', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 55000.00, NULL, NULL, NULL, 0, 1, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(19, 'EMP-00018', NULL, 'Rashid', 'Minhas', 'Minhas Ahmed', NULL, '1980-11-11', 'Male', 'Married', NULL, 'Pakistani', '4220111223344', NULL, NULL, NULL, '03027788990', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Ambulance & Transport', 'Driver', NULL, 'Permanent', 'Active', '2014-02-10', NULL, NULL, NULL, NULL, NULL, 'Rotating', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 32000.00, NULL, NULL, NULL, 0, 0, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(20, 'EMP-00019', NULL, 'Mehmood', 'Bhatti', 'Nazir Bhatti', NULL, '1988-03-03', 'Male', 'Married', NULL, 'Pakistani', '3520133445566', NULL, NULL, NULL, '03001122998', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Maintenance', 'Electrician', NULL, 'Permanent', 'Active', '2019-10-05', NULL, NULL, NULL, NULL, NULL, 'Morning', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 35000.00, NULL, NULL, NULL, 0, 0, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL),
+(21, 'EMP-00020', NULL, 'Farhan', 'Saeed', 'Saeed Ahmed', NULL, '1997-01-01', 'Male', 'Single', NULL, 'Pakistani', '3310155443322', NULL, NULL, NULL, '03450099112', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Clinical — Emergency', 'Ward Boy', NULL, 'Permanent', 'Active', '2024-02-01', NULL, NULL, NULL, NULL, NULL, 'Rotating', NULL, NULL, 48, '[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"]', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Monthly', 26000.00, NULL, NULL, NULL, 0, 0, NULL, '2026-05-11 05:46:39', '2026-05-11 05:46:39', NULL);
+
+
+
+
+INSERT INTO `users` (`id`, `employee_id`, `name`, `username`, `email`, `email_verified_at`, `password`, `role`, `is_active`, `remember_token`, `created_at`, `updated_at`) VALUES
+(2, 2, 'Ahmed Khan', 'ahmad', 'ahmad@gmail.com', NULL, '$2y$12$5epaiayBIvWE2aO59j32RenxKxdBQHf8G2RC6j0dpFFzcL30hy7ju', 'doctor', 1, NULL, '2026-05-25 05:13:21', '2026-06-01 04:21:37'),
+(3, NULL, 'Super Admin', 'superadmin', 'admin@gmail.com', NULL, '$2y$12$JJzRkSiVkR9SH7aE23BTWeDEtUEETeEwnk9W9ZoOQYiKrHlst/MwO', 'super_admin', 1, NULL, '2026-06-01 04:17:51', '2026-06-01 04:17:51'),
+(4, 13, 'irfan haider', 'irfan', 'irfan@gmail.com', NULL, '$2y$12$arNzKzZ2DI5bEEiF9nKp.O7b9CrPusuY1d3HMCMVYoIUMAaiqvo0S', 'lab_technician', 1, NULL, '2026-06-01 04:38:39', '2026-06-05 00:18:50'),
+(5, 15, 'sadia imran', 'sadia', 'sadia@gmail.com', NULL, '$2y$12$t1HNKz1VnAiiSMRM/jlgIuxSBlRGikmON61FZ.Uq1xTaSEW23hMN.', 'receptionist', 1, NULL, '2026-06-02 01:33:33', '2026-06-02 01:33:33'),
+(6, 4, 'Bilal Malik', 'bilal', 'bilal@gmail.com', NULL, '$2y$12$dtK3R0Em4jsY6oHSly6S7OKhT70ZcqDQGIGXcSwc2NriPY5SQWVL.', 'doctor', 1, NULL, '2026-06-02 01:45:23', '2026-06-03 13:28:50'),
+(7, 1, 'samin Afridi', 'samin', 'samin@gmail.com', NULL, '$2y$12$SQm9ClkZSximbMTKtC3HmO2hxuuLFuZZ4WMsd7UlkW3Z0RM.kwiH2', 'doctor', 1, NULL, '2026-06-04 01:09:39', '2026-06-04 01:09:39'),
+(9, 17, 'pervaiz mash', 'pervaiz', 'pervaiz@gmail.com', NULL, '$2y$12$G5tZ2OB4p.WrtTtmvphPZu2sh/5tqyW221akNinI40616ZRrXzg7W', 'radiologist', 1, NULL, '2026-06-05 00:49:53', '2026-06-05 00:51:49'),
+(10, 12, 'Saima Raza', 'saima', 'saima@gmail.com', NULL, '$2y$12$kFypPRDcHma7Jv7HUSi38eWj.B1xMZCJxGyPV0luXckVNRFqm4IY2', 'pharmacist', 1, NULL, '2026-06-05 01:43:02', '2026-06-05 01:43:02'),
+(11, 9, 'Kamran Akmal', 'kamran', 'kamran@gmail.com', NULL, '$2y$12$9XW7uKFkqA6pCdU0pDz5POopMIXkyUXLjM5Rejo6M4ziJxP1vb2hO', 'super_admin', 1, NULL, '2026-06-10 02:52:13', '2026-06-10 02:52:13');
+
+
+
+
+
+
+
+
+INSERT INTO `doctors` (`id`, `employee_id`, `doctor_id`, `specialization`, `qualification`, `pmdc_number`, `sub_department`, `doctor_type`, `consultation_fee`, `avg_consultation_mins`, `availability`, `available_days`, `bio`, `clinical_notes`, `is_active`, `accepts_new_patients`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 2, 'DOC-00001', 'Cardiologist', 'MBBS, FCPS (cardiology)', NULL, 'Cardiology', 'Medical Officer', 1500.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:48:22', '2026-05-11 00:48:22', NULL),
+(2, 4, 'DOC-00002', 'Medical Specilist', 'MBBS, FCPS (Medical)', 'PMDCWX-33-WXS', NULL, 'Medical Officer', 2000.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:49:08', '2026-05-11 00:49:08', NULL),
+(3, 8, 'DOC-00003', 'ICU Care', 'MBBS, FCPS (General)', NULL, 'Operation Theater', 'Medical Officer', 1000.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:49:55', '2026-05-11 00:49:55', NULL),
+(4, 5, 'DOC-00004', 'Medical Specilist', 'MBBS, FCPS (Pediatrics)', NULL, 'Orthopedic', 'House Officer', 500.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:50:51', '2026-05-11 00:50:51', NULL),
+(5, 6, 'DOC-00005', 'Medical Specilist', 'MBBS, FCPS (Orthopedic)', 'PMDCWX-33-WXS', 'Orthopedic', 'Medical Officer', 1500.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:52:19', '2026-05-11 00:52:19', NULL),
+(6, 21, 'DOC-00006', 'Medical Specilist', 'MBBS, MCPS', NULL, NULL, 'House Officer', 1000.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:52:55', '2026-05-11 00:52:55', NULL),
+(7, 7, 'DOC-00007', 'Medical Specilist', 'MBBS, FCPS (Anesthesia)', NULL, NULL, 'Specialist', 1500.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:53:52', '2026-05-11 00:53:52', NULL),
+(8, 3, 'DOC-00008', 'Surgen', 'MBBS, FCPS (surgery)', 'PMDCWX-33-WXS', NULL, 'Medical Officer', 3000.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:55:30', '2026-05-11 00:55:30', NULL),
+(9, 1, 'DOC-00009', 'Surgen', 'MBBS, FCPS (Surgery)', 'PMDCWX-33-WXS', 'Operation Theater', 'Medical Officer', 4000.00, 15, 'Available', '[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]', NULL, NULL, 1, 1, '2026-05-11 00:57:16', '2026-05-11 00:57:16', NULL);
+
+
+
+
+
+INSERT INTO `patients` (`id`, `mrn`, `name`, `father_name`, `date_of_birth`, `gender`, `blood_group`, `phone`, `emergency_contact`, `emergency_relation`, `cnic`, `address`, `city`, `patient_type`, `status`, `doctor_id`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'MRN-00001', 'Shehreyar Khan', NULL, '2000-04-12', 'Male', 'O+', '92333450415', '091122112221', 'Father', NULL, 'dora school suffaid dheri khatama nabowata chowk peshawar', 'Peshawar', 'IPD', 'Discharged', NULL, NULL, '2026-05-11 00:58:17', '2026-05-12 02:53:32', NULL),
+(2, 'MRN-00002', 'Ahmad faraz', 'fara jan', '2022-02-11', 'Male', 'A+', '03334504157', '091122112221', 'Father', '6110298765432', 'dora school suffaid dheri khatama nabowat chowk peshawar', 'Peshawar', 'IPD', 'Deceased', NULL, NULL, '2026-05-12 04:25:48', '2026-05-16 11:19:38', NULL),
+(33, 'MRN-000031', 'Ahmed Ali', 'Muhammad Ali', '1990-05-15', 'Male', 'A+', '03001234561', '03111234561', 'Father', '4210112345671', 'Street 1, Gulshan', 'Karachi', 'IPD', 'Deceased', NULL, 'Normal checkup', '2026-05-13 06:50:55', '2026-05-19 06:31:58', NULL),
+(34, 'MRN-000032', 'Sara Khan', 'Abdul Khan', '1995-10-22', 'Female', 'B-', '03001234562', '03111234562', 'Husband', '4210112345672', 'Block 4, Clifton', 'Karachi', 'IPD', 'Deceased', NULL, 'Post-surgery', '2026-05-13 06:50:55', '2026-05-18 06:00:24', NULL),
+(35, 'MRN-00003', 'Zubair Sheikh', 'Ibrahim Sheikh', '1985-03-10', 'Male', 'O+', '03001234563', '03111234563', 'Brother', '4210112345673', 'Model Town', 'Lahore', 'IPD', 'Active', NULL, 'Accident case', '2026-05-13 06:50:55', '2026-05-19 02:38:09', NULL),
+(36, 'MRN-00004', 'Ayesha Malik', 'Zafar Malik', '2000-01-05', 'Female', 'AB+', '03001234564', '03111234564', 'Mother', '4210112345674', 'G-9 Markaz', 'Islamabad', 'OPD', 'Deceased', NULL, NULL, '2026-05-13 06:50:55', '2026-05-18 02:41:02', NULL),
+(37, 'MRN-00005', 'Usman Butt', 'Tariq Butt', '1978-08-12', 'Male', 'O-', '03001234565', '03111234565', 'Wife', '4210112345675', 'DHA Phase 5', 'Lahore', 'IPD', 'Active', NULL, 'Recovered', '2026-05-13 06:50:55', '2026-05-19 02:32:37', NULL),
+(38, 'MRN-00006', 'Fatima Bi', 'Ghulam Rasool', '1965-12-30', 'Female', 'B+', '03001234566', '03111234566', 'Son', '4210112345676', 'Satellite Town', 'Rawalpindi', 'IPD', 'Active', NULL, 'Sugar patient', '2026-05-13 06:50:55', '2026-05-19 02:21:00', NULL),
+(39, 'MRN-00007', 'Hamza Yousuf', 'Yousuf Khan', '1992-04-14', 'Male', 'A-', '03001234567', '03111234567', 'Father', '4210112345677', 'University Road', 'Peshawar', 'IPD', 'Deceased', NULL, 'Heart attack', '2026-05-13 06:50:55', '2026-05-19 02:38:32', NULL),
+(40, 'MRN-00008', 'Mariam Jameel', 'Jameel Ahmed', '1988-07-19', 'Female', 'O+', '03001234568', '03111234568', 'Brother', '4210112345678', 'North Nazimabad', 'Karachi', 'OPD', 'Active', NULL, NULL, '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(41, 'MRN-00009', 'Bilal Siddiqui', 'Anwar Siddiqui', '2005-11-11', 'Male', 'B-', '03001234569', '03111234569', 'Father', '4210112345679', 'Johar Town', 'Lahore', 'OPD', 'Active', NULL, 'Flu and Fever', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(42, 'MRN-00010', 'Zainab Abbas', 'Abbas Raza', '1998-02-28', 'Female', 'A+', '03001234570', '03111234570', 'Mother', '4210112345680', 'F-10 Sector', 'Islamabad', 'IPD', 'Deceased', NULL, 'Observation', '2026-05-13 06:50:55', '2026-05-18 02:09:30', NULL),
+(43, 'MRN-00011', 'Kamran Akmal', 'Akmal Shah', '1982-06-25', 'Male', 'AB-', '03001234571', '03111234571', 'Wife', '4210112345681', 'Gulberg 3', 'Lahore', 'Emergency', 'Deceased', NULL, 'Injury', '2026-05-13 06:50:55', '2026-05-16 07:04:21', NULL),
+(44, 'MRN-00012', 'Sana Pervez', 'Pervez Alam', '1993-09-17', 'Female', 'O+', '03001234572', '03111234572', 'Husband', '4210112345682', 'Saddar', 'Karachi', 'IPD', 'Admitted', 4, NULL, '2026-05-13 06:50:55', '2026-05-22 10:06:40', NULL),
+(45, 'MRN-00013', 'Arsalan Baig', 'Mirza Baig', '1991-03-12', 'Male', 'B+', '03001234573', '03111234573', 'Father', '4210112345683', 'Cantt Area', 'Multan', 'OPD', 'Discharged', NULL, 'Routine Checkup', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(46, 'MRN-00014', 'Hina Riaz', 'Riaz Ud Din', '1987-12-01', 'Female', 'A+', '03001234574', '03111234574', 'Brother', '4210112345684', 'Civil Lines', 'Faisalabad', 'IPD', 'Admitted', NULL, 'Surgery', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(47, 'MRN-00015', 'Mustafa Qureshi', 'Haris Qureshi', '1975-05-20', 'Male', 'O-', '03001234575', '03111234575', 'Son', '4210112345685', 'Bahria Town', 'Rawalpindi', 'Emergency', 'Active', NULL, 'Blood pressure', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(48, 'MRN-00016', 'Nida Hassan', 'Hassan Ali', '1996-08-08', 'Female', 'AB+', '03001234576', '03111234576', 'Mother', '4210112345686', 'Korangi', 'Karachi', 'OPD', 'Active', NULL, NULL, '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(49, 'MRN-00017', 'Waqas Jutt', 'Liaqat Jutt', '1989-11-30', 'Male', 'B+', '03001234577', '03111234577', 'Father', '4210112345687', 'Wapda Town', 'Gujranwala', 'OPD', 'Active', NULL, 'Back pain', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(50, 'MRN-00018', 'Sadia Imam', 'Imam Baksh', '1980-04-05', 'Female', 'A-', '03001234578', '03111234578', 'Husband', '4210112345688', 'Gulistan-e-Johar', 'Karachi', 'IPD', 'Discharged', NULL, 'Normal delivery', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(51, 'MRN-00019', 'Fahad Mustafa', 'Mustafa Aziz', '1994-01-25', 'Male', 'O+', '03001234579', '03111234579', 'Brother', '4210112345689', 'Hayatabad', 'Peshawar', 'Emergency', 'Active', NULL, 'Food poisoning', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(52, 'MRN-00020', 'Kiran Shahzadi', 'Shahzad Gul', '2001-07-14', 'Female', 'B-', '03001234580', '03111234580', 'Father', '4210112345690', 'E-7 Sector', 'Islamabad', 'OPD', 'Active', NULL, 'Skin allergy', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(53, 'MRN-00021', 'Omer Lodhi', 'Nasir Lodhi', '1984-10-10', 'Male', 'A+', '03001234581', '03111234581', 'Wife', '4210112345691', 'Defence', 'Karachi', 'IPD', 'Admitted', NULL, 'Kidney stone', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(54, 'MRN-00022', 'Irum Javed', 'Javed Iqbal', '1992-02-12', 'Female', 'AB-', '03001234582', '03111234582', 'Mother', '4210112345692', 'Samanabad', 'Lahore', 'OPD', 'Active', NULL, NULL, '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(55, 'MRN-00023', 'Tahir Mehmood', 'Mehmood Ahmed', '1970-03-22', 'Male', 'O+', '03001234583', '03111234583', 'Son', '4210112345693', 'People’s Colony', 'Faisalabad', 'Emergency', 'Deceased', NULL, 'Cardiac arrest', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(56, 'MRN-00024', 'Bushra Bibi', 'Ali Murad', '1960-06-18', 'Female', 'B+', '03001234584', '03111234584', 'Son', '4210112345694', 'Liaquatabad', 'Karachi', 'OPD', 'Deceased', NULL, 'Joint pain', '2026-05-13 06:50:55', '2026-05-17 09:13:50', NULL),
+(57, 'MRN-00025', 'Saad Ghaffar', 'Abdul Ghaffar', '1997-12-05', 'Male', 'A-', '03001234585', '03111234585', 'Father', '4210112345695', 'Malir Cantt', 'Karachi', 'IPD', 'Admitted', NULL, 'Typhoid', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(58, 'MRN-00026', 'Mehak Noor', 'Noor Muhammad', '1999-05-30', 'Female', 'O-', '03001234586', '03111234586', 'Brother', '4210112345696', 'G-11 Sector', 'Islamabad', 'OPD', 'Active', NULL, 'Eye checkup', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(59, 'MRN-00027', 'Farhan Saeed', 'Saeed Anwar', '1986-08-21', 'Male', 'B-', '03001234587', '03111234587', 'Wife', '4210112345697', 'Garden Town', 'Lahore', 'Emergency', 'Active', NULL, 'Head injury', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(60, 'MRN-00028', 'Saba Qamar', 'Qamar Zaman', '1991-11-14', 'Female', 'A+', '03001234588', '03111234588', 'Husband', '4210112345698', 'Gulshan-e-Iqbal', 'Karachi', 'OPD', 'Active', NULL, NULL, '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(61, 'MRN-00029', 'Junaid Khan', 'Afzal Khan', '1983-04-09', 'Male', 'AB+', '03001234589', '03111234589', 'Father', '4210112345699', 'Saddar', 'Peshawar', 'IPD', 'Discharged', NULL, 'Appendix surgery', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(62, 'MRN-00030', 'Rida Batool', 'Syed Ali', '1994-07-01', 'Female', 'O+', '03001234590', '03111234590', 'Mother', '4210112345700', 'F-6 Sector', 'Islamabad', 'OPD', 'Active', NULL, 'General weakness', '2026-05-13 06:50:55', '2026-05-13 06:50:55', NULL),
+(63, 'MRN-00031', 'ubaid', 'hassan jan', '2000-02-01', 'Male', 'A+', '0333450415', '0317665656', 'Father', '1730122232321', 'bara gate peshawa sadar', 'peshawar', 'IPD', 'Active', 2, 'The patient have some symptom of physco', '2026-06-02 01:38:42', '2026-06-02 01:38:42', NULL),
+(64, 'MRN-00032', 'salman', 'salman gull', '2000-02-09', 'Male', 'A-', '03334504157', '03334504157', 'Father', '1231233212343', 'dora school suffaid dheri khatama nabowat chowk peshawar', 'Peshawar', 'IPD', 'Active', 2, 'No History', '2026-06-02 02:24:36', '2026-06-02 02:24:36', NULL);
+
+
+
+
+INSERT INTO `appointments` (`id`, `patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `duration_minutes`, `token_number`, `type`, `status`, `reason`, `notes`, `consulted_at`, `follow_up_date`, `cancelled_by`, `cancellation_reason`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 1, 1, '2026-05-12', '11:00:00', 15, NULL, 'IPD', 'Completed', 'soure throat', 'The Patients have some sore throat problem which he will describe well', NULL, '2026-05-14', NULL, NULL, '2026-05-11 00:59:50', '2026-05-11 02:19:06', NULL),
+(2, 1, 4, '2026-05-11', '17:17:00', 15, 1, 'OPD', 'Completed', 'kidney problem', NULL, NULL, NULL, NULL, NULL, '2026-05-11 04:18:03', '2026-05-11 04:18:10', NULL),
+(3, 1, 1, '2026-05-12', '13:53:00', 15, 1, 'OPD', 'Completed', NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-12 02:53:57', '2026-05-12 02:54:02', NULL),
+(4, 33, 1, '2026-05-18', '14:59:00', 15, 1, 'OPD', 'Scheduled', 'Joined another company for professional growth', NULL, NULL, NULL, NULL, NULL, '2026-05-18 02:59:18', '2026-05-18 04:09:35', '2026-05-18 04:09:35'),
+(5, 33, 1, '2026-05-18', '16:09:00', 15, 1, 'OPD', 'Scheduled', 'Joined another company for professional growth', NULL, NULL, NULL, NULL, NULL, '2026-05-18 04:10:03', '2026-05-18 04:10:03', NULL),
+(6, 51, 2, '2026-05-19', '19:32:00', 15, 1, 'OPD', 'Scheduled', NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-18 04:32:33', '2026-05-18 04:32:58', NULL),
+(7, 34, 1, '2026-05-18', '20:57:00', 15, 2, 'OPD', 'Scheduled', NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-18 05:57:58', '2026-05-18 05:57:58', NULL),
+(8, 40, 3, '2026-05-19', '17:01:00', 15, NULL, 'Emergency', 'Completed', 'kidney problem', NULL, NULL, NULL, NULL, NULL, '2026-05-19 02:02:10', '2026-05-19 02:16:55', NULL),
+(9, 44, 1, '2026-05-22', '13:00:00', 15, NULL, 'IPD', 'Completed', 'Sever Pain in the abdomin  kindney pain', 'The patient says it have pain in the kidney from last two days also pain arise in the abdomin from the last night', '2026-05-22 10:04:34', '2026-05-29', NULL, NULL, '2026-05-22 10:04:05', '2026-05-22 10:04:42', NULL),
+(10, 35, 1, '2026-06-02', '20:37:00', 15, NULL, 'IPD', 'Scheduled', 'burning sensation in head', 'the patient have burning sensation in the head area need immeadate action', NULL, NULL, NULL, NULL, '2026-06-01 06:38:46', '2026-06-02 01:35:18', '2026-06-02 01:35:18'),
+(11, 63, 2, '2026-06-02', '17:50:00', 30, NULL, 'IPD', 'Scheduled', 'Cought and fiver', 'patient have physco history', NULL, NULL, NULL, NULL, '2026-06-02 01:47:42', '2026-06-02 02:57:39', '2026-06-02 02:57:39'),
+(12, 64, 2, '2026-06-02', '21:30:00', 15, 1, 'OPD', 'Completed', 'soure throat', NULL, NULL, '2026-06-03', NULL, NULL, '2026-06-02 02:25:27', '2026-06-04 06:35:53', NULL),
+(13, 63, 2, '2026-06-02', '18:00:00', 15, NULL, 'IPD', 'Scheduled', 'kidney problem', NULL, NULL, '2026-06-06', NULL, NULL, '2026-06-02 02:58:15', '2026-06-02 02:58:15', NULL),
+(14, 35, 9, '2026-06-04', '15:00:00', 15, 1, 'OPD', 'Scheduled', 'kidney problem', 'The patient have sever pain in the kidney', NULL, '2026-06-25', NULL, NULL, '2026-06-04 01:07:44', '2026-06-04 01:07:44', NULL),
+(15, 63, 9, '2026-06-04', '17:40:00', 30, 2, 'OPD', 'Scheduled', 'soure throat', 'NO History', NULL, '2026-06-25', NULL, NULL, '2026-06-04 02:35:29', '2026-06-04 02:35:29', NULL),
+(16, 63, 1, '2026-06-08', NULL, 15, NULL, 'IPD', 'Scheduled', 'I worked there on a contract basis until the completion of my contract.', NULL, NULL, NULL, NULL, NULL, '2026-06-08 04:20:54', '2026-06-08 04:20:54', NULL),
+(17, 38, 9, '2026-06-08', NULL, 15, NULL, 'IPD', 'Scheduled', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-08 04:22:23', '2026-06-08 04:22:23', NULL);
+
+
+
+
+
+INSERT INTO `wards` (`id`, `name`, `ward_code`, `type`, `total_beds`, `floor`, `block`, `bed_charges`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Medical A', 'W-001', 'General', 20, 'Ground', 'A', 200.00, NULL, 1, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(2, 'Medical ICU Ward B', 'W-002', 'ICU', 20, NULL, 'A', 1500.00, NULL, 1, '2026-05-18 04:28:01', '2026-05-18 04:28:01');
+
+
+
+
+
+
+INSERT INTO `beds` (`id`, `bed_number`, `ward_id`, `type`, `status`, `patient_id`, `admitted_at`, `discharged_at`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'W-001-01', 1, 'Standard', 'Occupied', 2, '2026-05-13', NULL, NULL, '2026-05-11 01:00:43', '2026-05-13 03:03:57'),
+(2, 'W-001-02', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(3, 'W-001-03', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(4, 'W-001-04', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(5, 'W-001-05', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(6, 'W-001-06', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(7, 'W-001-07', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(8, 'W-001-08', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(9, 'W-001-09', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(10, 'W-001-10', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(11, 'W-001-11', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(12, 'W-001-12', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(13, 'W-001-13', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(14, 'W-001-14', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(15, 'W-001-15', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(16, 'W-001-16', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(17, 'W-001-17', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(18, 'W-001-18', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(19, 'W-001-19', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(20, 'W-001-20', 1, 'Standard', 'Available', NULL, NULL, NULL, NULL, '2026-05-11 01:00:43', '2026-05-11 01:00:43'),
+(21, 'W-002-01', 2, 'ICU', 'Occupied', 44, '2026-05-22', NULL, NULL, '2026-05-18 04:28:01', '2026-05-22 10:06:39'),
+(22, 'W-002-02', 2, 'ICU', 'Occupied', 33, '2026-05-19', NULL, NULL, '2026-05-18 04:28:01', '2026-05-19 02:48:00'),
+(23, 'W-002-03', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(24, 'W-002-04', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(25, 'W-002-05', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(26, 'W-002-06', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(27, 'W-002-07', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(28, 'W-002-08', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(29, 'W-002-09', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(30, 'W-002-10', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(31, 'W-002-11', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(32, 'W-002-12', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(33, 'W-002-13', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(34, 'W-002-14', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(35, 'W-002-15', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(36, 'W-002-16', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(37, 'W-002-17', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(38, 'W-002-18', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(39, 'W-002-19', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01'),
+(40, 'W-002-20', 2, 'ICU', 'Available', NULL, NULL, NULL, NULL, '2026-05-18 04:28:01', '2026-05-18 04:28:01');
+
+
+
+INSERT INTO `medicines` (`id`, `medicine_code`, `name`, `generic_name`, `brand`, `category`, `unit`, `purchase_price`, `sale_price`, `reorder_level`, `total_stock`, `requires_prescription`, `storage_condition`, `description`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(33, 'MED-00001', 'Panadol', 'Paracetamol', 'GSK', 'Tablet', 'Tablet', 1.50, 2.00, 500, 2491, 0, 'Room Temperature', 'Common pain reliever and fever reducer', 1, '2026-05-11 01:40:18', '2026-05-11 01:44:50', NULL),
+(34, 'MED-00034', 'Augmentin', 'Co-Amoxiclav', 'GSK', 'Tablet', 'Strip', 180.00, 210.00, 50, 88, 0, 'Store below 25°C', 'Broad-spectrum antibiotic', 1, '2026-05-11 01:55:34', '2026-06-05 02:40:40', NULL),
+(35, 'MED-00035', 'Flagyl', 'Metronidazole', 'Sanofi', 'Tablet', 'Tablet', 0.80, 1.20, 300, 1981, 1, 'Room Temperature', 'For stomach infections and bacteria', 1, '2026-05-11 06:33:57', '2026-05-22 10:28:40', NULL),
+(36, 'MED-00036', 'Brufen', 'Ibuprofen', 'Abbott', 'Tablet', 'Tablet', 2.10, 2.80, 400, 487, 1, 'Room Temperature', 'Anti-inflammatory and pain killer', 1, '2026-05-11 06:39:39', '2026-06-05 02:46:46', NULL),
+(37, 'MED-00037', 'Oral rehydration solution', 'Supplement', 'GSK', 'Other', 'Sachet', 20.00, 50.00, 100, 100, 1, 'Room Temperature', 'One Sachet in one litter of water', 1, '2026-06-05 02:44:05', '2026-06-05 02:45:29', NULL);
+
+
+
+
+
+
+INSERT INTO `medicine_batches` (`id`, `medicine_id`, `batch_number`, `expiry_date`, `manufacture_date`, `quantity_received`, `quantity_in_stock`, `purchase_price`, `supplier_name`, `supplier_invoice`, `status`, `created_at`, `updated_at`) VALUES
+(21, 33, 'BN-100', '2026-11-12', NULL, 2500, 2491, 1.50, 'Ali Medical Store', 'INV-001', 'Active', '2026-05-11 01:43:39', '2026-05-11 01:44:50'),
+(22, 34, 'AUG-786', '2028-06-01', '2026-01-11', 100, 19, 180.00, 'HealthCare Dist', 'INV-992', 'Active', '2026-05-11 01:59:26', '2026-06-03 13:22:52'),
+(23, 35, 'FLG-552', '2026-11-11', '2022-02-07', 2000, 1981, 0.80, 'Standard Pharma', 'INV-332', 'Active', '2026-05-11 06:35:57', '2026-05-22 10:28:40'),
+(24, 36, 'AR-990', '2031-11-12', '2026-05-10', 500, 487, 2.10, 'Ali Medical Store', 'INV-332', 'Active', '2026-05-11 06:41:07', '2026-06-05 02:46:46'),
+(25, 34, 'AUG-790', '2028-09-22', '2026-05-31', 100, 69, 180.00, 'Standard Pharma', 'INV-332', 'Active', '2026-06-04 06:34:40', '2026-06-05 02:40:40'),
+(26, 37, 'BT-2026', '2026-12-26', '2026-06-02', 100, 100, 20.00, 'KARAN KHAN', 'KAR-002', 'Active', '2026-06-05 02:45:29', '2026-06-05 02:45:29');
+
+
+
+
+INSERT INTO `prescriptions` (`id`, `prescription_number`, `patient_id`, `doctor_id`, `appointment_id`, `status`, `prescribed_date`, `valid_until`, `diagnosis`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'RX-00001', 1, 1, NULL, 'Pending', '2026-05-11', '2026-05-13', 'flue and fiver', NULL, '2026-05-11 01:10:35', '2026-05-11 01:10:35', NULL),
+(2, 'RX-00002', 1, 1, NULL, 'Dispensed', '2026-05-11', '2026-05-13', 'flue and fiver', NULL, '2026-05-11 01:44:31', '2026-05-11 01:44:50', NULL),
+(3, 'RX-00003', 33, 1, NULL, 'Dispensed', '2026-05-18', '2026-05-21', 'flue and fiver', NULL, '2026-05-18 01:53:10', '2026-05-18 01:53:18', NULL),
+(4, 'RX-00004', 42, 1, NULL, 'Dispensed', '2026-05-18', '2026-05-28', 'flue and fiver', NULL, '2026-05-18 02:23:42', '2026-05-18 02:23:52', NULL),
+(5, 'RX-00005', 45, 2, NULL, 'Dispensed', '2026-05-18', '2026-05-29', NULL, NULL, '2026-05-18 05:51:45', '2026-05-18 05:51:51', NULL),
+(6, 'RX-00006', 34, 1, NULL, 'Dispensed', '2026-05-18', '2026-05-21', 'flue and fiver', NULL, '2026-05-18 05:58:45', '2026-05-18 05:58:50', NULL),
+(7, 'RX-00007', 1, 1, NULL, 'Dispensed', '2026-05-19', '2026-05-30', 'flue and fiver', NULL, '2026-05-19 03:00:12', '2026-05-19 03:01:50', NULL),
+(8, 'RX-00008', 44, 1, NULL, 'Dispensed', '2026-05-22', NULL, 'kidney stone and back disk displace', 'The patient have kidney stone and have the disk displace issue which is some critical issue', '2026-05-22 10:28:27', '2026-05-22 10:28:40', NULL),
+(9, 'RX-00009', 63, 2, NULL, 'Dispensed', '2026-06-03', '2026-06-19', 'flue and fiver', NULL, '2026-06-03 13:22:44', '2026-06-03 13:22:52', NULL),
+(10, 'RX-00010', 35, 9, NULL, 'Dispensed', '2026-06-04', '2026-06-13', 'fiver and flue', 'There is the optional and the follow', '2026-06-04 05:06:09', '2026-06-05 01:45:14', NULL),
+(11, 'RX-00011', 35, 7, NULL, 'Pending', '2026-06-08', '2026-06-11', 'fiver and flue', NULL, '2026-06-08 02:44:59', '2026-06-08 02:44:59', NULL),
+(12, 'RX-00012', 35, 9, NULL, 'Pending', '2026-06-08', '2026-06-18', NULL, NULL, '2026-06-08 02:50:40', '2026-06-08 02:50:40', NULL);
+
+
+
+
+
+
+INSERT INTO `prescription_items` (`id`, `prescription_id`, `medicine_id`, `dosage`, `frequency`, `duration_days`, `quantity`, `dispensed_qty`, `instructions`, `created_at`, `updated_at`) VALUES
+(2, 2, 33, '500mg', '1-1-1', 3, 9, 9, 'after meal 3 times in a day', '2026-05-11 01:44:31', '2026-05-11 01:44:50'),
+(3, 3, 34, '500mg', '1-1-1', 3, 10, 10, 'after meal 3 times in a day', '2026-05-18 01:53:10', '2026-05-18 01:53:18'),
+(4, 4, 34, '500mg', '1-1-1', 3, 10, 10, 'after meal 3 times in a day', '2026-05-18 02:23:42', '2026-05-18 02:23:52'),
+(5, 4, 35, '500 mg', '1-1-1', 3, 10, 10, 'after meal', '2026-05-18 02:23:42', '2026-05-18 02:23:52'),
+(6, 5, 34, '1000 mg', '1-1-1', 6, 17, 17, NULL, '2026-05-18 05:51:45', '2026-05-18 05:51:51'),
+(7, 6, 34, '1000 mg', '1-1-1', 8, 19, 19, NULL, '2026-05-18 05:58:45', '2026-05-18 05:58:50'),
+(8, 7, 34, '500mg', '1-0-1', 3, 5, 5, NULL, '2026-05-19 03:00:12', '2026-05-19 03:01:50'),
+(9, 8, 34, '500mg', '1-1-1', 3, 10, 10, 'after meal 3 times in a day', '2026-05-22 10:28:27', '2026-05-22 10:28:40'),
+(10, 8, 36, '500 mg', '1-1-1', 3, 9, 9, 'after meal', '2026-05-22 10:28:27', '2026-05-22 10:28:40'),
+(11, 8, 35, '100', '1-1-1', 3, 9, 9, 'Before The Meal', '2026-05-22 10:28:27', '2026-05-22 10:28:40'),
+(12, 9, 34, '500mg', '1-1-1', 3, 10, 10, 'after meal 3 times in a day', '2026-06-03 13:22:44', '2026-06-03 13:22:52'),
+(13, 10, 34, '1000 mg', '1-1-1', 7, 21, 21, 'After Meal', '2026-06-04 05:06:09', '2026-06-05 01:45:14'),
+(14, 11, 33, '1000 mg', '1-1-1', 3, 1, 0, 'After Meal', '2026-06-08 02:44:59', '2026-06-08 02:44:59'),
+(15, 12, 35, '1000 mg', '1-1-1', 3, 4, 0, 'After Meal', '2026-06-08 02:50:40', '2026-06-08 02:50:40');
+
+
+
+INSERT INTO `dispensings` (`id`, `dispense_number`, `prescription_id`, `patient_id`, `dispensed_at`, `total_amount`, `payment_status`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'DSP-00001', 2, 1, '2026-05-11 07:20:24', 18.00, 'Paid', NULL, '2026-05-11 01:44:50', '2026-05-11 02:20:24'),
+(2, 'DSP-00002', 3, 33, '2026-05-18 01:53:18', 2100.00, 'Unpaid', NULL, '2026-05-18 01:53:18', '2026-05-18 01:53:18'),
+(3, 'DSP-00003', 4, 42, '2026-05-18 10:53:12', 2112.00, 'Paid', NULL, '2026-05-18 02:23:52', '2026-05-18 05:53:12'),
+(4, 'DSP-00004', 5, 45, '2026-05-18 05:51:51', 3570.00, 'Unpaid', NULL, '2026-05-18 05:51:51', '2026-05-18 05:51:51'),
+(5, 'DSP-00005', 6, 34, '2026-05-18 11:03:36', 3990.00, 'Paid', NULL, '2026-05-18 05:58:50', '2026-05-18 06:03:36'),
+(6, 'DSP-00006', 7, 1, '2026-05-22 06:01:02', 1050.00, 'Paid', NULL, '2026-05-19 03:01:50', '2026-05-22 01:01:02'),
+(7, 'DSP-00007', 8, 44, '2026-05-22 10:28:40', 2136.00, 'Unpaid', NULL, '2026-05-22 10:28:40', '2026-05-22 10:28:40'),
+(8, 'DSP-00008', 9, 63, '2026-06-03 13:22:52', 2100.00, 'Unpaid', NULL, '2026-06-03 13:22:52', '2026-06-03 13:22:52'),
+(9, 'DSP-00009', 10, 35, '2026-06-05 10:54:47', 4410.00, 'Paid', NULL, '2026-06-05 01:45:14', '2026-06-05 05:54:47'),
+(10, 'DSP-00010', 1, 1, '2026-06-05 02:40:40', 2100.00, 'Unpaid', NULL, '2026-06-05 02:40:40', '2026-06-05 02:40:40'),
+(11, 'DSP-00011', 1, 1, '2026-06-05 02:46:46', 11.20, 'Unpaid', NULL, '2026-06-05 02:46:46', '2026-06-05 02:46:46');
+
+
+
+
+INSERT INTO `dispensing_items` (`id`, `dispensing_id`, `prescription_item_id`, `medicine_id`, `medicine_batch_id`, `quantity`, `unit_price`, `total_price`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 33, 21, 9, 2.00, 18.00, '2026-05-11 01:44:50', '2026-05-11 01:44:50'),
+(2, 2, 3, 34, 22, 10, 210.00, 2100.00, '2026-05-18 01:53:18', '2026-05-18 01:53:18'),
+(3, 3, 4, 34, 22, 10, 210.00, 2100.00, '2026-05-18 02:23:52', '2026-05-18 02:23:52'),
+(4, 3, 5, 35, 23, 10, 1.20, 12.00, '2026-05-18 02:23:52', '2026-05-18 02:23:52'),
+(5, 4, 6, 34, 22, 17, 210.00, 3570.00, '2026-05-18 05:51:51', '2026-05-18 05:51:51'),
+(6, 5, 7, 34, 22, 19, 210.00, 3990.00, '2026-05-18 05:58:50', '2026-05-18 05:58:50'),
+(7, 6, 8, 34, 22, 5, 210.00, 1050.00, '2026-05-19 03:01:50', '2026-05-19 03:01:50'),
+(8, 7, 9, 34, 22, 10, 210.00, 2100.00, '2026-05-22 10:28:40', '2026-05-22 10:28:40'),
+(9, 7, 10, 36, 24, 9, 2.80, 25.20, '2026-05-22 10:28:40', '2026-05-22 10:28:40'),
+(10, 7, 11, 35, 23, 9, 1.20, 10.80, '2026-05-22 10:28:40', '2026-05-22 10:28:40'),
+(11, 8, 12, 34, 22, 10, 210.00, 2100.00, '2026-06-03 13:22:52', '2026-06-03 13:22:52'),
+(12, 9, 13, 34, 25, 21, 210.00, 4410.00, '2026-06-05 01:45:14', '2026-06-05 01:45:14'),
+(13, 10, NULL, 34, 25, 10, 210.00, 2100.00, '2026-06-05 02:40:40', '2026-06-05 02:40:40'),
+(14, 11, NULL, 36, 24, 4, 2.80, 11.20, '2026-06-05 02:46:46', '2026-06-05 02:46:46');
+
+
+
+INSERT INTO `lab_sample_types` (`id`, `name`, `code`, `container_type`, `color_code`, `volume_required`, `requires_fasting`, `collection_instructions`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Blood', 'SMP-BLD', 'Vacutainer', 'Red', 5, 1, 'Collect 5ml blood in red top vacutainer. Allow to clot for 30 mins before centrifugation.', 'Standard serum sample for biochemistry tests', 1, '2026-05-19 09:31:48', '2026-05-19 04:41:13'),
+(2, 'Blood EDTA', 'SMP-BLD-EDTA', 'Vacutainer', 'Purple', 3, 0, 'Collect 3ml blood in purple top EDTA tube. Gently invert 8-10 times. Do not freeze.', 'Used for CBC, HbA1c, and other hematology tests', 1, '2026-05-19 09:31:48', '2026-05-19 09:31:48'),
+(3, 'Blood Glucose', 'SMP-GLU', 'Vacutainer', 'Grey', 2, 1, 'Patient must fast 8-12 hours. Collect 2ml in fluoride oxalate tube. Mix gently.', 'Fasting blood glucose test sample', 1, '2026-05-19 09:31:48', '2026-05-19 09:31:48'),
+(4, 'Urine', 'SMP-URN', 'Sterile Cup', 'Yellow', 30, 0, 'Collect mid-stream urine in sterile container. Label immediately. Refrigerate if not tested within 2 hours.', 'Random urine sample for routine analysis', 1, '2026-05-19 09:31:48', '2026-05-19 09:31:48'),
+(5, 'Urine 24hr', 'SMP-URN-24', 'Large Container', 'Yellow', 2000, 0, 'Discard first morning urine. Collect all urine for next 24 hours in provided container. Keep refrigerated.', '24-hour urine collection for protein/creatinine clearance', 1, '2026-05-19 09:31:48', '2026-05-19 09:31:48'),
+(6, 'Stool', 'SMP-STL', 'Sterile Container', 'White', 10, 0, 'Collect walnut-sized sample in sterile container. Avoid urine/water contamination. Deliver within 2 hours.', 'Stool sample for ova, parasites, and culture', 1, '2026-05-19 09:31:48', '2026-05-19 09:31:48'),
+(7, 'Swab', 'SMP-SWB', 'Transport Tube', 'Blue', NULL, 0, 'Rotate swab firmly on affected area. Place in transport media immediately. Do not refrigerate.', 'For bacterial/viral culture and PCR tests', 1, '2026-05-19 09:31:49', '2026-05-19 09:31:49'),
+(8, 'CSF', 'SMP-CSF', 'Sterile Tube', 'Clear', 2, 0, 'Collect via lumbar puncture in sterile numbered tubes. Send to lab immediately on ice.', 'Cerebrospinal fluid for meningitis workup', 1, '2026-05-19 09:31:49', '2026-05-19 09:31:49');
+
+
+
+
+INSERT INTO `lab_test_categories` (`id`, `name`, `code`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
+(3, 'Biochemistry', 'CAT-002', 'Chemical analysis of body fluids for metabolic, renal, liver, and electrolyte assessment', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(4, 'Microbiology', 'CAT-003', 'Culture, sensitivity, and identification of bacteria, fungi, and other microorganisms', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(5, 'Immunology', 'CAT-004', 'Tests for antibodies, antigens, autoimmune disorders, and immune system function', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(6, 'Endocrinology', 'CAT-005', 'Hormone level testing for thyroid, adrenal, reproductive, and metabolic disorders', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(7, 'Urinalysis', 'CAT-006', 'Physical, chemical, and microscopic examination of urine for renal and metabolic evaluation', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(8, 'Coagulation', 'CAT-007', 'Tests for blood clotting function including PT, aPTT, INR, and D-Dimer', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(9, 'Molecular', 'CAT-008', 'DNA/RNA based testing for genetic disorders, infectious diseases, and oncology markers', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(10, 'Toxicology', 'CAT-009', 'Detection and quantification of drugs, alcohol, poisons, and therapeutic drug monitoring', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(11, 'Histopathology', 'CAT-010', 'Microscopic examination of tissue biopsies for disease diagnosis and cancer detection', 1, '2026-05-19 09:45:03', '2026-05-19 09:45:03'),
+(13, 'Hematology', 'CAT-001', 'Tests related to blood cells, hemoglobin, coagulation, and blood disorders', 1, '2026-05-19 09:45:32', '2026-05-19 09:45:32');
+
+
+
+INSERT INTO `lab_orders` (`id`, `order_number`, `patient_id`, `doctor_id`, `appointment_id`, `order_date`, `priority`, `status`, `total_amount`, `discount`, `paid_amount`, `payment_status`, `report_delivered`, `report_delivered_at`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'LAB-00001', 1, 1, NULL, '2026-05-19 10:29:00', 'Routine', 'Completed', 1500.00, 0.00, 1500.00, 'Paid', 1, '2026-05-19 05:33:03', NULL, '2026-05-19 05:30:11', '2026-05-22 01:01:02', NULL),
+(2, 'LAB-00002', 44, 1, NULL, '2026-05-22 15:28:00', 'Routine', 'Completed', 1500.00, 0.00, 0.00, 'Unpaid', 1, '2026-06-03 13:26:18', 'Urgent', '2026-05-22 10:30:26', '2026-06-03 13:26:18', NULL),
+(3, 'LAB-00003', 63, 2, NULL, '2026-06-03 18:13:00', 'Routine', 'Completed', 1500.00, 0.00, 0.00, 'Unpaid', 1, '2026-06-03 13:26:22', NULL, '2026-06-03 13:14:42', '2026-06-03 13:26:22', NULL),
+(4, 'LAB-00004', 35, 9, NULL, '2026-06-04 06:21:00', 'Urgent', 'Completed', 1500.00, 0.00, 1500.00, 'Paid', 1, '2026-06-04 05:38:23', 'perfrom the test urgently', '2026-06-04 01:22:10', '2026-06-05 05:54:47', NULL),
+(5, 'LAB-00005', 35, 9, NULL, '2026-06-04 06:21:00', 'Urgent', 'Completed', 1500.00, 0.00, 1500.00, 'Paid', 1, '2026-06-04 05:39:24', 'perfrom the test urgently', '2026-06-04 01:23:02', '2026-06-05 05:54:47', NULL),
+(6, 'LAB-00006', 63, 9, NULL, '2026-06-04 09:23:00', 'Urgent', 'Completed', 1500.00, 0.00, 0.00, 'Unpaid', 1, '2026-06-04 05:19:48', 'perfrom the test urgently', '2026-06-04 04:23:49', '2026-06-04 05:19:48', NULL);
+
+
+
+INSERT INTO `lab_samples` (`id`, `sample_number`, `lab_order_id`, `sample_type_id`, `status`, `collected_at`, `received_at`, `processed_at`, `collected_by`, `rejection_reason`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'SMP-00001', 1, 3, 'Collected', '2026-05-19 10:31:54', NULL, NULL, 'shehreyar khan', NULL, NULL, '2026-05-19 05:31:54', '2026-05-19 05:31:54'),
+(2, 'SMP-00002', 2, 1, 'Collected', '2026-05-22 15:30:59', NULL, NULL, 'shehreyar khan', NULL, NULL, '2026-05-22 10:30:59', '2026-05-22 10:30:59'),
+(3, 'SMP-00003', 3, 1, 'Collected', '2026-06-03 18:14:57', NULL, NULL, 'shehreyar khan', NULL, NULL, '2026-06-03 13:14:57', '2026-06-03 13:14:57'),
+(4, 'SMP-00004', 6, 1, 'Collected', '2026-06-04 10:19:06', NULL, NULL, 'shehreyar khan', NULL, NULL, '2026-06-04 05:19:06', '2026-06-04 05:19:06'),
+(5, 'SMP-00005', 4, 1, 'Collected', '2026-06-04 10:37:31', NULL, NULL, 'khan', NULL, NULL, '2026-06-04 05:37:31', '2026-06-04 05:37:31'),
+(6, 'SMP-00006', 5, 5, 'Collected', '2026-06-04 10:39:12', NULL, NULL, 'khan', NULL, NULL, '2026-06-04 05:39:12', '2026-06-04 05:39:12');
+
+
+
+INSERT INTO `lab_tests` (`id`, `name`, `test_code`, `category_id`, `sample_type_id`, `price`, `unit`, `normal_range`, `normal_range_male`, `normal_range_female`, `normal_range_child`, `normal_range_elderly`, `turnaround_hours`, `method`, `requires_fasting`, `is_active`, `description`, `created_at`, `updated_at`) VALUES
+(1, 'Complete Blood Count (CBC)', 'T-0001', 13, 1, 500.00, 'mg/dl', '4.5 - 11.0 x 10⁹/L (WBC)', 'RBC: 4.5-5.9 million/µL; Hb: 13.2-16.6 g/dL; Hct: 38.3-48.6%', 'RBC: 3.92-5.13 million/µL; Hb: 11.6-15.0 g/dL; Hct: 35.5-44.9%', 'WBC: 5,000-10,000/µL; RBC varies by age', 'Similar to adults, slight decrease in Hb acceptable', 1, 'ELISA', 0, 1, 'This test will show the complete blood profile', '2026-05-19 04:53:45', '2026-05-19 04:53:45'),
+(2, 'Hemoglobin (Hb)', 'T-0002', 13, 2, 1000.00, 'mg/dl', '12.0 - 16.0 g/dL', '13.2 - 16.6 g/dL (13.8-17.2 g/dL)', '11.6 - 15.0 g/dL (12.1-15.1 g/dL)', '11.0 - 14.3 g/dL (varies by age)', 'Male: 12.0-16.0; Female: 11.0-15.0 g/dL', 2, 'PCR', 0, 1, NULL, '2026-05-19 04:55:53', '2026-05-19 04:55:53'),
+(3, 'Packed Cell Volume (PCV/Hematocrit)', 'T-0003', 11, 2, 1500.00, 'mg/dl', '36% - 48%', '38.3% - 48.6% (40-52%)', '35.5% - 44.9% (36-48%)', '32% - 42%', 'Male: 35-47%; Female: 33-45%', 1, 'ELISA', 0, 1, NULL, '2026-05-19 04:57:18', '2026-05-19 04:57:18'),
+(4, 'Total Leukocyte Count (TLC)', 'T-0004', 5, 3, 300.00, 'mg/dl', '4,000 - 11,000 /µL (4.5-11.0 x 10⁹/L)', '3,400 - 9,600 /µL', '3,400 - 9,600 /µL', '5,000 - 10,000 /µL (higher in infants)', '3,400 - 9,600 /µL', 3, 'PCR', 0, 1, NULL, '2026-05-19 04:58:37', '2026-05-19 04:58:37');
+
+
+
+
+INSERT INTO `lab_order_items` (`id`, `lab_order_id`, `lab_test_id`, `lab_sample_id`, `price`, `discount`, `final_price`, `status`, `technician_name`, `completed_at`, `created_at`, `updated_at`) VALUES
+(1, 1, 3, 1, 1500.00, 0.00, 1500.00, 'Completed', 'Lab Staff', '2026-05-19 05:32:35', '2026-05-19 05:30:11', '2026-05-19 05:32:35'),
+(2, 2, 1, 2, 500.00, 0.00, 500.00, 'Completed', 'Lab Staff', '2026-05-22 10:33:16', '2026-05-22 10:30:26', '2026-05-22 10:33:16'),
+(3, 2, 2, 2, 1000.00, 0.00, 1000.00, 'Completed', 'Lab Staff', '2026-05-22 10:33:17', '2026-05-22 10:30:26', '2026-05-22 10:33:17'),
+(4, 3, 1, 3, 500.00, 0.00, 500.00, 'Completed', 'Bilal Malik', '2026-06-03 13:15:59', '2026-06-03 13:14:42', '2026-06-03 13:15:59'),
+(5, 3, 2, 3, 1000.00, 0.00, 1000.00, 'Completed', 'Bilal Malik', '2026-06-03 13:15:59', '2026-06-03 13:14:42', '2026-06-03 13:15:59'),
+(6, 4, 1, 5, 500.00, 0.00, 500.00, 'Completed', 'Irfan Haider', '2026-06-04 05:38:12', '2026-06-04 01:22:10', '2026-06-04 05:38:12'),
+(7, 4, 2, 5, 1000.00, 0.00, 1000.00, 'Completed', 'Irfan Haider', '2026-06-04 05:38:12', '2026-06-04 01:22:10', '2026-06-04 05:38:12'),
+(8, 5, 1, 6, 500.00, 0.00, 500.00, 'Completed', 'Irfan Haider', '2026-06-04 05:39:19', '2026-06-04 01:23:02', '2026-06-04 05:39:19'),
+(9, 5, 2, 6, 1000.00, 0.00, 1000.00, 'Completed', 'Irfan Haider', '2026-06-04 05:39:19', '2026-06-04 01:23:02', '2026-06-04 05:39:19'),
+(10, 6, 1, 4, 500.00, 0.00, 500.00, 'Completed', 'Super Admin', '2026-06-04 05:19:32', '2026-06-04 04:23:49', '2026-06-04 05:19:32'),
+(11, 6, 2, 4, 1000.00, 0.00, 1000.00, 'Completed', 'Super Admin', '2026-06-04 05:19:32', '2026-06-04 04:23:49', '2026-06-04 05:19:32');
+
+
+
+
+INSERT INTO `lab_results` (`id`, `lab_order_item_id`, `result_value`, `unit`, `normal_range`, `flag`, `is_abnormal`, `previous_value`, `previous_date`, `remarks`, `reported_at`, `verified_by`, `verified_at`, `is_verified`, `created_at`, `updated_at`) VALUES
+(1, 1, '20%', 'mg/dl', '36% - 48%', NULL, 0, NULL, NULL, 'This test is perform for testing purpose', '2026-05-19 10:32:35', NULL, '2026-05-19 05:32:54', 1, '2026-05-19 05:32:35', '2026-05-19 05:32:54'),
+(2, 2, '2.5', 'mg/dl', '4.5 - 11.0 x 10⁹/L (WBC)', NULL, 0, NULL, NULL, 'platilits are less in the amount', '2026-05-22 15:33:16', NULL, '2026-05-22 10:33:22', 1, '2026-05-22 10:33:16', '2026-05-22 10:33:22'),
+(3, 3, '4.5', 'mg/dl', '12.0 - 16.0 g/dL', NULL, 0, NULL, NULL, 'Hemoglobin', '2026-05-22 15:33:17', NULL, '2026-05-22 10:33:26', 1, '2026-05-22 10:33:17', '2026-05-22 10:33:26'),
+(4, 4, '44', 'mg', '4.5 - 11.0 x 10⁹/L (WBC)', NULL, 0, NULL, NULL, 'issue', '2026-06-03 18:15:59', 3, '2026-06-03 13:16:29', 1, '2026-06-03 13:15:59', '2026-06-03 13:16:29'),
+(5, 5, '5.9', 'mg/dl', '12.0 - 16.0 g/dL', NULL, 0, NULL, NULL, NULL, '2026-06-03 18:15:59', 3, '2026-06-03 13:16:32', 1, '2026-06-03 13:15:59', '2026-06-03 13:16:32'),
+(6, 10, '5.6 positive', 'mg/dl', '4.5 - 11.0 x 10⁹/L (WBC)', NULL, 0, NULL, NULL, 'This test is perform for testing purpose', '2026-06-04 10:19:32', 3, '2026-06-04 05:19:40', 1, '2026-06-04 05:19:32', '2026-06-04 05:19:40'),
+(7, 11, '32', 'mg/dl', '12.0 - 16.0 g/dL', NULL, 0, NULL, NULL, 'critical finding have been seen', '2026-06-04 10:19:32', 3, '2026-06-04 05:19:42', 1, '2026-06-04 05:19:32', '2026-06-04 05:19:42'),
+(8, 6, '5.9', 'mg/dl', '4.5 - 11.0 x 10⁹/L (WBC)', NULL, 0, NULL, NULL, 'positive', '2026-06-04 10:38:12', 8, '2026-06-04 05:38:15', 1, '2026-06-04 05:38:12', '2026-06-04 05:38:15'),
+(9, 7, '3.9', 'mg/dl', '12.0 - 16.0 g/dL', NULL, 0, NULL, NULL, 'positive', '2026-06-04 10:38:12', 8, '2026-06-04 05:38:17', 1, '2026-06-04 05:38:12', '2026-06-04 05:38:17'),
+(10, 8, '5.9', 'mg/dl', '4.5 - 11.0 x 10⁹/L (WBC)', NULL, 0, NULL, NULL, 'positive', '2026-06-04 10:39:19', 8, '2026-06-04 05:39:27', 1, '2026-06-04 05:39:19', '2026-06-04 05:39:27'),
+(11, 9, '3.9', 'mg/dl', '12.0 - 16.0 g/dL', NULL, 0, NULL, NULL, 'positive', '2026-06-04 10:39:19', 8, '2026-06-04 05:39:31', 1, '2026-06-04 05:39:19', '2026-06-04 05:39:31');
+
+
+
+
+INSERT INTO `radiology_modalities` (`id`, `name`, `code`, `description`, `requires_contrast`, `requires_preparation`, `preparation_instructions`, `average_duration_minutes`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'X-Ray', 'MOD-XRAY', 'Uses ionizing radiation to produce images of bones and internal organs. Fast and widely available.', 1, 1, 'don\'t eat from the mid night', 30, 1, '2026-05-19 05:44:26', '2026-05-19 05:44:26'),
+(2, 'CT Scan', 'MOD-CT', 'Computed Tomography uses X-rays and computer processing to create cross-sectional images.', 1, 0, NULL, 30, 1, '2026-05-19 05:55:07', '2026-05-19 05:55:07'),
+(3, 'MRI', 'MOD-MRI', 'Magnetic Resonance Imaging uses strong magnetic fields and radio waves for detailed soft tissue imaging.', 0, 0, NULL, 30, 1, '2026-05-19 05:55:34', '2026-05-19 05:55:34'),
+(4, 'Ultrasound', 'MOD-USG', 'Uses high-frequency sound waves to create real-time images. Safe for pregnancy.', 0, 0, NULL, 30, 1, '2026-05-19 05:55:56', '2026-05-19 05:55:56');
+
+
+
+INSERT INTO `radiology_body_parts` (`id`, `name`, `code`, `region`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Brain', 'BP-BRAIN', 'Head & Neck', 1, '2026-05-19 05:37:19', '2026-05-19 05:37:19'),
+(2, 'Skull', 'BP-SKULL', 'Upper Extremity', 1, '2026-05-19 05:37:54', '2026-05-19 05:37:54'),
+(3, 'Orbit (Eye)', 'BP-ORBIT', 'Head & Neck', 1, '2026-05-19 05:38:18', '2026-05-19 05:38:18'),
+(4, 'Paranasal Sinuses', 'BP-SINUS', 'Head & Neck', 1, '2026-05-19 05:38:42', '2026-05-19 05:38:42'),
+(5, 'Temporal Bone', 'BP-TEMPORAL', 'Head & Neck', 1, '2026-05-19 05:39:05', '2026-05-19 05:39:05'),
+(6, 'Mastoid', 'BP-MASTOID', 'Head & Neck', 1, '2026-05-19 05:39:21', '2026-05-19 05:39:21');
+
+
+INSERT INTO `radiology_exams` (`id`, `name`, `exam_code`, `modality_id`, `body_part_id`, `price`, `requires_contrast`, `contrast_type`, `requires_preparation`, `preparation_instructions`, `turnaround_hours`, `duration_minutes`, `clinical_indications`, `contraindications`, `requires_consent`, `is_active`, `description`, `created_at`, `updated_at`) VALUES
+(1, 'Chest X-Ray PA View', 'RAD-001', 1, 6, 2000.00, 1, 'Iodine', 1, '5 Hour Fasting', 2, 5, 'Cough, chest pain, TB screening, pneumonia', 'Pregnancy (first trimester)', 1, 1, 'prepare for you chest x ray do not move during exam empty your pockets', '2026-05-19 06:02:52', '2026-05-19 06:02:52'),
+(2, 'MRI Brain Plain', 'RAD-006', 3, 1, 5000.00, 0, NULL, 0, NULL, 48, 30, 'Today', 'don\'t have pregnancy', 0, 1, 'Take a grave breath', '2026-05-19 06:05:14', '2026-06-08 01:37:14');
+
+
+
+INSERT INTO `radiology_orders` (`id`, `order_number`, `patient_id`, `doctor_id`, `appointment_id`, `order_date`, `scheduled_at`, `clinical_history`, `clinical_indication`, `priority`, `status`, `total_amount`, `discount`, `net_amount`, `paid_amount`, `payment_status`, `report_delivered`, `report_delivered_at`, `delivered_to`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'RAD-00001', 1, 1, NULL, '2026-05-19 11:07:00', '2026-05-20 16:07:00', NULL, NULL, 'Urgent', 'Delivered', 7000.00, 0.00, 7000.00, 7000.00, 'Paid', 1, '2026-05-19 06:13:25', 'Shehreyar Khan', NULL, '2026-05-19 06:08:16', '2026-05-22 01:01:02', NULL),
+(2, 'RAD-00002', 33, 1, NULL, '2026-05-19 11:32:00', '2026-05-20 16:32:00', NULL, NULL, 'Routine', 'Cancelled', 5000.00, 0.00, 5000.00, 0.00, 'Unpaid', 0, NULL, NULL, NULL, '2026-05-19 06:32:34', '2026-05-19 06:32:49', NULL),
+(3, 'RAD-00003', 44, 1, NULL, '2026-05-22 15:33:00', '2026-05-23 20:33:00', 'The patient have the kidney stone and abdomin pain disk displace', 'we need to measures it closely to find out the exact issue', 'Routine', 'Delivered', 7000.00, 0.00, 7000.00, 0.00, 'Unpaid', 1, '2026-06-05 01:08:32', 'Sana Pervez', 'we will utilize the report and will proceed with further', '2026-05-22 10:36:14', '2026-06-05 01:08:32', NULL),
+(4, 'RAD-00004', 35, 9, NULL, '2026-06-04 09:30:00', '2026-06-04 14:42:00', 'nothing', 'for the brain', 'Urgent', 'Verified', 7000.00, 0.00, 7000.00, 7000.00, 'Paid', 1, '2026-06-05 01:08:40', 'Zubair Sheikh', 'nothing to show thats why', '2026-06-04 04:42:43', '2026-06-05 05:54:47', NULL);
+
+
+
+
+INSERT INTO `radiology_order_items` (`id`, `radiology_order_id`, `radiology_exam_id`, `price`, `discount`, `final_price`, `status`, `scanned_at`, `technician_name`, `equipment_used`, `contrast_used`, `contrast_agent`, `contrast_dose_ml`, `contrast_reaction`, `contrast_reaction_notes`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 5000.00, 0.00, 5000.00, 'Reported', '2026-05-19 11:10:06', 'Sanam Khan', 'CT SACAN', 0, NULL, NULL, 0, NULL, '2026-05-19 06:08:16', '2026-05-19 06:11:20'),
+(2, 1, 1, 2000.00, 0.00, 2000.00, 'Reported', '2026-05-19 11:11:49', 'Sanam Khan', 'CT SACAN', 0, NULL, NULL, 0, NULL, '2026-05-19 06:08:16', '2026-05-19 06:12:37'),
+(3, 2, 2, 5000.00, 0.00, 5000.00, 'Cancelled', NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '2026-05-19 06:32:34', '2026-05-19 06:32:49'),
+(4, 3, 2, 5000.00, 0.00, 5000.00, 'Reported', '2026-05-22 15:37:23', 'Shehreyar zafar', 'CT SACAN', 0, NULL, NULL, 0, NULL, '2026-05-22 10:36:14', '2026-05-22 11:37:39'),
+(5, 3, 1, 2000.00, 0.00, 2000.00, 'Reported', '2026-05-22 15:37:43', 'Shehreyar zafar', 'CT SACAN', 0, NULL, NULL, 0, NULL, '2026-05-22 10:36:14', '2026-05-22 11:40:45'),
+(6, 4, 2, 5000.00, 0.00, 5000.00, 'Reported', '2026-06-05 05:54:56', 'sanam javid', 'Room 14', 0, NULL, NULL, 0, NULL, '2026-06-04 04:42:43', '2026-06-05 01:00:13'),
+(7, 4, 1, 2000.00, 0.00, 2000.00, 'Reported', '2026-06-05 06:26:44', 'pervaiz mash', 'xray digital', 1, 'OMNIPAQUE', 30.00, 1, 'Patient cause vomiting', '2026-06-04 04:42:43', '2026-06-05 01:27:20');
+
+
+
+
+INSERT INTO `radiology_reports` (`id`, `radiology_order_item_id`, `findings`, `impression`, `recommendations`, `comparison`, `is_critical`, `critical_notes`, `critical_notified_at`, `critical_notified_to`, `status`, `reported_by`, `reported_at`, `verified_by`, `verified_at`, `is_verified`, `amendment_reason`, `amended_by`, `amended_at`, `created_at`, `updated_at`) VALUES
+(1, 1, 'NOTHIBNG BEING SERIOUS', 'THER NOT EVIDENCE TO HAVE SOMETING CRATICAL', 'NO', 'FOUND SOME THING', 0, NULL, NULL, NULL, 'Verified', NULL, '2026-05-19 06:11:20', NULL, '2026-05-19 06:11:29', 1, NULL, NULL, NULL, '2026-05-19 06:11:20', '2026-05-19 06:11:29'),
+(2, 2, 'HAVE SOME BIG ISSUE', 'WE DID NOT SEE THE ISSUE CLEARLY', 'TRANSFER TO SHAUKIAT KHANAM', 'dfd', 0, NULL, NULL, NULL, 'Verified', NULL, '2026-05-19 06:12:37', NULL, '2026-05-19 06:12:42', 1, NULL, NULL, NULL, '2026-05-19 06:12:37', '2026-05-19 06:12:42'),
+(3, 4, 'in the ct scan the we find that the kidney have mal function and blockage of neurons which prevant the function of the abdomin function also have some infection in the kidney', 'we will be perform the surgery and remove the the stones form the kidney', NULL, 'compare CT SCAIN', 1, 'chances of kidney failure', '2026-05-22 11:37:39', 'kamran akmal', 'Verified', NULL, '2026-05-22 11:37:39', NULL, '2026-05-22 11:40:54', 1, NULL, NULL, NULL, '2026-05-22 11:37:39', '2026-05-22 11:40:54'),
+(4, 5, 'In the chest there is the mucas which make the blockage from lungs function', 'we will give the antibiotic for the mucus to remove it from the lungs to function it properly', 'there is no need for further procedure', 'Compare from the CT SCAN', 0, NULL, NULL, NULL, 'Verified', NULL, '2026-05-22 11:40:45', NULL, '2026-05-22 11:40:49', 1, NULL, NULL, NULL, '2026-05-22 11:40:45', '2026-05-22 11:40:49'),
+(5, 6, 'Hemorrhage: Blood appears very bright white on a CT scan. The report will note the type and location, such as a subdural, epidural, or intracerebral hematoma.Aneurysm or Clots: The report might note blocked blood vessels (infarct) or weakened, bulging areas.Calcification: Calcium deposits or hardening of the blood vessels may be\r\nBrain Tissue (Parenchyma)Stroke or Infarction: Dead or damaged brain tissue.Edema: Swelling in the brain tissue, which appears darker.Tumors or Lesions: Abnormal growths or masses, which might require a CT scan with contrast (special dye) for better visibility.', 'Impression:Acute 6 mm right subdural hematoma along the cerebral hemisphere.Associated mass effect causing a 3 mm leftward midline shift and mild compression of the right lateral ventricle.Non-displaced linear fracture of the right parietal bone\r\nImpression:Early signs of an acute ischemic infarct in the left middle cerebral artery (MCA) territory, evidenced by loss of grey-white matter differentiation.No evidence of acute intracranial hemorrhage.Conclusion / Next Steps: Findings are highly suggestive of an acute stroke. Recommend emergent clinical correlation for potential clot-busting therapy (tPA) or mechanical thrombectomy if within the appropriate time window.', 'Brain bleeds require immediate specialist evaluation and tight blood pressure monitoring.Text: \"Recommend urgent neurosurgical consultation and immediate clinical stabilization. Consider a repeat non-contrast head CT in 6 hours to monitor for hematoma expansion.\"', 'the patient have the brain tumor and no symptom of arthrites', 1, 'need emergency assestance', '2026-06-05 01:00:13', 'samin Afridi', 'Verified', 9, '2026-06-05 01:00:13', 9, '2026-06-05 01:00:27', 1, NULL, NULL, NULL, '2026-06-05 01:00:13', '2026-06-05 01:00:27'),
+(6, 7, 'Brain bleeds require immediate specialist evaluation and tight blood pressure monitoring.Text: \"Recommend urgent neurosurgical consultation and immediate clinical stabilization. Consider a repeat non-contrast head CT in 6 hours to monitor for hematoma expansion.\"', 'Impression:Acute 6 mm right subdural hematoma along the cerebral hemisphere.Associated mass effect causing a 3 mm leftward midline shift and mild compression of the right lateral ventricle.Non-displaced linear fracture of the right parietal bone', 'Brain bleeds require immediate specialist evaluation and tight blood pressure monitoring.Text: \"Recommend urgent neurosurgical consultation and immediate clinical stabilization. Consider a repeat non-contrast head CT in 6 hours to monitor for hematoma expansion.\"', 'the patient have the brain tumor and no symptom of arthrites', 0, NULL, NULL, NULL, 'Verified', 9, '2026-06-05 01:27:20', 9, '2026-06-05 01:27:40', 1, NULL, NULL, NULL, '2026-06-05 01:27:20', '2026-06-05 01:27:40');
+
+
+
+INSERT INTO `radiology_images` (`id`, `radiology_order_item_id`, `file_path`, `file_name`, `file_type`, `mime_type`, `file_size`, `dicom_series_uid`, `dicom_instance_uid`, `view_position`, `dicom_metadata`, `is_primary`, `description`, `created_at`, `updated_at`) VALUES
+(1, 1, 'radiology/images/RAD-00001/WOF6ELlnOAooH0zLuQy0ZpapK0nItxmnzOmjkVGq.png', '20240506_035854-removebg-preview.JPEG', 'pdf', 'image/png', 242393, NULL, NULL, NULL, NULL, 1, NULL, '2026-05-19 06:10:07', '2026-05-19 06:10:07'),
+(2, 2, 'radiology/images/RAD-00001/kH4QavTsauVhFc4g1kAZGAcQszc4XPdhGRDCaOeG.jpg', '484344605_2124705451383987_7847886505100047727_n.jpg', 'pdf', 'image/jpeg', 650983, NULL, NULL, NULL, NULL, 1, NULL, '2026-05-19 06:11:49', '2026-05-19 06:11:49'),
+(3, 4, 'radiology/images/RAD-00003/spxyXMvswGhZib8C0dFoer8pAEwyGFgnu934v9JN.jpg', '20250426_bing.jpg', 'pdf', 'image/jpeg', 2315069, NULL, NULL, NULL, NULL, 1, NULL, '2026-05-22 10:37:25', '2026-05-22 10:37:25'),
+(4, 5, 'radiology/images/RAD-00003/xnJ5Hmi10IxiozZSlKcCuZaWTqnrFDUpk1LWroA9.jpg', 'copy of fullsizerender-32.jpg', 'pdf', 'image/jpeg', 1583659, NULL, NULL, NULL, NULL, 1, NULL, '2026-05-22 10:37:43', '2026-05-22 10:37:43'),
+(5, 6, 'radiology/images/RAD-00004/IpVQ7MXRIOcQCtDcZCMYTq4szLGKx0mJrXf8myDc.png', 'Screenshot 2026-06-01 122838.png', 'pdf', 'image/png', 322582, NULL, NULL, NULL, NULL, 1, NULL, '2026-06-05 00:54:58', '2026-06-05 00:54:58'),
+(6, 7, 'radiology/images/RAD-00004/bmpC1eSE7eOCTMrPOn0DPntrmjnQqlyN1eSjxDr3.png', 'Screenshot 2026-06-01 115621.png', 'pdf', 'image/png', 271718, NULL, NULL, NULL, NULL, 1, NULL, '2026-06-05 01:26:44', '2026-06-05 01:26:44');
+
+
+INSERT INTO `radiology_consents` (`id`, `radiology_order_id`, `consent_type`, `is_signed`, `signed_by`, `relationship`, `signed_at`, `witness`, `signature_path`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Contrast/Procedure Consent', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-19 06:08:16', '2026-05-19 06:08:16'),
+(2, 3, 'Contrast/Procedure Consent', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-22 10:36:14', '2026-05-22 10:36:14'),
+(3, 4, 'Contrast/Procedure Consent', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-04 04:42:43', '2026-06-04 04:42:43');
+
+
+
+INSERT INTO `ot_rooms` (`id`, `room_code`, `name`, `room_type`, `status`, `has_anesthesia_machine`, `has_ventilator`, `has_laparoscopy`, `has_c_arm`, `is_laminar_flow`, `equipment_notes`, `floor`, `block`, `notes`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'OT-001', 'Main Operation Theater', 'Orthopedic', 'Available', 1, 1, 1, 1, 1, NULL, 'First Floor', 'D', NULL, 1, '2026-05-19 06:36:55', '2026-06-05 06:07:26', NULL),
+(2, 'OT-01', 'General Operation Theater', 'Gynecology', 'Occupied', 1, 1, 1, 1, 1, NULL, 'First Floor', 'A', NULL, 1, '2026-05-19 06:37:45', '2026-05-22 11:43:13', '2026-05-22 11:43:13'),
+(3, 'OT-002', 'Operaton Theate 3', 'Trauma', 'Available', 1, 1, 1, 1, 1, 'The Operation Theater Have full facility', 'First Floor', 'E', 'Main surgery perform there', 1, '2026-05-22 11:45:30', '2026-06-08 04:55:31', '2026-06-08 04:55:31');
+
+
+
+
+INSERT INTO `ot_schedules` (`id`, `surgery_id`, `patient_id`, `ot_room_id`, `surgeon_id`, `anesthesiologist_id`, `scheduled_date`, `scheduled_time`, `estimated_duration_mins`, `actual_start_time`, `actual_end_time`, `surgery_type`, `priority`, `anesthesia_type`, `status`, `diagnosis`, `procedure_name`, `procedure_details`, `pre_op_instructions`, `post_op_notes`, `billing_status`, `surgeon_fee`, `anesthesia_fee`, `ot_room_charges`, `consumables_charges`, `complications`, `post_op_destination`, `consent_obtained`, `consent_at`, `consent_by`, `pre_op_assessment_done`, `pre_op_assessment_notes`, `postpone_reason`, `cancellation_reason`, `rescheduled_date`, `booked_by`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'SRG-00001', 35, 1, 8, 7, '2026-05-21', '23:53:00', 60, NULL, '2026-05-21 11:54:49', 'Elective', 'Routine', NULL, 'Completed', 'flue and fiver', 'Larparoscopic', NULL, NULL, NULL, 'Paid', 10000.00, 5000.00, 3000.00, 2000.00, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-21 11:53:58', '2026-05-22 01:00:26', NULL),
+(2, 'SRG-00002', 37, 1, 8, 7, '2026-05-22', '01:17:00', 60, NULL, '2026-05-22 00:14:04', 'Elective', 'Routine', NULL, 'Completed', 'flue and fiver', 'Larparoscopic', NULL, NULL, NULL, 'Paid', 20000.00, 10000.00, 5000.00, 2000.00, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-22 00:13:58', '2026-05-22 01:02:00', NULL),
+(3, 'SRG-00003', 38, 1, 8, 7, '2026-05-22', '10:17:00', 60, NULL, '2026-05-22 11:42:56', 'Elective', 'Routine', NULL, 'Completed', 'Super vapulus volo cruentus coerceo urbs conicio confugo alius ago.', 'Larparoscopic', NULL, NULL, NULL, 'Unbilled', 30000.00, 10000.00, 5000.00, 3000.00, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-22 00:15:48', '2026-05-22 11:42:56', NULL),
+(4, 'SRG-00004', 44, 3, 8, 7, '2026-05-22', '22:49:00', 60, NULL, '2026-05-22 12:12:04', 'Diagnostic', 'Priority', 'Regional', 'Completed', 'The patient have the kidney stones and we will remove', 'Cholecycropy', 'The procedure will perform by the top doctors we will give anesthesia and also maintain the blood pressure', 'The patient did not eat anything from the 12 AM at night did not drink water etc', NULL, 'Unbilled', 35000.00, 15000.00, 1000.00, 5000.00, NULL, NULL, 1, NULL, 'Hussain Gul', 1, 'Nurse investigate all the test that the patient are fit for the surgery', NULL, NULL, NULL, NULL, 'Patient should be healthy and function', '2026-05-22 11:52:34', '2026-06-08 02:30:30', '2026-06-08 02:30:30'),
+(5, 'SRG-00005', 63, 1, 8, 7, '2026-06-05', '16:05:00', 60, NULL, '2026-06-05 06:07:26', 'Diagnostic', 'Emergency', 'Sedation', 'Completed', 'fiver and flue', 'appendocometry', 'sdfsdqwe olajs ejr; oas;lej raslehrhw;e', 'no eat anything', NULL, 'Unbilled', 30000.00, 20000.00, 10000.00, 5000.00, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, 7, NULL, '2026-06-05 06:05:52', '2026-06-08 01:51:19', '2026-06-08 01:51:19');
+
+
+INSERT INTO `ot_teams` (`id`, `ot_schedule_id`, `role`, `doctor_id`, `employee_id`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 4, 'Assistant Surgeon', 8, 10, NULL, '2026-05-22 11:52:34', '2026-05-22 11:52:34'),
+(3, 5, 'Circulating Nurse', 8, 10, NULL, '2026-06-05 06:06:34', '2026-06-05 06:06:34');
+
+
+
+
+
+INSERT INTO `blood_donors` (`id`, `donor_id`, `donor_type`, `name`, `father_name`, `date_of_birth`, `gender`, `blood_group`, `weight_kg`, `cnic`, `phone`, `email`, `address`, `city`, `is_eligible`, `ineligibility_reason`, `eligible_from`, `last_donation_date`, `total_donations`, `next_eligible_date`, `patient_id`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'DNR-00001', 'Replacement', 'Sheryar khan', 'Hussain Gul', '1996-02-28', 'Male', 'A+', 77.0, '6110151419917', '03334504157', 'shehreyar882@gmail.com', 'dora school suffaid dheri khatama nabowata chowk peshawar', 'KHYBER', 1, NULL, NULL, '2026-05-12', 1, '2026-08-10', NULL, 'There is not medical history of this donar', '2026-05-12 04:20:30', '2026-05-12 04:22:52', NULL),
+(2, 'DNR-00002', 'Voluntary', 'kashan', 'khan', '2002-02-02', 'Male', 'A+', 77.0, '6110298765432', '03335583974', 'shehreyar882@gmail.com', 'dora school suffaid dheri khatama nabowata chowk peshawar', 'Peshawar', 1, NULL, NULL, '2026-05-12', 1, '2026-08-10', 2, NULL, '2026-05-12 06:47:59', '2026-05-12 06:48:35', NULL),
+(3, 'DNR-00003', 'Directed', 'Javid azam', 'gulbat khan', '2000-02-01', 'Male', 'O+', 88.0, '6110151419915', '92333450415', 'shehreyar882@gmail.com', 'dora school suffaid dheri khatama nabowata chowk peshawar', 'Peshawar', 1, NULL, NULL, '2026-05-22', 1, '2026-08-20', 44, 'The patient are healthy and strong', '2026-05-22 11:58:20', '2026-05-22 12:00:12', NULL),
+(4, 'DNR-00004', 'Replacement', 'Shehreyar Khan Afridi kHAN', NULL, '2000-07-06', 'Male', 'A-', NULL, NULL, '03334504157', 'shehreyar882@gmail.com', 'dora school suffaid dheri khatama nabowata chowk peshawar', 'PESHAWAR', 1, NULL, NULL, NULL, 0, NULL, 2, NULL, '2026-05-25 02:44:09', '2026-05-25 02:44:09', NULL),
+(5, 'DNR-00005', 'Replacement', 'Hussain GUl', 'Akai Mubarak', '1940-01-09', 'Male', 'A+', 88.0, '5555555555555', '03335583974', 'shehreyar882@gmail.com', 'Peshawar University Town', 'PESHAWAR', 1, NULL, NULL, NULL, 0, NULL, 35, 'nothing to say to you', '2026-05-25 02:56:51', '2026-05-25 02:56:51', NULL);
+
+
+
+INSERT INTO `blood_donations` (`id`, `donation_id`, `donor_id`, `donation_date`, `donation_time`, `blood_group`, `volume_ml`, `bag_number`, `component`, `screening_status`, `hiv_tested`, `hbsag_tested`, `hcv_tested`, `vdrl_tested`, `malaria_tested`, `screening_notes`, `status`, `expiry_date`, `collected_by`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'DON-00001', 1, '2026-05-12', NULL, 'A+', 600.0, '1', 'Whole Blood', 'Passed', 1, 1, 1, 1, 1, NULL, 'Issued', '2026-06-16', 2, NULL, '2026-05-12 04:22:52', '2026-05-12 04:37:01', NULL),
+(2, 'DON-00002', 2, '2026-05-12', NULL, 'A+', 600.0, '100', 'Packed RBC', 'Passed', 1, 1, 1, 1, 1, NULL, 'Issued', '2026-06-16', 1, NULL, '2026-05-12 06:48:35', '2026-05-12 06:50:12', NULL),
+(3, 'DON-00003', 3, '2026-05-22', NULL, 'O+', 600.0, 'RBC-1', 'Packed RBC', 'Passed', 1, 1, 1, 1, 1, 'There is not negative value for the donation to not perfrom', 'Issued', '2026-06-26', 13, 'The donation successfully perform', '2026-05-22 12:00:12', '2026-05-22 12:05:51', NULL);
+
+
+INSERT INTO `blood_inventories` (`id`, `blood_group`, `component`, `units_available`, `units_reserved`, `minimum_threshold`, `last_updated_at`) VALUES
+(1, 'A+', 'Whole Blood', 1, 0, 2, '2026-05-12 04:22:52'),
+(2, 'A+', 'Packed RBC', 1, 0, 2, '2026-05-12 06:48:35'),
+(3, 'O+', 'Packed RBC', 1, 0, 2, '2026-05-22 12:00:12');
+
+
+INSERT INTO `blood_requests` (`id`, `request_id`, `patient_id`, `doctor_id`, `blood_group`, `component`, `units_required`, `units_approved`, `urgency`, `indication`, `ward`, `bed_number`, `patient_hemoglobin`, `status`, `rejection_reason`, `approved_at`, `fulfilled_at`, `processed_by`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'BRQ-00001', 2, 1, 'A+', 'Whole Blood', 1, 1, 'Urgent', 'pre operation needs', 'medical A ward', '14', 7.5, 'Fulfilled', NULL, '2026-05-12 04:35:35', '2026-05-12 04:37:01', 2, NULL, '2026-05-12 04:35:26', '2026-05-12 04:37:01', NULL),
+(2, 'BRQ-00002', 2, 1, 'A+', 'Whole Blood', 3, 1, 'Routine', 'pre operation needs', 'medical A ward', '14', 4.0, 'Approved', NULL, '2026-05-12 04:41:56', NULL, 2, NULL, '2026-05-12 04:41:15', '2026-05-12 04:41:56', NULL),
+(3, 'BRQ-00003', 2, 1, 'A+', 'Whole Blood', 1, 1, 'Routine', 'pre operation needs', 'medical A ward', '14', 5.0, 'Approved', NULL, '2026-05-12 04:44:16', NULL, 2, NULL, '2026-05-12 04:43:47', '2026-05-12 04:44:16', NULL),
+(4, 'BRQ-00004', 2, 1, 'A+', 'Packed RBC', 1, 1, 'Emergency', 'pre operation needs', 'medical A ward', '14', 2.0, 'Fulfilled', NULL, '2026-05-12 06:49:09', '2026-05-12 06:50:12', 2, NULL, '2026-05-12 06:49:01', '2026-05-12 06:50:12', NULL),
+(5, 'BRQ-00005', 44, 1, 'O+', 'Packed RBC', 1, 1, 'Emergency', 'pre operation need', 'ward icu', '100', 5.7, 'Fulfilled', NULL, '2026-05-22 12:04:11', '2026-05-22 12:05:51', 6, 'kindly fastly arrange the blood for the patient it is emergency', '2026-05-22 12:03:45', '2026-05-22 12:05:51', NULL),
+(6, 'BRQ-00006', 35, 1, 'A+', 'Whole Blood', 1, 1, 'Routine', 'pre operation need', 'medical A ward', '14', 4.4, 'Approved', NULL, '2026-05-25 02:36:40', NULL, 17, NULL, '2026-05-25 02:21:33', '2026-05-25 02:36:40', NULL),
+(7, 'BRQ-00007', 33, 1, 'A-', 'Packed RBC', 1, 1, 'Routine', 'pre operation needs', 'medical A ward', '100', 1.6, 'Approved', NULL, '2026-06-01 04:57:11', NULL, 17, NULL, '2026-05-25 02:24:38', '2026-06-01 04:57:11', NULL);
+
+
+
+INSERT INTO `blood_crossmatches` (`id`, `crossmatch_id`, `blood_request_id`, `blood_donation_id`, `result`, `method`, `performed_at`, `performed_by`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'CRM-00001', 1, 1, 'Compatible', 'Electronic', '2026-05-12 04:36:37', 2, NULL, '2026-05-12 04:36:04', '2026-05-12 04:36:37'),
+(2, 'CRM-00002', 4, 2, 'Compatible', 'Electronic', '2026-05-12 06:50:03', 2, NULL, '2026-05-12 06:49:57', '2026-05-12 06:50:03'),
+(3, 'CRM-00003', 5, 3, 'Compatible', 'Saline', '2026-05-22 12:05:23', 4, 'The blood are successfully issued', '2026-05-22 12:04:47', '2026-05-22 12:05:23');
+
+
+
+INSERT INTO `blood_issues` (`id`, `issue_id`, `blood_request_id`, `blood_donation_id`, `patient_id`, `blood_group`, `bag_number`, `volume_ml`, `component`, `issued_at`, `transfusion_started_at`, `transfusion_completed_at`, `reaction_observed`, `reaction_type`, `reaction_notes`, `issued_by`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'BIS-00001', 1, 1, 2, 'A+', '1', 600.0, 'Whole Blood', '2026-05-12 04:37:01', NULL, NULL, 0, 'None', NULL, 3, NULL, '2026-05-12 04:37:01', '2026-05-12 04:37:01'),
+(2, 'BIS-00002', 4, 2, 2, 'A+', '100', 600.0, 'Packed RBC', '2026-05-12 06:50:12', NULL, NULL, 0, 'None', NULL, NULL, NULL, '2026-05-12 06:50:12', '2026-05-12 06:50:12'),
+(3, 'BIS-00003', 5, 3, 44, 'O+', 'RBC-1', 600.0, 'Packed RBC', '2026-05-22 12:05:51', NULL, NULL, 0, 'None', NULL, 12, 'Blood Issued', '2026-05-22 12:05:51', '2026-05-22 12:05:51');
+
+
+
+
+INSERT INTO `bill_service_charges` (`id`, `name`, `code`, `category`, `blood_component`, `default_price`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
+(29, 'Blood RBC pack', 'RBC 33', 'Blood Bank', 'Packed RBC', 2000.00, 'THIS IS JUST FOR THE TESTING', 1, '2026-05-12 11:46:21', '2026-05-12 12:04:51'),
+(30, 'Death Certificate Fee', 'DC-FEE', 'Service', NULL, 1000.00, 'This is the death certificate charges', 1, '2026-05-18 01:41:01', '2026-05-18 02:36:49'),
+(31, 'Mortuary Storage Charges', 'MORT-STORAGE', 'Service', NULL, 200.00, 'For Body Storing', 1, '2026-05-18 01:41:54', '2026-05-18 01:41:54');
+
+
+
+
+
+INSERT INTO `bills` (`id`, `bill_number`, `patient_id`, `created_by`, `discount_by`, `bill_date`, `bill_type`, `status`, `subtotal`, `discount_amount`, `discount_reason`, `tax_amount`, `net_amount`, `paid_amount`, `due_amount`, `payment_status`, `notes`, `finalized_at`, `cancelled_at`, `cancellation_reason`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'BILL-2026-00001', 1, NULL, NULL, '2026-05-11', 'OPD', 'Finalized', 1718.00, 0.00, NULL, 0.00, 1718.00, 1718.00, 0.00, 'Paid', NULL, '2026-05-11 02:20:18', NULL, NULL, '2026-05-11 02:20:06', '2026-05-11 02:20:24', NULL),
+(2, 'BILL-2026-00002', 1, NULL, NULL, '2026-05-11', 'OPD', 'Cancelled', 58900.00, 0.00, NULL, 0.00, 58900.00, 0.00, 58900.00, 'Unpaid', NULL, NULL, '2026-05-11 04:27:08', 'this is just for testing', '2026-05-11 04:25:57', '2026-05-11 04:27:08', NULL),
+(3, 'BILL-2026-00003', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 256.00, 0.00, NULL, 0.00, 256.00, 256.00, 0.00, 'Paid', NULL, '2026-05-18 04:57:01', NULL, NULL, '2026-05-12 01:38:45', '2026-05-18 04:57:29', NULL),
+(4, 'BILL-2026-00004', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 10056.00, 0.00, NULL, 0.00, 10056.00, 10056.00, 0.00, 'Paid', NULL, '2026-05-18 05:03:36', NULL, NULL, '2026-05-12 01:41:42', '2026-05-18 05:03:41', NULL),
+(5, 'BILL-2026-00005', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 258.00, 0.00, NULL, 0.00, 258.00, 258.00, 0.00, 'Paid', NULL, '2026-05-12 01:59:48', NULL, NULL, '2026-05-12 01:58:21', '2026-05-12 01:59:57', NULL),
+(6, 'BILL-2026-00006', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 258.00, 0.00, NULL, 0.00, 258.00, 258.00, 0.00, 'Paid', NULL, '2026-05-18 04:54:17', NULL, NULL, '2026-05-12 02:00:18', '2026-05-18 04:54:22', NULL),
+(7, 'BILL-2026-00007', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 260.00, 500.00, NULL, 0.00, 0.00, 0.00, 0.00, 'Unpaid', NULL, '2026-05-18 04:53:16', NULL, NULL, '2026-05-12 02:15:49', '2026-05-18 04:53:16', NULL),
+(8, 'BILL-2026-00008', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 260.00, 100.00, NULL, 0.00, 160.00, 160.00, 0.00, 'Paid', NULL, '2026-05-18 04:52:39', NULL, NULL, '2026-05-12 02:16:14', '2026-05-18 04:52:44', NULL),
+(9, 'BILL-2026-00009', 2, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 3500.00, 0.00, NULL, 0.00, 3500.00, 3500.00, 0.00, 'Paid', NULL, '2026-05-12 04:38:45', NULL, NULL, '2026-05-12 04:38:24', '2026-05-12 04:38:50', NULL),
+(10, 'BILL-2026-00010', 1, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 1500.00, 0.00, NULL, 0.00, 1500.00, 1500.00, 0.00, 'Paid', NULL, '2026-05-12 04:45:39', NULL, NULL, '2026-05-12 04:45:36', '2026-05-12 04:46:00', NULL),
+(11, 'BILL-2026-00011', 2, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 3500.00, 0.00, NULL, 0.00, 3500.00, 3500.00, 0.00, 'Paid', NULL, '2026-05-12 05:52:03', NULL, NULL, '2026-05-12 05:51:54', '2026-05-12 05:52:06', NULL),
+(12, 'BILL-2026-00012', 2, NULL, NULL, '2026-05-12', 'OPD', 'Finalized', 2000.00, 0.00, NULL, 0.00, 2000.00, 2000.00, 0.00, 'Paid', NULL, '2026-05-12 12:05:29', NULL, NULL, '2026-05-12 12:05:23', '2026-05-12 12:05:35', NULL),
+(13, 'BILL-2026-00013', 2, NULL, NULL, '2026-05-13', 'OPD', 'Cancelled', 80.00, 0.00, NULL, 0.00, 80.00, 0.00, 80.00, 'Unpaid', NULL, NULL, '2026-05-13 04:34:23', 'it was just a mistake', '2026-05-13 04:34:02', '2026-05-13 04:34:23', NULL),
+(14, 'BILL-2026-00014', 56, NULL, NULL, '2026-05-18', 'OPD', 'Cancelled', 700.00, 0.00, NULL, 0.00, 700.00, 0.00, 700.00, 'Unpaid', NULL, NULL, '2026-05-18 01:47:20', 'f', '2026-05-18 01:44:04', '2026-05-18 01:47:20', NULL),
+(15, 'BILL-2026-00015', 36, NULL, NULL, '2026-05-18', 'OPD', 'Finalized', 1000.00, 0.00, NULL, 0.00, 1000.00, 1000.00, 0.00, 'Paid', NULL, '2026-05-18 02:43:56', NULL, NULL, '2026-05-18 02:43:33', '2026-05-18 02:44:12', NULL),
+(16, 'BILL-2026-00016', 42, NULL, NULL, '2026-05-18', 'OPD', 'Finalized', 2312.00, 0.00, NULL, 0.00, 2312.00, 2312.00, 0.00, 'Paid', NULL, '2026-05-18 05:53:08', NULL, NULL, '2026-05-18 05:53:04', '2026-05-18 05:53:12', NULL),
+(17, 'BILL-2026-00017', 34, NULL, NULL, '2026-05-18', 'OPD', 'Finalized', 5790.00, 790.00, NULL, 1500.00, 6500.00, 6500.00, 0.00, 'Paid', NULL, '2026-05-18 06:03:33', NULL, NULL, '2026-05-18 06:03:27', '2026-05-18 06:03:36', NULL),
+(18, 'BILL-2026-00018', 1, NULL, NULL, '2026-05-19', 'OPD', 'Draft', 2350.00, 0.00, NULL, 0.00, 2350.00, 0.00, 2350.00, 'Unpaid', NULL, NULL, NULL, NULL, '2026-05-19 05:34:56', '2026-05-19 05:34:56', NULL),
+(19, 'BILL-2026-00019', 1, NULL, NULL, '2026-05-19', 'OPD', 'Finalized', 9550.00, 0.00, NULL, 0.00, 9550.00, 9550.00, 0.00, 'Paid', NULL, '2026-05-22 01:00:58', NULL, NULL, '2026-05-19 06:14:10', '2026-05-22 01:01:02', NULL),
+(20, 'BILL-2026-00020', 35, NULL, NULL, '2026-05-22', 'OPD', 'Finalized', 20000.00, 0.00, NULL, 0.00, 20000.00, 20000.00, 0.00, 'Paid', NULL, '2026-05-22 01:00:22', NULL, NULL, '2026-05-22 00:59:45', '2026-05-22 01:00:26', NULL),
+(21, 'BILL-2026-00021', 37, NULL, NULL, '2026-05-22', 'OPD', 'Finalized', 37000.00, 2000.00, NULL, 0.00, 35000.00, 35000.00, 0.00, 'Paid', NULL, '2026-05-22 01:01:56', NULL, NULL, '2026-05-22 01:01:52', '2026-05-22 01:02:00', NULL),
+(22, 'BILL-2026-00022', 35, 3, 3, '2026-06-05', 'OPD', 'Finalized', 16410.00, 410.00, NULL, 0.00, 16000.00, 16000.00, 0.00, 'Paid', NULL, '2026-06-05 05:54:42', NULL, NULL, '2026-06-05 05:53:32', '2026-06-05 05:54:47', NULL),
+(23, 'BILL-2026-00023', 63, 3, NULL, '2026-06-05', 'OPD', 'Draft', 70100.00, 0.00, NULL, 0.00, 70100.00, 0.00, 70100.00, 'Unpaid', NULL, NULL, NULL, NULL, '2026-06-05 06:10:16', '2026-06-05 06:10:16', NULL);
+
+
+
+
+
+INSERT INTO `bill_items` (`id`, `bill_id`, `service_type`, `description`, `reference_type`, `reference_id`, `quantity`, `unit_price`, `discount`, `total_price`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Consultation', 'Consultation Fee: Dr. Ahmed', 'appointments', 1, 1.00, 1500.00, 0.00, 1500.00, '2026-05-11 02:20:06', '2026-05-11 02:20:06'),
+(2, 1, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 0.30512215835648 Days', 'beds', 1, 1.00, 200.00, 0.00, 200.00, '2026-05-11 02:20:06', '2026-05-11 02:20:06'),
+(3, 1, 'Pharmacy', 'Pharmacy Dispensing #DSP-00001', 'dispensings', 1, 1.00, 18.00, 0.00, 18.00, '2026-05-11 02:20:06', '2026-05-11 02:20:06'),
+(4, 2, 'Consultation', 'Consultation Fee: Dr. Zoya', 'appointments', 2, 1.00, 500.00, 0.00, 500.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(5, 2, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 0.39252242136574 Days', 'beds', 1, 2.00, 200.00, 0.00, 400.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(6, 2, 'Consultation', 'Emergency Consultation', NULL, NULL, 1.00, 1500.00, 0.00, 1500.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(7, 2, 'Service', 'ECG', NULL, NULL, 1.00, 1200.00, 0.00, 1200.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(8, 2, 'Service', 'Nebulization', NULL, NULL, 1.00, 500.00, 0.00, 500.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(9, 2, 'Service', 'Stitch Removal', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(10, 2, 'Service', 'Wound Dressing (Small)', NULL, NULL, 1.00, 800.00, 0.00, 800.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(11, 2, 'Service', 'CCU Bed Charges', NULL, NULL, 1.00, 12000.00, 0.00, 12000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(12, 2, 'Service', 'Private Room (Standard)', NULL, NULL, 1.00, 8000.00, 0.00, 8000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(13, 2, 'Service', 'ICU Bed Charges', NULL, NULL, 1.00, 15000.00, 0.00, 15000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(14, 2, 'Service', 'OT Charges (Minor)', NULL, NULL, 1.00, 10000.00, 0.00, 10000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(15, 2, 'Service', 'Whole Blood Bag', NULL, NULL, 1.00, 3500.00, 0.00, 3500.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(16, 2, 'Service', 'Ambulance (Within City)', NULL, NULL, 1.00, 3000.00, 0.00, 3000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(17, 2, 'Service', 'RMO Service Fee', NULL, NULL, 1.00, 500.00, 0.00, 500.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(18, 2, 'Service', 'Nursing Care Fee (Daily)', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-11 04:25:57', '2026-05-11 04:25:57'),
+(19, 3, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 1.2768584812384 Days', 'beds', 1, 1.28, 200.00, 0.00, 256.00, '2026-05-12 01:38:45', '2026-05-12 01:38:45'),
+(22, 5, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 1.2903848477199 Days', 'beds', 1, 1.29, 200.00, 0.00, 258.00, '2026-05-12 01:58:21', '2026-05-12 01:58:21'),
+(23, 6, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 1.2918056121759 Days', 'beds', 1, 1.29, 200.00, 0.00, 258.00, '2026-05-12 02:00:18', '2026-05-12 02:00:18'),
+(24, 7, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 1.3025310449306 Days', 'beds', 1, 1.30, 200.00, 0.00, 260.00, '2026-05-12 02:15:49', '2026-05-12 02:15:49'),
+(25, 8, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 1.3029277423264 Days', 'beds', 1, 1.30, 200.00, 0.00, 260.00, '2026-05-12 02:16:14', '2026-05-12 02:16:14'),
+(26, 9, 'Service', 'Whole Blood Bag', NULL, NULL, 1.00, 3500.00, 0.00, 3500.00, '2026-05-12 04:38:24', '2026-05-12 04:38:24'),
+(27, 10, 'Consultation', 'Consultation Fee: Dr. Ahmed', 'appointments', 3, 1.00, 1500.00, 0.00, 1500.00, '2026-05-12 04:45:36', '2026-05-12 04:45:36'),
+(28, 11, 'Blood Bank', 'Blood Issue: A+ (Whole Blood)', 'blood_requests', 1, 1.00, 0.00, 0.00, 0.00, '2026-05-12 05:51:54', '2026-05-12 05:51:54'),
+(29, 11, 'Consultation', 'General OPD Consultation', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-12 05:51:54', '2026-05-12 05:51:54'),
+(30, 11, 'Consultation', 'Specialist Consultation', NULL, NULL, 1.00, 2500.00, 0.00, 2500.00, '2026-05-12 05:51:54', '2026-05-12 05:51:54'),
+(31, 12, 'Blood Bank', 'Blood Issue: A+ (Packed RBC)', 'blood_requests', 4, 1.00, 2000.00, 0.00, 2000.00, '2026-05-12 12:05:23', '2026-05-12 12:05:23'),
+(32, 13, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 0.3985478187037 Days', 'beds', 1, 0.40, 200.00, 0.00, 80.00, '2026-05-13 04:34:02', '2026-05-13 04:34:02'),
+(33, 14, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 500.00, 0.00, 500.00, '2026-05-18 01:44:04', '2026-05-18 01:44:04'),
+(34, 14, 'Service', 'Mortuary Storage Charges', NULL, NULL, 1.00, 200.00, 0.00, 200.00, '2026-05-18 01:44:04', '2026-05-18 01:44:04'),
+(35, 15, 'Service', 'Death Certificate Fee — DC-2026-00008 (Legal Proceedings)', 'death_certificates', 8, 1.00, 2000.00, 1000.00, 1000.00, '2026-05-18 02:43:33', '2026-05-18 02:43:33'),
+(36, 4, 'Bed Charges', 'Bed Charges: Medical A (Bed: W-001-01) - 1.2787646378935 Days', 'beds', 1, 1.28, 200.00, 0.00, 256.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(37, 4, 'Service', 'Mortuary Storage Charges', NULL, NULL, 1.00, 200.00, 0.00, 200.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(38, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(39, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(40, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(41, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(42, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(43, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(44, 4, 'Service', 'Death Certificate Fee', NULL, NULL, 1.00, 1000.00, 0.00, 1000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(45, 4, 'Service', 'Blood RBC pack', NULL, NULL, 1.00, 2000.00, 0.00, 2000.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(46, 4, 'Service', 'Mortuary Storage Charges', NULL, NULL, 1.00, 200.00, 0.00, 200.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(47, 4, 'Service', 'Mortuary Storage Charges', NULL, NULL, 1.00, 200.00, 0.00, 200.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(48, 4, 'Service', 'Mortuary Storage Charges', NULL, NULL, 1.00, 200.00, 0.00, 200.00, '2026-05-18 05:03:28', '2026-05-18 05:03:28'),
+(49, 16, 'Pharmacy', 'Pharmacy Dispensing #DSP-00003', 'dispensings', 3, 1.00, 2112.00, 0.00, 2112.00, '2026-05-18 05:53:04', '2026-05-18 05:53:04'),
+(50, 16, 'Service', 'Mortuary Storage — MTY-00005 (1 day(s))', 'mortuary_records', 5, 1.00, 200.00, 0.00, 200.00, '2026-05-18 05:53:04', '2026-05-18 05:53:04'),
+(51, 17, 'Pharmacy', 'Pharmacy Dispensing #DSP-00005', 'dispensings', 5, 1.00, 3990.00, 0.00, 3990.00, '2026-05-18 06:03:27', '2026-05-18 06:03:27'),
+(52, 17, 'Service', 'Death Certificate Fee — DC-2026-00009 (Burial / Funeral)', 'death_certificates', 9, 1.00, 1800.00, 0.00, 1800.00, '2026-05-18 06:03:27', '2026-05-18 06:03:27'),
+(53, 18, 'Lab', 'Lab Order #LAB-00001', 'lab_orders', 1, 1.00, 1500.00, 100.00, 1400.00, '2026-05-19 05:34:56', '2026-05-19 05:34:56'),
+(54, 18, 'Pharmacy', 'Pharmacy Dispensing #DSP-00006', 'dispensings', 6, 1.00, 1050.00, 100.00, 950.00, '2026-05-19 05:34:56', '2026-05-19 05:34:56'),
+(55, 19, 'Lab', 'Lab Order #LAB-00001', 'lab_orders', 1, 1.00, 1500.00, 0.00, 1500.00, '2026-05-19 06:14:10', '2026-05-19 06:14:10'),
+(56, 19, 'Radiology', 'Radiology Order #RAD-00001', 'radiology_orders', 1, 1.00, 7000.00, 0.00, 7000.00, '2026-05-19 06:14:10', '2026-05-19 06:14:10'),
+(57, 19, 'Pharmacy', 'Pharmacy Dispensing #DSP-00006', 'dispensings', 6, 1.00, 1050.00, 0.00, 1050.00, '2026-05-19 06:14:10', '2026-05-19 06:14:10'),
+(58, 20, 'OT Charges', 'Surgeon Fee: Dr. Sara Ali (SRG-00001)', 'ot_schedules', 1, 1.00, 10000.00, 0.00, 10000.00, '2026-05-22 00:59:45', '2026-05-22 00:59:45'),
+(59, 20, 'OT Charges', 'Anesthesia Fee () — SRG-00001', 'ot_schedules', 1, 1.00, 5000.00, 0.00, 5000.00, '2026-05-22 00:59:45', '2026-05-22 00:59:45'),
+(60, 20, 'OT Charges', 'OT Room: Main Operation Theater (SRG-00001)', 'ot_schedules', 1, 1.00, 3000.00, 0.00, 3000.00, '2026-05-22 00:59:45', '2026-05-22 00:59:45'),
+(61, 20, 'OT Charges', 'OT Consumables — SRG-00001', 'ot_schedules', 1, 1.00, 2000.00, 0.00, 2000.00, '2026-05-22 00:59:45', '2026-05-22 00:59:45'),
+(62, 21, 'OT Charges', 'Surgeon Fee: Dr. Sara Ali (SRG-00002)', 'ot_schedules', 2, 1.00, 20000.00, 0.00, 20000.00, '2026-05-22 01:01:52', '2026-05-22 01:01:52'),
+(63, 21, 'OT Charges', 'Anesthesia Fee () — SRG-00002', 'ot_schedules', 2, 1.00, 10000.00, 0.00, 10000.00, '2026-05-22 01:01:52', '2026-05-22 01:01:52'),
+(64, 21, 'OT Charges', 'OT Room: Main Operation Theater (SRG-00002)', 'ot_schedules', 2, 1.00, 5000.00, 0.00, 5000.00, '2026-05-22 01:01:52', '2026-05-22 01:01:52'),
+(65, 21, 'OT Charges', 'OT Consumables — SRG-00002', 'ot_schedules', 2, 1.00, 2000.00, 0.00, 2000.00, '2026-05-22 01:01:52', '2026-05-22 01:01:52'),
+(71, 22, 'Lab', 'Lab Order #LAB-00004', 'lab_orders', 4, 1.00, 1500.00, 0.00, 1500.00, '2026-06-05 05:54:31', '2026-06-05 05:54:31'),
+(72, 22, 'Lab', 'Lab Order #LAB-00005', 'lab_orders', 5, 1.00, 1500.00, 0.00, 1500.00, '2026-06-05 05:54:31', '2026-06-05 05:54:31'),
+(73, 22, 'Radiology', 'Radiology Order #RAD-00004', 'radiology_orders', 4, 1.00, 7000.00, 0.00, 7000.00, '2026-06-05 05:54:31', '2026-06-05 05:54:31'),
+(74, 22, 'Pharmacy', 'Pharmacy Dispensing #DSP-00009', 'dispensings', 9, 1.00, 4410.00, 0.00, 4410.00, '2026-06-05 05:54:31', '2026-06-05 05:54:31'),
+(75, 22, 'Consultation', 'doctor consulatation fees', NULL, NULL, 1.00, 2000.00, 0.00, 2000.00, '2026-06-05 05:54:31', '2026-06-05 05:54:31'),
+(76, 23, 'Lab', 'Lab Order #LAB-00003', 'lab_orders', 3, 1.00, 1500.00, 0.00, 1500.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16'),
+(77, 23, 'Lab', 'Lab Order #LAB-00006', 'lab_orders', 6, 1.00, 1500.00, 0.00, 1500.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16'),
+(78, 23, 'Pharmacy', 'Pharmacy Dispensing #DSP-00008', 'dispensings', 8, 1.00, 2100.00, 0.00, 2100.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16'),
+(79, 23, 'OT Charges', 'Surgeon Fee: Dr. Sara Ali (SRG-00005)', 'ot_schedules', 5, 1.00, 30000.00, 0.00, 30000.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16'),
+(80, 23, 'OT Charges', 'Anesthesia Fee (Sedation) — SRG-00005', 'ot_schedules', 5, 1.00, 20000.00, 0.00, 20000.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16'),
+(81, 23, 'OT Charges', 'OT Room: Main Operation Theater (SRG-00005)', 'ot_schedules', 5, 1.00, 10000.00, 0.00, 10000.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16'),
+(82, 23, 'OT Charges', 'OT Consumables — SRG-00005', 'ot_schedules', 5, 1.00, 5000.00, 0.00, 5000.00, '2026-06-05 06:10:16', '2026-06-05 06:10:16');
+
+
+
+
+
+INSERT INTO `bill_payments` (`id`, `payment_number`, `bill_id`, `received_by`, `amount`, `payment_method`, `payment_date`, `reference_number`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'PAY-2026-00001', 1, NULL, 1718.00, 'Cash', '2026-05-11', NULL, NULL, '2026-05-11 02:20:23', '2026-05-11 02:20:23'),
+(2, 'PAY-2026-00002', 5, NULL, 258.00, 'Cash', '2026-05-12', NULL, NULL, '2026-05-12 01:59:57', '2026-05-12 01:59:57'),
+(3, 'PAY-2026-00003', 9, NULL, 3500.00, 'Cash', '2026-05-12', NULL, NULL, '2026-05-12 04:38:50', '2026-05-12 04:38:50'),
+(4, 'PAY-2026-00004', 10, NULL, 500.00, 'Cash', '2026-05-12', NULL, NULL, '2026-05-12 04:45:51', '2026-05-12 04:45:51'),
+(5, 'PAY-2026-00005', 10, NULL, 1000.00, 'Cash', '2026-05-12', NULL, NULL, '2026-05-12 04:46:00', '2026-05-12 04:46:00'),
+(6, 'PAY-2026-00006', 11, NULL, 3500.00, 'Cash', '2026-05-12', NULL, NULL, '2026-05-12 05:52:06', '2026-05-12 05:52:06'),
+(7, 'PAY-2026-00007', 12, NULL, 2000.00, 'Cash', '2026-05-12', NULL, NULL, '2026-05-12 12:05:35', '2026-05-12 12:05:35'),
+(8, 'PAY-2026-00008', 15, NULL, 1000.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 02:44:12', '2026-05-18 02:44:12'),
+(9, 'PAY-2026-00009', 8, NULL, 160.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 04:52:44', '2026-05-18 04:52:44'),
+(10, 'PAY-2026-00010', 6, NULL, 258.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 04:54:22', '2026-05-18 04:54:22'),
+(11, 'PAY-2026-00011', 3, NULL, 256.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 04:57:29', '2026-05-18 04:57:29'),
+(12, 'PAY-2026-00012', 4, NULL, 10056.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 05:03:41', '2026-05-18 05:03:41'),
+(13, 'PAY-2026-00013', 16, NULL, 2312.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 05:53:12', '2026-05-18 05:53:12'),
+(14, 'PAY-2026-00014', 17, NULL, 6500.00, 'Cash', '2026-05-18', NULL, NULL, '2026-05-18 06:03:36', '2026-05-18 06:03:36'),
+(15, 'PAY-2026-00015', 20, NULL, 20000.00, 'Cash', '2026-05-22', NULL, NULL, '2026-05-22 01:00:26', '2026-05-22 01:00:26'),
+(16, 'PAY-2026-00016', 19, NULL, 9550.00, 'Cash', '2026-05-22', NULL, NULL, '2026-05-22 01:01:02', '2026-05-22 01:01:02'),
+(17, 'PAY-2026-00017', 21, NULL, 35000.00, 'Cash', '2026-05-22', NULL, NULL, '2026-05-22 01:02:00', '2026-05-22 01:02:00'),
+(18, 'PAY-2026-00018', 22, 3, 16000.00, 'Cash', '2026-06-05', NULL, NULL, '2026-06-05 05:54:47', '2026-06-05 05:54:47');
+
+
+
+
+INSERT INTO `mortuary_records` (`id`, `mortuary_id`, `patient_id`, `death_datetime`, `death_location`, `ward`, `bed_number`, `immediate_cause`, `intermediate_cause`, `underlying_cause`, `contributing_cause`, `manner_of_death`, `declared_by`, `declared_at`, `locker_number`, `body_condition`, `body_weight_kg`, `identification_marks`, `status`, `postmortem_required`, `postmortem_ordered_by`, `postmortem_status`, `postmortem_started_at`, `postmortem_completed_at`, `postmortem_by`, `postmortem_findings`, `postmortem_report_number`, `is_medico_legal`, `mlc_number`, `police_station`, `investigating_officer`, `fir_number`, `police_informed_at`, `nok_name`, `nok_relation`, `nok_cnic`, `nok_phone`, `nok_informed`, `nok_informed_at`, `admitted_by`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(2, 'MTY-00001', 2, '2026-05-16 16:39:06', 'Ward', 'medical A ward', '14', 'NO', 'NO', 'NO', 'NO', 'Accidental', 1, '2026-05-16 16:16:00', '107', 'Normal', 90.0, 'There is no mark', 'Released', 1, 'Court', 'Completed', '2026-05-15 16:31:00', '2026-05-16 16:31:00', 1, 'In the postmortem finding have significant evidence that the person have been torture too much', '10-33', 1, '444334', 'bara chowk', 'Gold smith', '21122', '2026-05-16 16:18:00', 'Abdul Kalam', 'brother', '1112345678999', '03334504157', 1, '2026-05-16 16:19:00', 5, 'clearly mark', '2026-05-16 11:19:38', '2026-05-16 11:39:06', NULL),
+(3, 'MTY-00003', 56, '2026-05-17 14:24:38', 'CCU', 'medical A ward', '14', 'NO', 'NO', 'NO', 'NO', 'Accidental', 8, '2026-05-17 14:12:00', '107', 'Normal', 88.0, 'there is not identification mark are there and we need to focus on that', 'Released', 1, NULL, 'Completed', '2026-05-16 14:15:00', '2026-05-17 14:15:00', 1, 'GGGGGGGGGGGGGGGGGGGGGGGG', '10-33', 1, '444334', 'bara chowk', 'Gold smith', '21122', '2026-05-17 14:13:00', 'Shehreyar Khan Afridi kHAN', 'brother', NULL, '03334504157', 1, '2026-05-17 14:13:00', 3, 'this is just for testing not secure data', '2026-05-17 09:13:50', '2026-05-17 09:24:38', NULL),
+(4, 'MTY-00004', 33, '2026-05-18 07:35:36', 'ICU', 'medical A ward', '14', 'NO', 'NO', 'NO', 'NO', 'Undetermined', 1, '2026-05-18 06:49:00', '107', 'Other', 89.8, NULL, 'Certificate Issued', 0, NULL, 'Not Required', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, 'Khan', 'brother', '1112345678999', NULL, 1, '2026-05-16 06:49:00', 11, NULL, '2026-05-18 01:49:58', '2026-05-18 02:35:36', NULL),
+(5, 'MTY-00005', 42, '2026-05-18 07:19:23', 'DOA', 'advenio curriculum candidus', '115', '2026-03-28 04:59:50', '2027-03-17 05:39:43', 'Adrienne13', 'Arthur91', 'Accidental', 1, '2025-11-07 03:46:00', '209', 'Decomposed', 278.0, 'Concido quis velit degusto strues aeger turpis sapiente votum.', 'Released', 0, NULL, 'Not Required', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, 'Tara Adams', '182', '538', '251-061-1581', 1, '2025-11-22 04:18:00', 8, '58', '2026-05-18 02:09:30', '2026-05-18 02:19:23', NULL),
+(6, 'MTY-00006', 36, '2026-05-18 07:52:56', 'Outside Hospital', NULL, NULL, 'Heart Attack', 'Acute', 'Heat patient', 'Ceroses', 'Homicidal', 2, '2026-05-18 07:39:00', NULL, NULL, NULL, NULL, 'Released', 0, NULL, 'Not Required', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, 'Saad Khan', 'Father', '1112345678999', '03334434343', 1, '2026-05-18 07:40:00', 15, NULL, '2026-05-18 02:41:02', '2026-05-18 02:52:56', NULL),
+(7, 'MTY-00007', 34, '2026-05-18 11:01:34', 'Ward', NULL, NULL, 'NO', 'NO', 'NO', 'NO', 'Accidental', 9, '2026-05-18 10:59:00', NULL, NULL, NULL, NULL, 'Released', 0, NULL, 'Not Required', NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, 'kareen khan', 'wife', '888888888888', '09999999999', 1, '2026-05-17 11:00:00', 7, NULL, '2026-05-18 06:00:24', '2026-05-18 06:01:34', NULL);
+
+
+
+
+INSERT INTO `death_certificates` (`id`, `certificate_number`, `mortuary_record_id`, `certificate_type`, `purpose`, `issued_to_name`, `issued_to_cnic`, `issued_to_relation`, `issued_to_phone`, `issued_to_address`, `signed_by_doctor`, `verified_by`, `issued_by`, `issued_at`, `copy_number`, `total_copies`, `is_verified`, `verified_at`, `fee_charged`, `fee_paid`, `bill_id`, `remarks`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(2, 'DC-2026-00001', 2, 'Hospital Death Certificate', 'Legal Proceedings', 'Abdul Kalam', '1112345678999', 'brother', '03334504157', NULL, 8, NULL, 11, '2026-05-16 11:33:00', 1, 3, 0, NULL, 5000.00, 0, NULL, NULL, '2026-05-16 11:35:11', '2026-05-16 11:35:11', NULL),
+(3, 'DC-2026-00003', 2, 'Hospital Death Certificate', 'Burial / Funeral', 'Abdul Kalam', '1112345678999', 'brother', '03334504157', NULL, 7, NULL, 6, '2026-05-16 16:37:39', 2, 1, 0, NULL, 0.00, 0, NULL, NULL, '2026-05-16 11:37:11', '2026-05-16 11:37:39', '2026-05-16 11:37:39'),
+(4, 'DC-2026-00004', 3, 'Hospital Death Certificate', 'Burial / Funeral', 'Shehreyar Khan Afridi kHAN', '1112345678999', 'brother', '03334504157', 'dora school suffaid dheri khatama nabowata chowk peshawar', 8, 12, 11, '2026-05-17 09:16:00', 1, 1, 1, '2026-05-17 09:17:18', 0.00, 0, NULL, 'GHJTHJ', '2026-05-17 09:17:18', '2026-05-17 09:17:18', NULL),
+(5, 'DC-2026-00005', 4, 'Hospital Death Certificate', 'NADRA Registration', 'Khan', '1112345678999', 'brother', '03334504157', 'johar town', 8, 18, 1, '2026-05-18 01:50:00', 1, 1, 1, '2026-05-18 01:51:17', 499.99, 0, NULL, NULL, '2026-05-18 01:51:17', '2026-05-18 01:51:17', NULL),
+(6, 'DC-2026-00006', 5, 'Hospital Death Certificate', 'Burial / Funeral', 'Tara Adams', '538', '182', '251-061-1581', NULL, 1, NULL, NULL, '2026-05-18 02:10:00', 1, 1, 0, NULL, 0.00, 0, NULL, NULL, '2026-05-18 02:18:27', '2026-05-18 02:18:27', NULL),
+(7, 'DC-2026-00007', 4, 'Hospital Death Certificate', 'Burial / Funeral', 'Khan', '1112345678999', 'brother', NULL, NULL, 1, NULL, NULL, '2026-05-18 02:35:00', 2, 1, 0, NULL, 500.00, 0, NULL, NULL, '2026-05-18 02:35:36', '2026-05-18 02:35:36', NULL),
+(8, 'DC-2026-00008', 6, 'Stillbirth Certificate', 'Legal Proceedings', 'Saad Khan', '1112345678999', 'Father', '03334434343', 'dora school suffaid dheri khatama nabowat chowk peshawar', 2, 12, 14, '2026-05-18 02:41:00', 1, 1, 1, '2026-05-18 02:42:30', 2000.00, 0, NULL, NULL, '2026-05-18 02:42:30', '2026-05-18 02:42:30', NULL),
+(9, 'DC-2026-00009', 7, 'Hospital Death Certificate', 'Burial / Funeral', 'kareen khan', '888888888888', 'wife', '09999999999', 'Peshawar University Town', 9, 18, 12, '2026-05-18 11:03:36', 1, 1, 1, '2026-05-18 06:00:52', 1800.00, 1, 17, NULL, '2026-05-18 06:00:52', '2026-05-18 06:03:36', NULL);
+
+
+
+INSERT INTO `body_release_records` (`id`, `release_id`, `mortuary_record_id`, `released_to_name`, `released_to_cnic`, `released_to_relation`, `released_to_phone`, `released_to_address`, `witness_1_name`, `witness_1_cnic`, `witness_2_name`, `witness_2_cnic`, `released_at`, `released_by`, `transport_type`, `vehicle_number`, `destination`, `death_certificate_provided`, `death_certificate_number`, `belongings_returned`, `belongings_list`, `valuables_amount`, `valuables_returned`, `police_clearance_obtained`, `police_clearance_number`, `notes`, `created_at`, `updated_at`) VALUES
+(2, 'BRL-00001', 2, 'Abdul Kalam', '1112345678999', 'brother', '03334504157', NULL, NULL, NULL, NULL, NULL, '2026-05-16 11:37:00', 6, 'Hospital Ambulance', 'STO 2683', 'Bara Khyber Agency', 1, 'DC-2026-00001', 1, NULL, 0.00, 0, 1, '100210', NULL, '2026-05-16 11:39:06', '2026-05-16 11:39:06'),
+(3, 'BRL-00003', 3, 'Shehreyar Khan Afridi kHAN', '1112345678999', 'brother', '03334504157', 'dora school suffaid dheri khatama nabowata chowk peshawar', 'gameel khan', '1223456789098', 'sert3wfw', '2323232323232', '2026-05-17 09:22:00', 12, 'Hospital Ambulance', '2ffr44454', 'near haji gul masjid makbara road sango landi bala peshawar', 1, 'DC-2026-00004', 1, 'wallet phone', 1000.00, 1, 1, '100210', 'asdadsasd', '2026-05-17 09:24:38', '2026-05-17 09:24:38'),
+(4, 'BRL-00004', 5, 'Rodolfo Moen', '420', '363', '631-974-1194', '427 Green Forge', 'Jaqueline Cormier', '33333333333333', 'Herbert Dickens', '55555555555555', '2026-02-12 04:23:00', 16, 'Private Ambulance', '134', '495 Marc Islands', 1, '185', 1, '242-976-5986', 342.00, 0, 0, NULL, '549', '2026-05-18 02:19:23', '2026-05-18 02:19:23'),
+(5, 'BRL-00005', 6, 'Judith Kuvalis', '625', '396', '024-803-4645', '9346 Gail Viaduct', 'Doris Dickinson', '21122212121212', 'Kenya Miller', '34343434343434', '2027-02-08 10:03:00', 20, 'Private Ambulance', '198', '61148 Allen Pines', 1, '424', 1, '903-830-8946', 555555.00, 1, 0, NULL, '473', '2026-05-18 02:52:56', '2026-05-18 02:52:56'),
+(6, 'BRL-00006', 7, 'kareen khan', '888888888888', 'wife', '09999999999', NULL, 'gameel khan', '1223456789098', 'sert3wfw', '3434343434343', '2026-05-18 06:00:00', 3, 'Hospital Ambulance', '134', 'dora school suffaid dheri khatama nabowat chowk peshawar', 1, 'DC-2026-00009', 1, NULL, 0.00, 1, 0, NULL, NULL, '2026-05-18 06:01:34', '2026-05-18 06:01:34');
+
+
+
+
+INSERT INTO `leave_types` (`id`, `name`, `code`, `description`, `days_per_year`, `is_paid`, `carry_forward`, `max_carry_forward`, `encashable`, `min_service_days`, `max_consecutive_days`, `notice_days_required`, `requires_document`, `document_description`, `applicable_male`, `applicable_female`, `applicable_employment_types`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Annual Leave', 'AL', 'Paid annual rest leave for permanent employees. Earned after completing 12 months of continuous service, in compliance with Pakistan labor regulations.', 14, 1, 1, 14, 1, 365, 15, 14, 0, NULL, 1, 1, NULL, 1, '2026-06-10 01:53:57', '2026-06-10 01:56:58');
+
+
+
+
+
+
+
+
+
+INSERT INTO `attendances` (`id`, `employee_id`, `date`, `check_in`, `check_out`, `working_minutes`, `overtime_minutes`, `late_minutes`, `status`, `source`, `notes`, `is_regularized`, `regularized_by`, `regularization_reason`, `created_at`, `updated_at`) VALUES
+(1, 1, '2026-06-09', '08:15:00', NULL, 0, 0, 0, 'Present', 'Manual', 'Urgent', 0, NULL, NULL, '2026-06-09 05:15:53', '2026-06-09 05:15:53'),
+(2, 2, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:38:22', '2026-06-10 01:38:22'),
+(3, 10, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:38:40', '2026-06-10 01:38:40'),
+(4, 4, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:38:46', '2026-06-10 01:38:46'),
+(5, 8, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:04', '2026-06-10 01:39:04'),
+(6, 21, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:10', '2026-06-10 01:39:10'),
+(7, 16, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:16', '2026-06-10 01:39:16'),
+(8, 13, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:22', '2026-06-10 01:39:22'),
+(9, 9, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:28', '2026-06-10 01:39:28'),
+(10, 7, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:35', '2026-06-10 01:39:35'),
+(11, 20, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:41', '2026-06-10 01:39:41'),
+(12, 14, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:50', '2026-06-10 01:39:50'),
+(13, 17, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:39:57', '2026-06-10 01:39:57'),
+(14, 19, '2026-06-10', NULL, NULL, 0, 0, 0, 'Present', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:40:04', '2026-06-10 01:40:04'),
+(15, 5, '2026-06-10', NULL, NULL, 0, 0, 0, 'Absent', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:40:30', '2026-06-10 01:40:30'),
+(16, 6, '2026-06-10', NULL, NULL, 0, 0, 0, 'On Leave', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:40:40', '2026-06-10 01:40:40'),
+(17, 11, '2026-06-10', NULL, NULL, 0, 0, 0, 'Late', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:40:49', '2026-06-10 01:40:49'),
+(18, 18, '2026-06-10', NULL, NULL, 0, 0, 0, 'Half Day', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:40:59', '2026-06-10 01:40:59'),
+(19, 3, '2026-06-10', NULL, NULL, 0, 0, 0, 'Holiday', 'Manual', NULL, 0, NULL, NULL, '2026-06-10 01:41:11', '2026-06-10 01:41:11');
+
+
+
+INSERT INTO `salary_structures` (`id`, `employee_id`, `basic_salary`, `house_rent_allowance`, `medical_allowance`, `transport_allowance`, `meal_allowance`, `special_allowance`, `other_allowance`, `other_allowance_description`, `gross_salary`, `eobi_applicable`, `eobi_employee_share`, `eobi_employer_share`, `is_tax_exempt`, `tax_slab`, `income_tax_monthly`, `provident_fund`, `loan_deduction`, `other_deduction`, `other_deduction_description`, `total_deductions`, `net_salary`, `effective_from`, `effective_to`, `is_current`, `notes`, `created_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 2, 160000.00, 0.00, 5000.00, 0.00, 10000.00, 1000.00, 2000.00, '3000', 178000.00, 1, 3000.00, 0.00, 1, '10', 10000.00, 5000.00, 500.00, 700.00, NULL, 19200.00, 158800.00, '2026-06-10', NULL, 1, NULL, 3, '2026-06-10 02:06:55', '2026-06-10 02:06:55', NULL),
+(2, 1, 200000.00, 15000.00, 10000.00, 10000.00, 10000.00, 5000.00, 1000.00, '500', 251000.00, 1, 10000.00, 5000.00, 1, '15', 20000.00, 7000.00, 2000.00, 1000.00, NULL, 40000.00, 211000.00, '2026-06-10', NULL, 1, NULL, 3, '2026-06-10 02:19:45', '2026-06-10 02:19:45', NULL);
+
+
+INSERT INTO `payroll_runs` (`id`, `run_number`, `year`, `month`, `month_name`, `status`, `total_employees`, `total_gross`, `total_deductions`, `total_net`, `payment_date`, `processed_at`, `approved_at`, `created_by`, `approved_by`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(2, 'PR-2026-06', '2026', 6, 'June 2026', 'Paid', 2, 429000.00, 59200.00, 369800.00, '2026-06-10', '2026-06-10 02:22:25', '2026-06-10 02:24:48', 3, 3, NULL, '2026-06-10 02:22:25', '2026-06-10 02:25:00', NULL);
+
+
+
+
+INSERT INTO `payslips` (`id`, `payroll_run_id`, `employee_id`, `payslip_number`, `salary_structure_id`, `total_working_days`, `present_days`, `absent_days`, `late_days`, `half_days`, `leave_days`, `holiday_days`, `overtime_hours`, `basic_salary`, `house_rent_allowance`, `medical_allowance`, `transport_allowance`, `meal_allowance`, `special_allowance`, `other_allowance`, `overtime_amount`, `bonus`, `arrears`, `gross_salary`, `income_tax_monthly`, `tax_slab`, `eobi_employee_share`, `provident_fund`, `loan_deduction`, `absent_deduction`, `late_deduction`, `other_deduction`, `other_deduction_description`, `total_deductions`, `net_salary`, `per_day_salary`, `payment_method`, `bank_account_number`, `bank_name`, `is_paid`, `paid_on`, `transaction_reference`, `status`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 2, 1, 'PS-2026-06-001', 2, 22, 1, 0, 0, 0, 0, 0, 0.00, 200000.00, 15000.00, 10000.00, 10000.00, 10000.00, 5000.00, 1000.00, 0.00, 0.00, 0.00, 251000.00, 20000.00, '15', 10000.00, 7000.00, 2000.00, 0.00, 0.00, 1000.00, NULL, 40000.00, 211000.00, 11409.09, 'Bank Transfer', '3003950227', 'The Bank Of Khyber', 1, '2026-06-10', NULL, 'Paid', NULL, '2026-06-10 02:22:25', '2026-06-10 02:25:00', NULL),
+(2, 2, 2, 'PS-2026-06-002', 1, 22, 1, 0, 0, 0, 0, 0, 0.00, 160000.00, 0.00, 5000.00, 0.00, 10000.00, 1000.00, 2000.00, 0.00, 0.00, 0.00, 178000.00, 10000.00, '10', 3000.00, 5000.00, 500.00, 0.00, 0.00, 700.00, NULL, 19200.00, 158800.00, 8090.91, 'Bank Transfer', NULL, NULL, 1, '2026-06-10', NULL, 'Paid', NULL, '2026-06-10 02:22:25', '2026-06-10 02:25:00', NULL);
+
+
+
+
+
+INSERT INTO `holidays` (`id`, `name`, `date`, `date_to`, `total_days`, `type`, `year`, `is_recurring`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Saturday', '2026-06-13', '2026-06-13', 1, 'Public Holiday', '2026', 1, 'This is public holiday', 1, '2026-06-09 05:24:17', '2026-06-09 05:24:17');
+
+
+
+INSERT INTO `leave_types` (
+    `name`, `code`, `description`, `days_per_year`, `is_paid`, 
+    `carry_forward`, `max_carry_forward`, `encashable`, 
+    `min_service_days`, `max_consecutive_days`, `notice_days_required`, 
+    `requires_document`, `document_description`, `applicable_male`, 
+    `applicable_female`, `applicable_employment_types`, `is_active`, 
+    `created_at`, `updated_at`
+) VALUES 
+-- 1. Casual Leave (Aam Chutti)
+('Casual Leave', 'CL', 'Short-term leave for urgent personal matters.', 12, 1, 0, 0, 0, 0, 3, 1, 0, NULL, 1, 1, '["Permanent", "Probation", "Contract"]', 1, NOW(), NOW()),
+
+-- 2. Sick Leave (Bimari ki Chutti - Hospital environment requires this)
+('Sick Leave', 'SL', 'Leave for medical reasons. Medical certificate required for more than 2 days.', 10, 1, 1, 10, 0, 0, 15, 0, 1, 'Medical Certificate from Registered Practitioner', 1, 1, '["Permanent", "Probation", "Contract"]', 1, NOW(), NOW()),
+
+-- 3. Earned Leave (Salana Chutti - Can be encashed)
+('Earned Leave', 'EL', 'Annual leave for long vacations. Can be carried forward and encashed.', 20, 1, 1, 45, 1, 180, 15, 15, 0, NULL, 1, 1, '["Permanent"]', 1, NOW(), NOW()),
+
+-- 4. Maternity Leave (Only for Female Staff)
+('Maternity Leave', 'ML', 'Paid leave for female employees for childbirth.', 90, 1, 0, 0, 0, 270, 90, 30, 1, 'Birth Certificate or Medical Report', 0, 1, '["Permanent"]', 1, NOW(), NOW()),
+
+-- 5. Paternity Leave (Only for Male Staff)
+('Paternity Leave', 'PL', 'Leave for male employees for the birth of a child.', 7, 1, 0, 0, 0, 180, 7, 15, 1, 'Birth Certificate', 1, 0, '["Permanent"]', 1, NOW(), NOW()),
+
+-- 6. CME / Conference Leave (For Doctors/Specialists)
+('CME Leave', 'CME', 'Leave for attending medical conferences and workshops.', 7, 1, 0, 0, 0, 90, 7, 30, 1, 'Conference Invitation or Registration Receipt', 1, 1, '["Permanent", "Contract"]', 1, NOW(), NOW()),
+
+-- 7. Bereavement Leave (Gham ki Chutti)
+('Bereavement Leave', 'BL', 'Leave granted in the event of the death of a family member.', 3, 1, 0, 0, 0, 0, 3, 0, 0, NULL, 1, 1, '["Permanent", "Probation", "Contract"]', 1, NOW(), NOW()),
+
+-- 8. Unpaid Leave (Bina Tankhwa ki Chutti)
+('Loss of Pay', 'LOP', 'Unpaid leave when all other leave balances are exhausted.', 0, 0, 0, 0, 0, 0, 30, 2, 0, NULL, 1, 1, '["Permanent", "Probation", "Contract"]', 1, NOW(), NOW());
+
+
+
+
+INSERT INTO `holidays` (
+    `name`, `date`, `date_to`, `total_days`, `type`, `year`, 
+    `is_recurring`, `description`, `is_active`, `created_at`, `updated_at`
+) VALUES 
+-- 1. Kashmir Day (Fixed Date)
+('Kashmir Day', '2025-02-05', NULL, 1, 'National Holiday', 2025, 1, 'Solidarity with people of Kashmir.', 1, NOW(), NOW()),
+
+-- 2. Pakistan Day (Fixed Date)
+('Pakistan Day', '2025-03-23', NULL, 1, 'National Holiday', 2025, 1, 'Commemorating the Lahore Resolution.', 1, NOW(), NOW()),
+
+-- 3. Eid-ul-Fitr (Tentative Dates - Multi-day)
+('Eid-ul-Fitr', '2025-03-31', '2025-04-02', 3, 'Religious Holiday', 2025, 0, 'Islamic festival after Ramadan.', 1, NOW(), NOW()),
+
+-- 4. World Health Day (Hospital Specific)
+('World Health Day', '2025-04-07', NULL, 1, 'Hospital Holiday', 2025, 1, 'Special recognition day for healthcare staff.', 1, NOW(), NOW()),
+
+-- 5. Labor Day (Fixed Date)
+('Labor Day', '2025-05-01', NULL, 1, 'Public Holiday', 2025, 1, 'International Workers Day.', 1, NOW(), NOW()),
+
+-- 6. Eid-ul-Adha (Tentative Dates - Multi-day)
+('Eid-ul-Adha', '2025-06-07', '2025-06-09', 3, 'Religious Holiday', 2025, 0, 'Festival of Sacrifice.', 1, NOW(), NOW()),
+
+-- 7. Ashura (9th & 10th Moharram)
+('Ashura', '2025-07-06', '2025-07-07', 2, 'Religious Holiday', 2025, 0, '9th and 10th of Moharram.', 1, NOW(), NOW()),
+
+-- 8. Independence Day (Fixed Date)
+('Independence Day', '2025-08-14', NULL, 1, 'National Holiday', 2025, 1, 'Pakistan Independence Day.', 1, NOW(), NOW()),
+
+-- 9. Eid Milad-un-Nabi (Tentative)
+('Eid Milad-un-Nabi', '2025-09-05', NULL, 1, 'Religious Holiday', 2025, 0, 'Birth of Prophet Muhammad (PBUH).', 1, NOW(), NOW()),
+
+-- 10. Iqbal Day (Fixed Date)
+('Iqbal Day', '2025-11-09', NULL, 1, 'National Holiday', 2025, 1, 'Birthday of Allama Iqbal.', 1, NOW(), NOW()),
+
+-- 11. Quaid-e-Azam Day / Christmas (Fixed Date)
+('Quaid-e-Azam Day', '2025-12-25', NULL, 1, 'National Holiday', 2025, 1, 'Birthday of Quaid-e-Azam and Christmas.', 1, NOW(), NOW()),
+
+-- 12. New Year Eve (Optional)
+('New Year Holiday', '2026-01-01', NULL, 1, 'Optional', 2026, 1, 'Optional holiday for staff.', 1, NOW(), NOW());

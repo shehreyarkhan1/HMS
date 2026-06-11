@@ -294,7 +294,7 @@
                     <strong>Action issued</strong> — {{ $disciplinary->action_type }}<br>
                     {{ $disciplinary->created_at->format('d M Y, h:i A') }}
                     @if($disciplinary->issuedBy)
-                        by {{ $disciplinary->issuedBy->first_name }}
+                        by {{ $disciplinary->issuedBy->name }}
                     @endif
                 </div>
             </div>
@@ -335,12 +335,12 @@
                 </div>
                 <div class="d-flex justify-content-between py-1 border-bottom">
                     <span>Issued By</span>
-                    <strong>{{ optional($disciplinary->issuedBy)->first_name }} {{ optional($disciplinary->issuedBy)->last_name }}</strong>
+                    <strong>{{ optional($disciplinary->issuedBy)->name }}</strong>
                 </div>
                 @if($disciplinary->reviewedBy)
                 <div class="d-flex justify-content-between py-1 border-bottom">
                     <span>Reviewed By</span>
-                    <strong>{{ $disciplinary->reviewedBy->first_name }} {{ $disciplinary->reviewedBy->last_name }}</strong>
+                    <strong>{{ $disciplinary->reviewedBy->name }}</strong>
                 </div>
                 @endif
                 <div class="d-flex justify-content-between py-1">

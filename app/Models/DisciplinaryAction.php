@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Models\Employee;
+use App\Models\User;
 class DisciplinaryAction extends Model
 {
     use SoftDeletes;
@@ -44,15 +45,19 @@ class DisciplinaryAction extends Model
     {
         return $this->belongsTo(Employee::class);
     }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function issuedBy(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'issued_by');
+        return $this->belongsTo(User::class, 'issued_by');
     }
 
     public function reviewedBy(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'reviewed_by');
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     // ── Scopes ────────────────────────────────────────────────────────

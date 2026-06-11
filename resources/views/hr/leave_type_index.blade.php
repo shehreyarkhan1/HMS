@@ -412,19 +412,26 @@
             const b = e.relatedTarget;
             const f = document.getElementById('editLtForm');
             f.action = `{{ url('hr/leave-types') }}/${b.dataset.id}`;
+
+            // Text fields
             const fields = ['name', 'code', 'description', 'days_per_year', 'max_carry_forward',
                 'min_service_days', 'max_consecutive_days', 'notice_days_required'
             ];
             fields.forEach(k => {
+                // camelCase convert karo dataset key ke liye
+                const dataKey = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
                 const el = f.querySelector(`[name="${k}"]`);
-                if (el) el.value = b.dataset[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] || '';
+                if (el) el.value = b.dataset[dataKey] || '';
             });
-            const checks = ['is_paid', 'carry_forward', 'encashable', 'requires_document', 'applicable_male',
-                'applicable_female', 'is_active'
+
+            // Checkboxes — prefix 'edit_' lagao
+            const checks = ['is_paid', 'carry_forward', 'encashable', 'requires_document',
+                'applicable_male', 'applicable_female', 'is_active'
             ];
             checks.forEach(k => {
-                const el = f.querySelector(`[name="${k}"]`);
-                if (el) el.checked = b.dataset[k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] === '1';
+                const dataKey = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+                const el = document.getElementById('edit_' + k); // ← prefix 'edit_'
+                if (el) el.checked = b.dataset[dataKey] === '1';
             });
         });
         @if ($errors->any())

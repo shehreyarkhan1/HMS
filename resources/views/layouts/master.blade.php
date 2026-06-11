@@ -567,17 +567,6 @@
                 </a>
             @endif
 
-            {{-- ── HR / EMPLOYEES ──
-            @if ($user && $user->canAccess('staff'))
-                <div class="nav-section-label">Employee Management</div>
-
-                <a href="{{ route('employees.index') }}"
-                    class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
-                    <i class="bi bi-people-fill"></i> Employees
-                </a>
-            @endif --}}
-
-
 
 
 
@@ -617,16 +606,6 @@
                     <i class="bi bi-tags"></i> Leave Types
                 </a>
             @endif
-
-
-
-
-
-
-
-
-
-
 
 
 

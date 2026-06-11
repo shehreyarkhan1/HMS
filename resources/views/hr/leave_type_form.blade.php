@@ -56,9 +56,9 @@
                     <div class="col-6 col-md-4">
                         <div class="form-check form-switch d-flex align-items-center gap-2" style="padding-left:2.5rem">
                             <input class="form-check-input" type="checkbox" name="{{ $field }}" value="1"
-                                id="{{ ($prefix ?? '') . $field }}"
+                                id="{{ ($prefix ?? 'add') . $field }}"
                                 {{ old($field, $lt->$field ?? ($field === 'is_active' || $field === 'applicable_male' || $field === 'applicable_female' || $field === 'is_paid' ? true : false)) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="{{ ($prefix ?? '') . $field }}"
+                            <label class="form-check-label" for="{{ ($prefix ?? 'add') . $field }}"
                                 style="font-size:12px; font-weight:600; color:{{ $color }}">{{ $label }}</label>
                         </div>
                     </div>
