@@ -336,11 +336,19 @@
 
         {{-- Brand / Logo --}}
         <div class="sidebar-brand">
-            <div class="brand-icon">
-                <i class="bi bi-hospital"></i>
-            </div>
+            @if (!empty($layoutsSetting['hospital_logo']))
+                {{-- Logo upload kiya hua hai --}}
+                <img src="{{ asset('storage/' . $layoutsSetting['hospital_logo']) }}"
+                    style="height:36px; width:36px; object-fit:contain; border-radius:8px">
+            @else
+                {{-- Logo nahi hai toh default icon --}}
+                <div class="brand-icon">
+                    <i class="bi bi-hospital"></i>
+                </div>
+            @endif
+
             <div>
-                <div class="brand-name">MediCare HMS</div>
+                <div class="brand-name">{{ $layoutsSetting['hospital_name'] ?? 'MediCare HMS' }}</div>
                 <div class="brand-sub">Hospital System</div>
             </div>
         </div>
@@ -642,7 +650,13 @@
                     class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="bi bi-shield-lock"></i> Users & Roles
                 </a>
+
+                <a href="{{ route('settings.index') }}"
+                    class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
             @endif
+
 
         </div>
 

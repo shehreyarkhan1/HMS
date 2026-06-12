@@ -39,6 +39,7 @@ use App\Http\Controllers\Radiology\RadiologyBodyPartController;
 use App\Http\Controllers\Radiology\RadiologyController;
 use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
+use App\Http\Controllers\Setting\SettingController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Ward\WardController;
 use Illuminate\Support\Facades\Auth;
@@ -437,4 +438,13 @@ Route::middleware(['auth'])->group(function () {
         });
 
     });
+
+    // Settings routes — sirf super_admin access kar sakta hai
+
+    Route::middleware('role:super_admin')
+        ->prefix('settings')->name('settings.')
+        ->group(function () {
+            Route::get('/{group?}', [SettingController::class, 'index'])->name('index');
+            Route::put('/{group?}', [SettingController::class, 'update'])->name('update');
+        });
 });

@@ -1,3 +1,11 @@
+@php
+    $cur = $layoutsSetting['currency_symbol'] ?? '₨';
+    $hospitalName = $layoutsSetting['hospital_name'] ?? 'Medicare Hospital';
+    $hospitalAddr = $layoutsSetting['hospital_address'] ?? 'Peshawar, KPK';
+    $hospitalPhone = $layoutsSetting['hospital_phone'] ?? '';
+    $hospitalEmail = $layoutsSetting['hospital_email'] ?? '';
+    $footerNote = $layoutsSetting['bill_footer_note'] ?? 'Thank you for choosing our hospital.';
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -71,7 +79,7 @@
             font-family: monospace
         }
 
-        /* Status banner */
+        /* Status */
         .status-banner {
             display: inline-block;
             padding: 4px 14px;
@@ -151,7 +159,7 @@
             text-align: right
         }
 
-        /* Items table */
+        /* Items Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -174,12 +182,6 @@
             color: #374151;
             padding: 10px 12px;
             border-bottom: 1px solid #f1f5f9
-        }
-
-        .items-table tfoot td {
-            padding: 9px 12px;
-            font-size: 13px;
-            border-top: 2px solid #e2e8f0
         }
 
         .text-right {
@@ -306,8 +308,8 @@
             color: #64748b
         }
 
-        /* Watermark for cancelled */
-        @if ($bill->isCancelled())
+        /* Cancelled watermark */
+        @if ($bill->status === 'Cancelled')
             .page::before {
                 content: 'CANCELLED';
                 position: fixed;
@@ -342,6 +344,7 @@
 
 <body>
 
+    {{-- Print toolbar --}}
     <div class="no-print"
         style="background:#1e293b;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">
         <span style="color:#fff;font-size:13px"><i>Invoice Preview — {{ $bill->bill_number }}</i></span>
@@ -362,11 +365,15 @@
         {{-- ─ Header ─────────────────────────────────────────── --}}
         <div class="invoice-header">
             <div>
-                <div class="hospital-name">MediCore Hospital</div>
+                <div class="hospital-name">{{ $hospitalName }}</div>
                 <div class="hospital-sub">
-                    123 Healthcare Avenue, Peshawar, KPK<br>
-                    Phone: +92-91-1234567 &nbsp;|&nbsp; UAN: 111-MEDICORE<br>
-                    Email: info@medicorehospital.pk
+                    {{ $hospitalAddr }}<br>
+                    @if ($hospitalPhone)
+                        Phone: {{ $hospitalPhone }}
+                    @endif
+                    @if ($hospitalEmail)
+                        &nbsp;|&nbsp; Email: {{ $hospitalEmail }}
+                    @endif
                 </div>
             </div>
             <div class="invoice-meta">
@@ -385,29 +392,47 @@
         <div class="info-grid">
             <div class="info-box">
                 <div class="info-box-title">Bill To — Patient</div>
-                <div class="info-row"><span class="label">Name</span><span
-                        class="value">{{ $bill->patient->name }}</span></div>
-                <div class="info-row"><span class="label">MRN</span><span
-                        class="value">{{ $bill->patient->mrn }}</span></div>
-                <div class="info-row"><span class="label">Phone</span><span
-                        class="value">{{ $bill->patient->phone }}</span></div>
+                <div class="info-row">
+                    <span class="label">Name</span>
+                    <span class="value">{{ $bill->patient->name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">MRN</span>
+                    <span class="value">{{ $bill->patient->mrn }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Phone</span>
+                    <span class="value">{{ $bill->patient->phone }}</span>
+                </div>
                 @if ($bill->patient->address)
-                    <div class="info-row"><span class="label">Address</span><span class="value"
-                            style="max-width:180px;text-align:right">{{ $bill->patient->address }}</span></div>
+                    <div class="info-row">
+                        <span class="label">Address</span>
+                        <span class="value" style="max-width:180px;text-align:right">
+                            {{ $bill->patient->address }}
+                        </span>
+                    </div>
                 @endif
             </div>
             <div class="info-box">
                 <div class="info-box-title">Invoice Details</div>
-                <div class="info-row"><span class="label">Bill Type</span><span
-                        class="value">{{ $bill->bill_type }}</span></div>
-                <div class="info-row"><span class="label">Bill Date</span><span
-                        class="value">{{ $bill->bill_date->format('d M Y') }}</span></div>
+                <div class="info-row">
+                    <span class="label">Bill Type</span>
+                    <span class="value">{{ $bill->bill_type }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Bill Date</span>
+                    <span class="value">{{ $bill->bill_date->format('d M Y') }}</span>
+                </div>
                 @if ($bill->finalized_at)
-                    <div class="info-row"><span class="label">Finalized</span><span
-                            class="value">{{ $bill->finalized_at->format('d M Y') }}</span></div>
+                    <div class="info-row">
+                        <span class="label">Finalized</span>
+                        <span class="value">{{ $bill->finalized_at->format('d M Y') }}</span>
+                    </div>
                 @endif
-                <div class="info-row"><span class="label">Created By</span><span
-                        class="value">{{ $bill->createdBy?->name ?? 'System' }}</span></div>
+                <div class="info-row">
+                    <span class="label">Created By</span>
+                    <span class="value">{{ $bill->createdBy?->name ?? 'System' }}</span>
+                </div>
             </div>
         </div>
 
@@ -419,7 +444,7 @@
                     <th>Service Type</th>
                     <th>Description</th>
                     <th class="text-center" style="width:50px">Qty</th>
-                    <th class="text-right" style="width:100px">Unit Price</th>
+                    <th class="text-right" style="width:110px">Unit Price</th>
                     <th class="text-right" style="width:90px">Discount</th>
                     <th class="text-right" style="width:110px">Total</th>
                 </tr>
@@ -431,10 +456,12 @@
                         <td style="color:#64748b;font-size:11px">{{ $item->service_type }}</td>
                         <td style="font-weight:500">{{ $item->description }}</td>
                         <td class="text-center">{{ number_format($item->quantity, 0) }}</td>
-                        <td class="text-right">Rs. {{ number_format($item->unit_price, 2) }}</td>
+                        <td class="text-right">{{ $cur }} {{ number_format($item->unit_price, 2) }}</td>
                         <td class="text-right" style="color:#dc2626">
-                            {{ $item->discount > 0 ? '− ' . number_format($item->discount, 2) : '—' }}</td>
-                        <td class="text-right" style="font-weight:600">Rs. {{ number_format($item->total_price, 2) }}
+                            {{ $item->discount > 0 ? '− ' . number_format($item->discount, 2) : '—' }}
+                        </td>
+                        <td class="text-right" style="font-weight:600">
+                            {{ $cur }} {{ number_format($item->total_price, 2) }}
                         </td>
                     </tr>
                 @endforeach
@@ -444,42 +471,53 @@
         {{-- ─ Totals ───────────────────────────────────────── --}}
         <div class="totals-section" style="margin-top:16px">
             <div class="totals-box">
+
                 <div class="totals-row">
                     <span style="color:#64748b">Subtotal</span>
-                    <span>Rs. {{ number_format($bill->subtotal, 2) }}</span>
+                    <span>{{ $cur }} {{ number_format($bill->subtotal, 2) }}</span>
                 </div>
+
                 @if ($bill->discount_amount > 0)
                     <div class="totals-row">
                         <span style="color:#dc2626">
                             Discount{{ $bill->discount_reason ? ' (' . $bill->discount_reason . ')' : '' }}
                         </span>
-                        <span style="color:#dc2626">− Rs. {{ number_format($bill->discount_amount, 2) }}</span>
+                        <span style="color:#dc2626">− {{ $cur }}
+                            {{ number_format($bill->discount_amount, 2) }}</span>
                     </div>
                 @endif
+
                 @if ($bill->tax_amount > 0)
                     <div class="totals-row">
                         <span style="color:#0891b2">Tax / Charges</span>
-                        <span style="color:#0891b2">+ Rs. {{ number_format($bill->tax_amount, 2) }}</span>
+                        <span style="color:#0891b2">+ {{ $cur }}
+                            {{ number_format($bill->tax_amount, 2) }}</span>
                     </div>
                 @endif
+
                 <div class="totals-row grand">
                     <span>Net Payable</span>
-                    <span class="amount">Rs. {{ number_format($bill->net_amount, 2) }}</span>
+                    <span class="amount">{{ $cur }} {{ number_format($bill->net_amount, 2) }}</span>
                 </div>
+
                 @if ($bill->paid_amount > 0)
                     <div class="totals-row" style="background:#f0fdf4">
                         <span style="color:#16a34a">Amount Paid</span>
-                        <span style="color:#16a34a;font-weight:600">Rs.
-                            {{ number_format($bill->paid_amount, 2) }}</span>
+                        <span style="color:#16a34a;font-weight:600">
+                            {{ $cur }} {{ number_format($bill->paid_amount, 2) }}
+                        </span>
                     </div>
                 @endif
+
                 @if ($bill->due_amount > 0)
                     <div class="totals-row" style="background:#fef2f2">
                         <span style="color:#dc2626;font-weight:600">Balance Due</span>
-                        <span style="color:#dc2626;font-weight:700">Rs.
-                            {{ number_format($bill->due_amount, 2) }}</span>
+                        <span style="color:#dc2626;font-weight:700">
+                            {{ $cur }} {{ number_format($bill->due_amount, 2) }}
+                        </span>
                     </div>
                 @endif
+
             </div>
         </div>
 
@@ -488,18 +526,28 @@
             <div class="payments-section">
                 <div class="section-title">Payment History</div>
                 @foreach ($bill->payments as $pay)
-                    @php $mc = 'method-' . (in_array($pay->payment_method, ['Cash','Card','Cheque']) ? $pay->payment_method : 'Other'); @endphp
+                    @php
+                        $mc =
+                            'method-' .
+                            (in_array($pay->payment_method, ['Cash', 'Card', 'Cheque'])
+                                ? $pay->payment_method
+                                : 'Other');
+                    @endphp
                     <div class="pay-row">
                         <div>
                             <span class="pay-badge {{ $mc }}">{{ $pay->payment_method }}</span>
-                            <span
-                                style="color:#64748b;font-size:11px;margin-left:8px">{{ $pay->payment_date->format('d M Y') }}</span>
+                            <span style="color:#64748b;font-size:11px;margin-left:8px">
+                                {{ $pay->payment_date->format('d M Y') }}
+                            </span>
                             @if ($pay->reference_number)
-                                <span style="color:#94a3b8;font-size:11px;margin-left:4px">Ref:
-                                    {{ $pay->reference_number }}</span>
+                                <span style="color:#94a3b8;font-size:11px;margin-left:4px">
+                                    Ref: {{ $pay->reference_number }}
+                                </span>
                             @endif
                         </div>
-                        <span style="font-weight:600;color:#16a34a">Rs. {{ number_format($pay->amount, 2) }}</span>
+                        <span style="font-weight:600;color:#16a34a">
+                            {{ $cur }} {{ number_format($pay->amount, 2) }}
+                        </span>
                     </div>
                 @endforeach
             </div>
@@ -516,9 +564,14 @@
         {{-- ─ Footer ───────────────────────────────────────── --}}
         <div class="invoice-footer">
             <div class="footer-note">
-                Thank you for choosing MediCore Hospital.<br>
+                {{ $footerNote }}<br>
                 This is a computer-generated invoice and does not require a physical signature.<br>
-                For queries: billing@medicorehospital.pk | +92-91-1234567
+                @if ($hospitalEmail)
+                    {{ $hospitalEmail }}
+                @endif
+                @if ($hospitalPhone)
+                    &nbsp;|&nbsp; {{ $hospitalPhone }}
+                @endif
             </div>
             <div class="signature-box">
                 <div style="height:40px"></div>
@@ -526,7 +579,8 @@
             </div>
         </div>
 
-    </div>
+    </div>{{-- end .page --}}
+
 </body>
 
 </html>

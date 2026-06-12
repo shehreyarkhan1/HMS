@@ -454,30 +454,31 @@
         </div>
 
 
-
-        {{-- Quick Clinical Actions --}}
-        <div
-            style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:18px; margin-bottom:20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02)">
+        @if (!Auth::user()->hasRole('receptionist'))
+            {{-- Quick Clinical Actions --}}
             <div
-                style="font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:14px">
-                <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Clinical Actions
+                style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:18px; margin-bottom:20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02)">
+                <div
+                    style="font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:14px">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Clinical Actions
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ route('lab.orders.create', ['patient_id' => $appointment->patient_id]) }}"
+                        class="btn btn-warning btn-sm px-3 text-dark"
+                        style="border-radius:8px; background:#fcd34d; border:none">
+                        <i class="bi bi-clipboard2-plus me-1"></i> Lab Order
+                    </a>
+                    <a href="{{ route('radiology.orders.create', ['patient_id' => $appointment->patient_id]) }}"
+                        class="btn btn-info btn-sm px-3 text-white" style="border-radius:8px">
+                        <i class="bi bi-radioactive me-1"></i> Radiology
+                    </a>
+                    <a href="{{ route('pharmacy.prescriptions.create', ['patient_id' => $appointment->patient_id]) }}"
+                        class="btn btn-success btn-sm px-3" style="border-radius:8px">
+                        <i class="bi bi-capsule me-1"></i> Prescription
+                    </a>
+                </div>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a href="{{ route('lab.orders.create', ['patient_id' => $appointment->patient_id]) }}"
-                    class="btn btn-warning btn-sm px-3 text-dark"
-                    style="border-radius:8px; background:#fcd34d; border:none">
-                    <i class="bi bi-clipboard2-plus me-1"></i> Lab Order
-                </a>
-                <a href="{{ route('radiology.orders.create', ['patient_id' => $appointment->patient_id]) }}"
-                    class="btn btn-info btn-sm px-3 text-white" style="border-radius:8px">
-                    <i class="bi bi-radioactive me-1"></i> Radiology
-                </a>
-                <a href="{{ route('pharmacy.prescriptions.create', ['patient_id' => $appointment->patient_id]) }}"
-                    class="btn btn-success btn-sm px-3" style="border-radius:8px">
-                    <i class="bi bi-capsule me-1"></i> Prescription
-                </a>
-            </div>
-        </div>
+        @endif
 
         {{-- Quick Status Update --}}
         <div class="info-card">
