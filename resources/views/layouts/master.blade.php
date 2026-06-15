@@ -657,6 +657,12 @@
                 </a>
             @endif
 
+            @if (auth()->user()->isSuperAdmin())
+                <a href="{{ route('audit.index') }}"class="nav-item">
+                    <i class="bi bi-shield-check me-2"></i>Audit Log
+                </a>
+            @endif
+
 
         </div>
 

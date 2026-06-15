@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Model;
 
 class LabTest extends Model
 {
+    use HasAuditLog;
+
+    protected string $auditModule = 'Lab test';
+
     protected $fillable = [
         'name',
         'test_code',
@@ -38,7 +43,7 @@ class LabTest extends Model
             if (empty($test->test_code)) {
                 $last = static::latest('id')->first();
                 $num = $last ? ($last->id + 1) : 1;
-                $test->test_code = 'T-' . str_pad($num, 4, '0', STR_PAD_LEFT);
+                $test->test_code = 'T-'.str_pad($num, 4, '0', STR_PAD_LEFT);
             }
         });
     }
@@ -74,13 +79,17 @@ class LabTest extends Model
     /** Turnaround in human readable */
     public function getTurnaroundLabelAttribute(): string
     {
-        if ($this->turnaround_hours < 1)
+        if ($this->turnaround_hours < 1) {
             return 'STAT';
-        if ($this->turnaround_hours <= 4)
-            return $this->turnaround_hours . ' hrs (Urgent)';
-        if ($this->turnaround_hours <= 24)
-            return $this->turnaround_hours . ' hrs';
-        return ceil($this->turnaround_hours / 24) . ' day(s)';
+        }
+        if ($this->turnaround_hours <= 4) {
+            return $this->turnaround_hours.' hrs (Urgent)';
+        }
+        if ($this->turnaround_hours <= 24) {
+            return $this->turnaround_hours.' hrs';
+        }
+
+        return ceil($this->turnaround_hours / 24).' day(s)';
     }
 
     // ── Scopes ──

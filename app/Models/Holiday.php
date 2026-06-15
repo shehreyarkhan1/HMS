@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\HasAuditLog;
 
 class Holiday extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule='Holy day';
      protected $fillable = [
         'name', 'date', 'date_to', 'total_days',
         'type', 'year', 'is_recurring',

@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Model;
 
 class LabResult extends Model
 {
+    use HasAuditLog;
+
+    protected string $auditModule = 'Lab Result';
+
     protected $fillable = [
         'lab_order_item_id',
         'result_value',
@@ -38,7 +43,7 @@ class LabResult extends Model
 
     public function verifiedBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'verified_by');
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     // ── Accessors ──
@@ -72,8 +77,9 @@ class LabResult extends Model
     /** Auto-set flag based on value vs normal range */
     public function autoSetFlag(): void
     {
-        if (!$this->result_value || !$this->normal_range)
+        if (! $this->result_value || ! $this->normal_range) {
             return;
+        }
 
         // Parse range like "4.5 - 11.0"
         if (preg_match('/^([\d.]+)\s*[-–]\s*([\d.]+)$/', $this->normal_range, $m)) {
@@ -95,5 +101,4 @@ class LabResult extends Model
             ]);
         }
     }
-
 }

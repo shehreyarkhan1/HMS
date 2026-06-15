@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\HasAuditLog;
 class PayrollRun extends Model
 {
-      use SoftDeletes;
+      use SoftDeletes,HasAuditLog;
+      protected string $auditModule='Payroll rum';
 
     protected $fillable = [
         'run_number', 'year', 'month', 'month_name',

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Appointment\AppointmentController;
+use App\Http\Controllers\AuditLog\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Billing\BillingController;
 use App\Http\Controllers\Billing\BillServiceChargeController;
@@ -447,4 +448,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{group?}', [SettingController::class, 'index'])->name('index');
             Route::put('/{group?}', [SettingController::class, 'update'])->name('update');
         });
+    // ── AUDIT LOG (super_admin only) ──────────────────────────────────────────
+    Route::middleware('role:super_admin')
+        ->prefix('audit-logs')->name('audit.')
+        ->group(function () {
+            Route::get('/', [AuditLogController::class, 'index'])->name('index');
+            Route::get('/{activityLog}', [AuditLogController::class, 'show'])->name('show');
+        });
+
 });

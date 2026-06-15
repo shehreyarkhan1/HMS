@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use App\Traits\HasAuditLog;
 
 class OtTeam extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule='OT Team';
     protected $fillable = [
         'ot_schedule_id',
         'role',

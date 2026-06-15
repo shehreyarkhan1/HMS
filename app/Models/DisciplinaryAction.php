@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Employee;
-use App\Models\User;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class DisciplinaryAction extends Model
 {
-    use SoftDeletes;
+    use HasAuditLog,SoftDeletes;
+
+    protected string $auditModule = 'Disciplinary action';
 
     protected $fillable = [
         'action_number', 'employee_id',
@@ -27,16 +27,16 @@ class DisciplinaryAction extends Model
     ];
 
     protected $casts = [
-        'incident_date'         => 'date',
-        'action_date'           => 'date',
-        'suspension_from'       => 'date',
-        'suspension_to'         => 'date',
-        'response_deadline'     => 'date',
+        'incident_date' => 'date',
+        'action_date' => 'date',
+        'suspension_from' => 'date',
+        'suspension_to' => 'date',
+        'response_deadline' => 'date',
         'response_received_date' => 'date',
-        'suspension_paid'       => 'boolean',
-        'response_received'     => 'boolean',
-        'is_appealed'           => 'boolean',
-        'deduction_amount'      => 'decimal:2',
+        'suspension_paid' => 'boolean',
+        'response_received' => 'boolean',
+        'is_appealed' => 'boolean',
+        'deduction_amount' => 'decimal:2',
     ];
 
     // ── Relationships ─────────────────────────────────────────────────
@@ -45,6 +45,7 @@ class DisciplinaryAction extends Model
     {
         return $this->belongsTo(Employee::class);
     }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -77,27 +78,27 @@ class DisciplinaryAction extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'Issued'       => 'warning',
+            'Issued' => 'warning',
             'Acknowledged' => 'info',
             'Under Review' => 'primary',
-            'Resolved'     => 'success',
-            'Escalated'    => 'danger',
-            'Closed'       => 'secondary',
-            default        => 'secondary',
+            'Resolved' => 'success',
+            'Escalated' => 'danger',
+            'Closed' => 'secondary',
+            default => 'secondary',
         };
     }
 
     public function getActionColorAttribute(): string
     {
         return match ($this->action_type) {
-            'Verbal Warning'  => 'info',
+            'Verbal Warning' => 'info',
             'Written Warning' => 'warning',
             'Show Cause Notice' => 'warning',
-            'Suspension'      => 'danger',
-            'Demotion'        => 'danger',
+            'Suspension' => 'danger',
+            'Demotion' => 'danger',
             'Salary Deduction' => 'warning',
-            'Termination'     => 'danger',
-            default           => 'secondary',
+            'Termination' => 'danger',
+            default => 'secondary',
         };
     }
 
@@ -109,7 +110,7 @@ class DisciplinaryAction extends Model
 
         static::creating(function ($action) {
             if (empty($action->action_number)) {
-                $action->action_number = 'DA-' . str_pad(
+                $action->action_number = 'DA-'.str_pad(
                     static::withTrashed()->max('id') + 1, 5, '0', STR_PAD_LEFT
                 );
             }

@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasAuditLog;
 
 
 class BillServiceCharge extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule = 'Bill Service Charge'; // For audit log module name
     protected $fillable = [
         'name',
         'code',

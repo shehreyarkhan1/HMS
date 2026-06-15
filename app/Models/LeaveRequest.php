@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Employee;
-use App\Models\LeaveType;
-use App\Models\User;
 
 class LeaveRequest extends Model
 {
-    use SoftDeletes;
+    use HasAuditLog,SoftDeletes;
+
+    protected string $auditModule = 'leave Request';
 
     protected $fillable = [
         'leave_number', 'employee_id', 'leave_type_id',

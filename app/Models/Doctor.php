@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Doctor extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasAuditLog, HasFactory,SoftDeletes;
+
+    protected string $auditModule = 'Doctor';
 
     protected $fillable = [
         'employee_id',

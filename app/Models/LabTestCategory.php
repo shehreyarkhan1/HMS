@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasAuditLog;
 
 class LabTestCategory extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule='lab test category';
     protected $fillable = [
         'name',
         'code',

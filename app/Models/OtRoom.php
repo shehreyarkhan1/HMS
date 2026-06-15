@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\HasAuditLog;
 
 class OtRoom extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,HasAuditLog;
+    protected string $auditModule='OT Room';
 
     protected $fillable = [
         'room_code',

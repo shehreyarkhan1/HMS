@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasAuditLog;
 
 class LeaveType extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule='leave Type';
     protected $fillable = [
         'name', 'code', 'description',
         'days_per_year', 'is_paid', 'carry_forward',

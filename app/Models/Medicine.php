@@ -9,11 +9,12 @@ use App\Models\MedicineBatch;
 use App\Models\PrescriptionItem;
 use App\Models\DispensingItem;
 use App\Models\Dispensing;
-
+use App\Traits\HasAuditLog;
 
 class Medicine extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,HasAuditLog;
+    protected string $auditModule='Medicine';
 
     protected $fillable = [
         'medicine_code',

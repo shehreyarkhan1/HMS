@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use App\Traits\HasAuditLog;
 class MedicineBatch extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule='medicine batch';
     protected $fillable = [
         'medicine_id',
         'batch_number',

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use App\Traits\HasAuditLog;
 class BodyReleaseRecord extends Model
 {
     // No SoftDeletes — release record permanent rehna chahiye
+    use HasAuditLog;
+    protected string $auditModule = 'Body Release Record'; // For audit log module name
 
     protected $fillable = [
         'release_id',

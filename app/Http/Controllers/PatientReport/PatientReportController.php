@@ -19,6 +19,7 @@ use App\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use App\Facades\AuditLog;
 
 class PatientReportController extends Controller
 {
@@ -57,6 +58,7 @@ class PatientReportController extends Controller
      */
     public function show(Patient $patient)
     {
+        AuditLog::viewed($patient,'patient');
         // ─── 1. Core patient info + assigned doctor ───────────────────────────
         $patient->load([
             'doctor.employee',  // assigned doctor

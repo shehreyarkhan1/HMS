@@ -7,6 +7,11 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use App\Http\Middleware\LogActivity;
+use App\Providers\AppServiceProvider;
+use App\Models\ActivityLogger;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureRole::class,
             'active' => EnsureActive::class,
+             'log.activity' => LogActivity::class,
         ]);
 
         // Global Web Middleware

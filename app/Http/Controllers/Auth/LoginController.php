@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;  // ← yeh add karo
-
+use App\Models\ActivityLog; // ← yeh add karo
+use App\Facades\AuditLog; // ← yeh add karo
 class LoginController extends Controller
 {
     // ── Show login form ──────────────────────────────────────────────────
@@ -51,6 +52,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+        AuditLog::login($request->login, success: true);
 
         return redirect()->intended(route($this->redirectByRole()));
     }
@@ -61,7 +63,7 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
+AuditLog::logout();
         return redirect()->route('login');
     }
 

@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasAuditLog;
 
 class OtSchedule extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,HasAuditLog;
+    protected string $auditModule='ot schedule';
 
     protected $fillable = [
         'surgery_id',

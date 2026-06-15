@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Facades\AuditLog;
 
 use Illuminate\Http\Request;
 
@@ -78,6 +79,7 @@ class PatientController extends Controller
     // ===== SHOW - View single patient =====
     public function show(Patient $patient)
 {
+    AuditLog::viewed($patient, 'patient');
     $patient->load([
         'doctor',
         'appointments.doctor',

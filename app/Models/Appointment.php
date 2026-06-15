@@ -6,11 +6,12 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\HasAuditLog;
 class Appointment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use  HasFactory, SoftDeletes, HasAuditLog;
 
+    protected string $auditModule='Appointment'; // For audit log module name
     protected $fillable = [
         'patient_id',
         'doctor_id',

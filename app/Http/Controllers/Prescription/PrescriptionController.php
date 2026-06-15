@@ -218,6 +218,7 @@ class PrescriptionController extends Controller
     // ===== SHOW =====
     public function show(Prescription $prescription)
     {
+        AuditLog::viewed($prescription,'prescription');
         try {
             $prescription->load([
                 'patient',

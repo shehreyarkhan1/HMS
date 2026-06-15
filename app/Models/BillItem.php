@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BillItem extends Model
 {
+    use HasAuditLog;
+
+    protected string $auditModule = 'BillItem'; // For audit log module name
+
     protected $fillable = [
         'bill_id', 'service_type', 'description',
         'reference_type', 'reference_id',
@@ -32,10 +38,12 @@ class BillItem extends Model
             $item->total_price = max(0, ($item->quantity * $item->unit_price) - $item->discount);
         });
     }
+
     public function reference()
-{
-    return $this->morphTo();
-}
+    {
+        return $this->morphTo();
+    }
+
     public static function serviceTypes(): array
     {
         return [

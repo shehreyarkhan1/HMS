@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use App\Traits\HasAuditLog;
+
 class BloodIssue extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule = 'Blood Issue'; // For audit log module name
     protected $fillable = [
         'issue_id',
         'blood_request_id',

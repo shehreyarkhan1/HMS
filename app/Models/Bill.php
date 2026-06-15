@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasAuditLog;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Bill extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditLog, HasFactory;
+    protected string $auditModule = 'Bill'; // For audit log module name
 
     protected $fillable = [
         'bill_number', 'patient_id', 'created_by', 'discount_by',

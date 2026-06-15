@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Billing;
 
+use App\Facades\AuditLog;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Bed;
@@ -165,6 +166,7 @@ class BillingController extends Controller
     // ─── SHOW ─────────────────────────────────────────────────────────
     public function show(Bill $bill)
     {
+        AuditLog::viewed($bill, 'bill');
         $bill->load(['patient', 'items', 'payments.receivedBy', 'createdBy', 'discountBy']);
 
         return view('billing.billing_show', compact('bill'));
@@ -327,6 +329,7 @@ class BillingController extends Controller
     // ─── PRINT / INVOICE ──────────────────────────────────────────────
     public function printInvoice(Bill $bill)
     {
+        AuditLog::viewed($bill,'bill');
         $bill->load(['patient', 'items', 'payments.receivedBy', 'createdBy']);
 
         return view('billing.print_invoice', compact('bill'));

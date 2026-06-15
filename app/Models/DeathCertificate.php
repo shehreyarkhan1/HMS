@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\HasAuditLog;
 class DeathCertificate extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditLog;
+    protected string $auditModule = 'Death Certificate'; // For audit log module name
 
     protected $fillable = [
         'certificate_number',

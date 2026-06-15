@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\HasAuditLog;
 class LabOrder extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,HasAuditLog;
+    protected string $auditModule='Lab Order';
 
     protected $fillable = [
         'order_number',

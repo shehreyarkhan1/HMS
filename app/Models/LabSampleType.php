@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Model;
 
 class LabSampleType extends Model
 {
+    use HasAuditLog;
+
+    protected string $auditModule = 'lab sample Type';
 
     protected $fillable = [
         'name',
@@ -32,7 +36,7 @@ class LabSampleType extends Model
             if (empty($s->code)) {
                 $last = static::latest('id')->first();
                 $num = $last ? ($last->id + 1) : 1;
-                $s->code = 'SMP-' . str_pad($num, 3, '0', STR_PAD_LEFT);
+                $s->code = 'SMP-'.str_pad($num, 3, '0', STR_PAD_LEFT);
             }
         });
     }

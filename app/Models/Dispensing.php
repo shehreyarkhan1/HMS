@@ -9,10 +9,13 @@ use App\Models\MedicineBatch;
 use App\Models\PrescriptionItem;
 use App\Models\DispensingItem;
 use App\Models\Prescription;
+use App\Models\Patient;
+use App\Traits\HasAuditLog;
 
 class Dispensing extends Model
 {
-    use HasFactory;
+    use HasFactory,HasAuditLog;
+    protected string $auditModule ='Dispensing Medicine';
 
     protected $fillable = [
         'dispense_number',

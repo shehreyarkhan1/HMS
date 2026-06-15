@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\HasAuditLog;
 
 class Payslip extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,HasAuditLog;
+    protected string $auditModule='payslip';
 
     protected $fillable = [
         'payroll_run_id', 'employee_id', 'payslip_number',

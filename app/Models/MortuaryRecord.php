@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\HasAuditLog;
 class MortuaryRecord extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,HasAuditLog;
+    protected string $auditModule='mortuary record';
 
     protected $fillable = [
         'mortuary_id',
