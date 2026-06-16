@@ -4,11 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;   
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\HasAuditLog;
+
 class RadiologyConsent extends Model
 {
-    use HasFactory;
+    use HasFactory,HasAuditLog;
+    protected string $auditModule='Radiology Consent';
 
     protected $fillable = [
         'radiology_order_id',

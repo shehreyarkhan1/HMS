@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasAuditLog;
 
 
 class SalaryStructure extends Model
 {
-     use SoftDeletes;
+     use SoftDeletes,HasAuditLog;
+     protected string $auditModule='Salary Structure';
 
     protected $fillable = [
         'employee_id',

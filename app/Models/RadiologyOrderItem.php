@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RadiologyOrderItem extends Model
 {
-    use HasFactory;
+    use HasAuditLog,HasFactory;
+
+    protected string $auditModule = 'Radiology order item ';
 
     protected $fillable = [
         'radiology_order_id',
@@ -108,6 +111,6 @@ class RadiologyOrderItem extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return 'PKR ' . number_format($this->final_price, 2);
+        return 'PKR '.number_format($this->final_price, 2);
     }
 }

@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasAuditLog, HasFactory,Notifiable;
+
+    protected string $auditModule = 'user';
 
     protected $fillable = [
         'employee_id',
@@ -51,8 +53,9 @@ class User extends Authenticatable
 
     public function canAccess(string $module): bool
     {
-        if ($this->isSuperAdmin())
+        if ($this->isSuperAdmin()) {
             return true;
+        }
 
         $permissions = [
             'dashboard' => ['receptionist', 'doctor', 'nurse', 'lab_technician', 'radiologist', 'pharmacist', 'hr_manager', 'accountant'],
@@ -65,7 +68,7 @@ class User extends Authenticatable
             'lab' => ['lab_technician', 'doctor'],
             'radiology' => ['radiologist', 'doctor'],
             'billing' => ['accountant', 'receptionist'],
-            'reports' => ['accountant', 'hr_manager','doctor'],
+            'reports' => ['accountant', 'hr_manager', 'doctor'],
             'settings' => [],
             'users' => [],
         ];

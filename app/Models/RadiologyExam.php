@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasAuditLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RadiologyExam extends Model
 {
-    use HasFactory;
+    use HasAuditLog,HasFactory;
+
+    protected string $auditModule = 'Radiology Exam';
 
     protected $fillable = [
         'name',
@@ -102,7 +104,7 @@ class RadiologyExam extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return 'PKR ' . number_format($this->price, 2);
+        return 'PKR '.number_format($this->price, 2);
     }
 
     /**
@@ -114,7 +116,7 @@ class RadiologyExam extends Model
 
         static::creating(function ($exam) {
             if (empty($exam->exam_code)) {
-                $exam->exam_code = 'RAD-' . str_pad(self::max('id') + 1, 5, '0', STR_PAD_LEFT);
+                $exam->exam_code = 'RAD-'.str_pad(self::max('id') + 1, 5, '0', STR_PAD_LEFT);
             }
         });
     }

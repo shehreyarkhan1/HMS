@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
-
+use App\Traits\HasAuditLog;
 class RadiologyImage extends Model
 {
-    use HasFactory;
+    use HasFactory,HasAuditLog;
+    protected string $auditModule='Radiology Image';
 
     protected $fillable = [
         'radiology_order_item_id',

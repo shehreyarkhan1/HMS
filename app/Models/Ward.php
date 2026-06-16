@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Traits\HasAuditLog;
 class Ward extends Model
 {
-    use HasFactory;
+    use HasFactory,HasAuditLog;
+    protected string $auditModule='Ward';
 
     protected $fillable = [
         'name',

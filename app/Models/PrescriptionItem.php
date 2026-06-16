@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Prescription;
-
+use App\Traits\HasAuditLog;
 
 class PrescriptionItem extends Model
 {
-    use HasFactory;
+    use HasFactory ,HasAuditLog;
+    protected string $auditModule='prescription item';
 
     protected $fillable = [
         'prescription_id',

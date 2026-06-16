@@ -10,9 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Doctor;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
+use App\Traits\HasAuditLog;
 
 class Setting extends Model
 {
+    use HasAuditLog;
+    protected string $auditModule='setting';
     protected $fillable = ['group', 'key', 'value', 'type', 'label', 'description'];
 
     // ── Core Helpers ────────────────────────────────────────────────
