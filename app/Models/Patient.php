@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Bed;
+use App\Models\PatientVital;
+use App\Models\PatientNursingNote;
+use App\Models\PatientDoctorOrder;
+use App\Models\PatientVisitNote;
+use App\Models\PatientDischarge;
+
 
 class Patient extends Model
 {
@@ -118,6 +125,45 @@ class Patient extends Model
     {
         return $this->hasOne(MortuaryRecord::class);
     }
+
+
+// Existing Patient model ke andar add karo:
+
+    // Active bed (current)
+
+
+    // All beds history
+    public function beds()
+    {
+        return $this->hasMany(Bed::class);
+    }
+
+    public function vitals()
+    {
+        return $this->hasMany(PatientVital::class)->latest('recorded_at');
+    }
+
+    public function nursingNotes()
+    {
+        return $this->hasMany(PatientNursingNote::class)->latest('noted_at');
+    }
+
+    public function doctorOrders()
+    {
+        return $this->hasMany(PatientDoctorOrder::class)->latest('ordered_at');
+    }
+
+    public function visitNotes()
+    {
+        return $this->hasMany(PatientVisitNote::class)->latest('visited_at');
+    }
+
+    public function discharges()
+    {
+        return $this->hasMany(PatientDischarge::class)->latest();
+    }
+
+
 
     /**
      * Allows you to go Patient -> Bill -> BillPayment

@@ -42,7 +42,14 @@ use App\Http\Controllers\Radiology\RadiologyExamController;
 use App\Http\Controllers\Radiology\RadiologyModalityController;
 use App\Http\Controllers\Setting\SettingController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Ward\DischargeController;
+use App\Http\Controllers\Ward\DoctorOrderController;
+use App\Http\Controllers\Ward\NursingNoteController;
+use App\Http\Controllers\Ward\PatientWardController;
+use App\Http\Controllers\Ward\VisitNoteController;
+use App\Http\Controllers\Ward\VitalController;
 use App\Http\Controllers\Ward\WardController;
+use App\Http\Controllers\NurseDashboard\NurseDashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -109,15 +116,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{appointment}/edit', [AppointmentController::class, 'edit'])->name('edit');
             Route::put('/{appointment}', [AppointmentController::class, 'update'])->name('update');
             Route::delete('/{appointment}', [AppointmentController::class, 'destroy'])->name('destroy');
-        });
-
-    // ── WARDS ─────────────────────────────────────────────────────────────
-    Route::middleware('role:super_admin,doctor,nurse,receptionist')
-        ->group(function () {
-            Route::post('wards/assign-bed', [WardController::class, 'assignBed'])->name('wards.assign-bed');
-            Route::post('wards/beds/{bed}/discharge', [WardController::class, 'discharge'])->name('wards.beds.discharge');
-            Route::post('wards/beds/{bed}/status', [WardController::class, 'changeBedStatus'])->name('wards.beds.status');
-            Route::resource('wards', WardController::class);
         });
 
     // ── PHARMACY ──────────────────────────────────────────────────────────
@@ -362,6 +360,14 @@ Route::middleware(['auth'])->group(function () {
                 ->name('dashboard');
         });
 
+    // ── NURSE DASHBOARD ──────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,nurse')
+        ->prefix('nurse')->name('nurse.')
+        ->group(function () {
+            Route::get('/dashboard', [NurseDashboardController::class, 'index'])
+                ->name('dashboard');
+        });
+
     // ROUTES FOR HR
     Route::middleware('role:super_admin,hr_manager')->prefix('hr')->name('hr.')->group(function () {
         // Leave types setting
@@ -456,4 +462,70 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{activityLog}', [AuditLogController::class, 'show'])->name('show');
         });
 
+    // ── WARDS ─────────────────────────────────────────────────────────────
+    Route::middleware('role:super_admin,doctor,nurse,receptionist')
+        ->group(function () {
+            Route::post('wards/assign-bed', [WardController::class, 'assignBed'])->name('wards.assign-bed');
+            Route::post('wards/beds/{bed}/discharge', [WardController::class, 'discharge'])->name('wards.beds.discharge');
+            Route::post('wards/beds/{bed}/status', [WardController::class, 'changeBedStatus'])->name('wards.beds.status');
+            Route::resource('wards', WardController::class);
+        });
+    // ── WARD PATIENT FLOW ─────────────────────────────────────────────────────
+    Route::prefix('ward')->name('ward.')->group(function () {
+
+        Route::middleware('role:super_admin,doctor,nurse,receptionist')
+            ->get('/patients/{patient}', [PatientWardController::class, 'show'])
+            ->name('patient.show');
+
+        Route::middleware('role:super_admin,nurse,doctor')
+            ->group(function () {
+                Route::post('/patients/{patient}/vitals', [VitalController::class, 'store'])
+                    ->name('vitals.store');
+                Route::get('/patients/{patient}/vitals/history', [VitalController::class, 'history'])
+                    ->name('vitals.history');
+            });
+
+        Route::middleware('role:super_admin,nurse')
+            ->group(function () {
+                Route::post('/patients/{patient}/nursing-notes', [NursingNoteController::class, 'store'])
+                    ->name('nursing-notes.store');
+                Route::delete('/nursing-notes/{note}', [NursingNoteController::class, 'destroy'])
+                    ->name('nursing-notes.destroy');
+            });
+
+        Route::middleware('role:super_admin,doctor')
+            ->group(function () {
+                Route::post('/patients/{patient}/orders', [DoctorOrderController::class, 'store'])
+                    ->name('orders.store');
+                Route::post('/orders/{order}/cancel', [DoctorOrderController::class, 'cancel'])
+                    ->name('orders.cancel');
+                Route::post('/patients/{patient}/visits', [VisitNoteController::class, 'store'])
+                    ->name('visits.store');
+                Route::get('/visits/{visitNote}', [VisitNoteController::class, 'show'])
+                    ->name('visits.show');
+                Route::get('/patients/{patient}/discharge', [DischargeController::class, 'create'])
+                    ->name('discharge.create');
+                Route::post('/patients/{patient}/discharge', [DischargeController::class, 'store'])
+                    ->name('discharge.store');
+                Route::post('/discharge/{discharge}/finalize', [DischargeController::class, 'finalize'])
+                    ->name('discharge.finalize');
+            });
+
+        Route::middleware('role:super_admin,nurse')
+            ->group(function () {
+                Route::post('/orders/{order}/acknowledge', [DoctorOrderController::class, 'acknowledge'])
+                    ->name('orders.acknowledge');
+                Route::post('/orders/{order}/complete', [DoctorOrderController::class, 'complete'])
+                    ->name('orders.complete');
+            });
+
+        Route::middleware('role:super_admin,doctor,nurse,receptionist')
+            ->group(function () {
+                Route::get('/discharge/{discharge}', [DischargeController::class, 'show'])
+                    ->name('discharge.show');
+                Route::get('/discharge/{discharge}/print', [DischargeController::class, 'print'])
+                    ->name('discharge.print');
+            });
+
+    });
 });

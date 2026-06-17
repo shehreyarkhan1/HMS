@@ -375,7 +375,13 @@
                     <i class="bi bi-person-badge"></i> Doctor Dashboard
                 </a>
             @endif
-
+            {{-- Nurse dashboard — nurse role ya super_admin dono dekh sakte hain --}}
+            @if ($user && ($user->hasRole('nurse') || $user->isSuperAdmin()))
+                <a href="{{ route('nurse.dashboard') }}"
+                    class="nav-item {{ request()->routeIs('nurse.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-person-nurse"></i> Nurse Dashboard
+                </a>
+            @endif
 
             {{-- ── PATIENTS & APPOINTMENTS ── --}}
             @if ($user && ($user->canAccess('patients') || $user->canAccess('appointments') || $user->canAccess('doctors')))
@@ -409,9 +415,18 @@
 
                 <a href="{{ route('wards.index') }}"
                     class="nav-item {{ request()->routeIs('wards.*') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i> Wards & Beds
+                    <i class="bi bi-building"></i> Wards Beds Patient
                 </a>
             @endif
+            @if ($user && $user->canAccess('wards'))
+                {{-- <div class="nav-section-label">Clinical</div> --}}
+
+                <a href="{{ route('wards.create') }}"
+                    class="nav-item {{ request()->routeIs('wards.*') ? 'active' : '' }}">
+                    <i class="bi bi-building"></i> Add Wards & Beds
+                </a>
+            @endif
+
 
             {{-- ── PHARMACY ── --}}
             @if ($user && $user->canAccess('pharmacy'))
