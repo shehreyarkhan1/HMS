@@ -11,6 +11,10 @@ use App\Models\PatientVital;
 
 class PatientWardController extends Controller
 {
+    // show() method mein $order use ho raha hai blade mein lekin pass nahi kiya
+    // Patient header mein: Dr. {{ $order->doctor->employee->full_name ?? '—' }}
+    // Ya toh latest order pass karo:
+
     public function show(Patient $patient)
     {
         $bed = $patient->bed;
@@ -30,7 +34,6 @@ class PatientWardController extends Controller
             ->latest('ordered_at')
             ->get();
 
-
         $visitNotes = PatientVisitNote::where('patient_id', $patient->id)
             ->with('doctor.employee')
             ->latest('visited_at')
@@ -38,11 +41,14 @@ class PatientWardController extends Controller
 
         $pendingOrders = $doctorOrders->whereIn('status', ['Pending', 'Acknowledged'])->count();
 
+        // ── Yeh add karo ──
+        $order = $doctorOrders->first();
+
         return view('wards.patient_show', compact(
             'patient', 'bed',
             'vitals', 'nursingNotes',
             'doctorOrders', 'visitNotes',
-            'pendingOrders'
+            'pendingOrders', 'order',   // <-- yeh add karo
         ));
     }
 }

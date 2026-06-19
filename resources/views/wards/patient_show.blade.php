@@ -272,7 +272,15 @@
         $canDischarge = $user->hasAnyRole(['doctor', 'super_admin']);
         $latestVital = $vitals->first();
     @endphp
-
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     {{-- ── Patient Header ── --}}
     <div class="patient-header">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
@@ -287,7 +295,7 @@
                         MRN: {{ $patient->mrn }}
                         &bull; {{ $patient->gender ?? '—' }}
                         &bull; {{ $patient->age ?? '—' }} yrs
-                        Dr. {{ $order->doctor->employee->full_name ?? '—' }}
+                        {{-- Dr. {{ $order->doctor->employee->full_name ?? '—' }} --}}
                         @if ($bed)
                             &bull; Bed: <strong>{{ $bed->bed_number }}</strong> &bull; {{ $bed->ward->name }}
                         @endif

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Patient;
 
+use App\Facades\AuditLog;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Patient;
-use App\Facades\AuditLog;
-
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
@@ -46,6 +45,7 @@ class PatientController extends Controller
     public function create()
     {
         $doctors = Doctor::all();
+
         return view('patients.patients_create', compact('doctors'));
     }
 
@@ -72,29 +72,33 @@ class PatientController extends Controller
         $patient = Patient::create($request->all());
 
         return redirect()
-        ->route('appointments.create', ['patient_id' => $patient->id])
-        ->with('success', "Patient {$patient->name} registered! MRN: {$patient->mrn} — Now book appointment.");
-}
+            ->route('appointments.create', ['patient_id' => $patient->id])
+            ->with('success', "Patient {$patient->name} registered! MRN: {$patient->mrn} — Now book appointment.");
+    }
 
     // ===== SHOW - View single patient =====
     public function show(Patient $patient)
-{
-    AuditLog::viewed($patient, 'patient');
-    $patient->load([
-        'doctor',
-        'appointments.doctor',
-        'labOrders',
-        'radiologyOrders',
-        'prescriptions.doctor',
-    ]);
+    {
+        AuditLog::viewed($patient, 'patient');
+        $patient->load([
+            'doctor',
+            'appointments.doctor',
+            'labOrders',
+            'radiologyOrders',
+            'prescriptions.doctor',
+        ]);
 
-    return view('patients.patients_show', compact('patient'));
-}
+        return view('patients.patients_show', compact('patient'));
+    }
 
     // ===== EDIT - Show edit form =====
     public function edit(Patient $patient)
     {
+        if (in_array(auth()->user()->role, ['doctor', 'nurse'])) {
+            return redirect()->back()->with('error', 'You are not authorized to perform this operation.');
+        }
         $doctors = Doctor::all();
+
         return view('patients.patients_edit', compact('patient', 'doctors'));
     }
 
@@ -110,7 +114,7 @@ class PatientController extends Controller
             'phone' => 'required|string|max:15',
             'emergency_contact' => 'nullable|string|max:15',
             'emergency_relation' => 'nullable|string|max:50',
-            'cnic' => 'nullable|string|size:13|unique:patients,cnic,' . $patient->id,
+            'cnic' => 'nullable|string|size:13|unique:patients,cnic,'.$patient->id,
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:50',
             'patient_type' => 'required|in:OPD,IPD,Emergency',
@@ -127,12 +131,20 @@ class PatientController extends Controller
     }
 
     // ===== DESTROY - Soft delete =====
+    // ===== DESTROY - Soft delete =====
     public function destroy(Patient $patient)
     {
+        // 1. Authorization Check: Agar doctor ya nurse hai toh delete nahi karne dena
+        if (in_array(auth()->user()->role, ['doctor', 'nurse'])) {
+            return redirect()->back()->with('error', 'You are not authorized to perform this operation.');
+        }
+
+        // 2. Perform Delete
         $patient->delete();
 
+        // 3. Redirect to Index with Success Message
         return redirect()
             ->route('patients.index')
-            ->with('success', "Patient {$patient->name} removed.");
+            ->with('success', "Patient {$patient->name} removed successfully.");
     }
 }

@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\HasAuditLog;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
 class Ward extends Model
 {
-    use HasFactory,HasAuditLog;
-    protected string $auditModule='Ward';
+    use HasAuditLog,HasFactory;
+
+    protected string $auditModule = 'Ward';
 
     protected $fillable = [
         'name',
@@ -34,7 +36,7 @@ class Ward extends Model
         static::creating(function ($ward) {
             $last = static::latest('id')->first();
             $number = $last ? ($last->id + 1) : 1;
-            $ward->ward_code = 'W-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+            $ward->ward_code = 'W-'.str_pad($number, 3, '0', STR_PAD_LEFT);
         });
     }
 
@@ -42,6 +44,17 @@ class Ward extends Model
     public function beds()
     {
         return $this->hasMany(Bed::class);
+    }
+
+    public function nurseAssignments()
+    {
+        return $this->hasMany(WardNurseAssignment::class);
+    }
+
+    public function activeNurses()
+    {
+        return $this->hasMany(WardNurseAssignment::class)
+            ->activeToday();
     }
 
     // ===== ACCESSORS =====
@@ -57,8 +70,10 @@ class Ward extends Model
 
     public function getOccupancyPercentAttribute()
     {
-        if ($this->total_beds == 0)
+        if ($this->total_beds == 0) {
             return 0;
+        }
+
         return round(($this->occupied_beds_count / $this->total_beds) * 100);
     }
 

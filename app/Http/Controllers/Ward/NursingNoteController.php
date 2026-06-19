@@ -23,8 +23,8 @@ class NursingNoteController extends Controller
             'note' => 'required|string|max:2000',
             'interventions' => 'nullable|string',
             'patient_response' => 'nullable|string',
-            'requires_doctor_attention' => 'nullable|boolean',
-            'is_urgent' => 'nullable|boolean',
+            'requires_doctor_attention' => 'nullable',
+            'is_urgent' => 'nullable',
         ]);
 
         $data['patient_id'] = $patient->id;

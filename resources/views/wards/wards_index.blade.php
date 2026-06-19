@@ -254,17 +254,22 @@
                                     style="font-size:12px">
                                     <i class="bi bi-grid me-1"></i>View beds
                                 </a>
-                                <a href="{{ route('wards.edit', $ward->id) }}" class="btn btn-sm btn-outline-warning px-2"
-                                    style="font-size:12px">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form method="POST" action="{{ route('wards.destroy', $ward->id) }}"
-                                    onsubmit="return confirm('Delete {{ $ward->name }}?')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger px-2" style="font-size:12px">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                @if (auth()->user() && !in_array(auth()->user()->role, ['doctor', 'nurse']))
+                                    {{-- Edit Button --}}
+                                    <a href="{{ route('wards.edit', $ward->id) }}"
+                                        class="btn btn-sm btn-outline-warning px-2" style="font-size:12px">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    {{-- Delete Button --}}
+                                    <form method="POST" action="{{ route('wards.destroy', $ward->id) }}"
+                                        style="display:inline;" onsubmit="return confirm('Delete {{ $ward->name }}?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger px-2" style="font-size:12px">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     </div>

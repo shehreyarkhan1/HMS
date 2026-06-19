@@ -31,6 +31,7 @@ use App\Http\Controllers\Laboratory\LabSampleTypeController;
 use App\Http\Controllers\Laboratory\LabTestCategoryController;
 use App\Http\Controllers\Laboratory\LabTestController;
 use App\Http\Controllers\Medicine\MedicineController;
+use App\Http\Controllers\NurseDashboard\NurseDashboardController;
 use App\Http\Controllers\OperationTheater\OtRoomController;
 use App\Http\Controllers\OperationTheater\OtScheduleController;
 use App\Http\Controllers\Patient\PatientController;
@@ -49,7 +50,7 @@ use App\Http\Controllers\Ward\PatientWardController;
 use App\Http\Controllers\Ward\VisitNoteController;
 use App\Http\Controllers\Ward\VitalController;
 use App\Http\Controllers\Ward\WardController;
-use App\Http\Controllers\NurseDashboard\NurseDashboardController;
+use App\Http\Controllers\Ward\WardNurseAssignmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -469,6 +470,29 @@ Route::middleware(['auth'])->group(function () {
             Route::post('wards/beds/{bed}/discharge', [WardController::class, 'discharge'])->name('wards.beds.discharge');
             Route::post('wards/beds/{bed}/status', [WardController::class, 'changeBedStatus'])->name('wards.beds.status');
             Route::resource('wards', WardController::class);
+        });
+    // ward nurse assignement
+
+    // Nurse Assignment — super_admin aur hr_manager
+    Route::middleware('role:super_admin,hr_manager')
+        ->prefix('ward')->name('ward.')
+        ->group(function () {
+            Route::get('/nurse-assignments', [WardNurseAssignmentController::class, 'index'])
+                ->name('nurse-assignments.index');
+            Route::get('/nurse-assignments/create', [WardNurseAssignmentController::class, 'create'])
+                ->name('nurse-assignments.create');
+            Route::post('/nurse-assignments', [WardNurseAssignmentController::class, 'store'])
+                ->name('nurse-assignments.store');
+            Route::delete('/nurse-assignments/{assignment}', [WardNurseAssignmentController::class, 'destroy'])
+                ->name('nurse-assignments.destroy');
+        });
+
+    // Nurse Dashboard
+    Route::middleware('role:super_admin,nurse')
+        ->prefix('nurse')->name('nurse.')
+        ->group(function () {
+            Route::get('/dashboard', [NurseDashboardController::class, 'index'])
+                ->name('dashboard');
         });
     // ── WARD PATIENT FLOW ─────────────────────────────────────────────────────
     Route::prefix('ward')->name('ward.')->group(function () {

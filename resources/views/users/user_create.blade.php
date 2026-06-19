@@ -192,9 +192,12 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Full Name <span class="required-star">*</span></label>
-                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                                    value="{{ old('name') }}" placeholder="e.g. Dr. Ahmed Khan" required>
-                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <input type="text" name="name"
+                                    class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}"
+                                    placeholder="e.g. Dr. Ahmed Khan" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -203,14 +206,19 @@
                                     class="form-control @error('username') is-invalid @enderror"
                                     value="{{ old('username') }}" placeholder="e.g. ahmed_khan" required>
                                 <div class="form-hint">Only letters, numbers, and underscores.</div>
-                                @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('username')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label">Email Address <span class="required-star">*</span></label>
-                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                                    value="{{ old('email') }}" placeholder="e.g. ahmed.khan@hospital.com" required>
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <input type="email" name="email"
+                                    class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}"
+                                    placeholder="e.g. ahmed.khan@hospital.com" required>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -234,7 +242,9 @@
                                         <i id="eye1" class="bi bi-eye"></i>
                                     </button>
                                 </div>
-                                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -263,14 +273,17 @@
                             <div class="col-md-6">
                                 <label class="form-label">Role <span class="required-star">*</span></label>
                                 <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-                                    <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select a role…</option>
-                                    @foreach($roles as $value => $label)
+                                    <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select a role…
+                                    </option>
+                                    @foreach ($roles as $value => $label)
                                         <option value="{{ $value }}" {{ old('role') === $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('role')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -292,19 +305,23 @@
                                     Link to Employee
                                     <span style="color:#94a3b8; font-weight:400;">(optional)</span>
                                 </label>
+                                {{-- Employee Link --}}
                                 <select name="employee_id" class="form-select @error('employee_id') is-invalid @enderror"
                                     id="employeeSelect">
                                     <option value="">— None (System User / Super Admin) —</option>
-                                    @foreach($employees as $emp)
-                                        <option value="{{ $emp->id }}" {{-- Yahan first_name aur employee_id use karein --}}
+                                    @foreach ($employees as $emp)
+                                        <option value="{{ $emp->id }}"
                                             data-name="{{ $emp->first_name }} {{ $emp->last_name }}"
-                                            data-code="{{ $emp->employee_id }}" {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
+                                            data-code="{{ $emp->employee_id }}" data-department="{{ $emp->department }}"
+                                            data-designation="{{ $emp->designation }}"
+                                            {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
 
+                                            {{-- Visual Text in Dropdown --}}
                                             {{ $emp->first_name }} {{ $emp->last_name }}
-
-                                            @if($emp->employee_id)
-                                                ({{ $emp->employee_id }})
+                                            @if ($emp->employee_id)
+                                                [{{ $emp->employee_id }}]
                                             @endif
+                                            — {{ $emp->department }} ({{ $emp->designation }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -315,7 +332,9 @@
                                     <i class="bi bi-person-check me-1"></i>
                                     <span id="empInfoText"></span>
                                 </div>
-                                @error('employee_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('employee_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                         </div>
@@ -333,7 +352,7 @@
                         <h6><i class="bi bi-info-circle me-2 text-warning"></i>Role Guide</h6>
                     </div>
                     <div class="form-card-body" style="padding:0;">
-                        @foreach($roles as $value => $label)
+                        @foreach ($roles as $value => $label)
                             <div style="padding:10px 20px; border-bottom:1px solid #e2e8f0;">
                                 <span class="role-badge {{ $value }}">
                                     <i class="bi bi-dot"></i>{{ $label }}
@@ -394,11 +413,15 @@
         const empInfo = document.getElementById('empInfo');
         const empText = document.getElementById('empInfoText');
 
-        empSelect.addEventListener('change', function () {
+        empSelect.addEventListener('change', function() {
             const opt = this.options[this.selectedIndex];
             if (this.value) {
                 const code = opt.dataset.code ? ` (${opt.dataset.code})` : '';
-                empText.textContent = `Linked to: ${opt.dataset.name}${code}`;
+                const dept = opt.dataset.department ? ` | Dept: ${opt.dataset.department}` : '';
+                const desig = opt.dataset.designation ? ` | Desig: ${opt.dataset.designation}` : '';
+
+                // Displaying Name, Code, Dept and Designation in the info box
+                empText.textContent = `Linked to: ${opt.dataset.name}${code}${dept}${desig}`;
                 empInfo.style.display = 'block';
             } else {
                 empInfo.style.display = 'none';

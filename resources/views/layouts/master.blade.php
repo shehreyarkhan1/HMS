@@ -19,6 +19,7 @@
     {{-- Bootstrap Icons --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
+
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -379,7 +380,7 @@
             @if ($user && ($user->hasRole('nurse') || $user->isSuperAdmin()))
                 <a href="{{ route('nurse.dashboard') }}"
                     class="nav-item {{ request()->routeIs('nurse.dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-person-nurse"></i> Nurse Dashboard
+                   <i class="bi bi-heart-pulse"></i> Nurse Dashboard
                 </a>
             @endif
 
@@ -418,7 +419,8 @@
                     <i class="bi bi-building"></i> Wards Beds Patient
                 </a>
             @endif
-            @if ($user && $user->canAccess('wards'))
+
+            @if ($user && $user->canAccess('wards') && !in_array($user->role, ['doctor', 'nurse']))
                 {{-- <div class="nav-section-label">Clinical</div> --}}
 
                 <a href="{{ route('wards.create') }}"
@@ -427,7 +429,13 @@
                 </a>
             @endif
 
-
+            {{-- ward nuser assignment  --}}
+            @if ($user && ($user->hasRole('super_admin') || $user->hasRole('hr_manager')))
+                <a href="{{ route('ward.nurse-assignments.index') }}"
+                    class="nav-item {{ request()->routeIs('ward.nurse-assignments.*') ? 'active' : '' }}">
+                    <i class="bi bi-clipboard2-pulse"></i> Nurse Assignments
+                </a>
+            @endif
             {{-- ── PHARMACY ── --}}
             @if ($user && $user->canAccess('pharmacy'))
                 <div class="nav-section-label">Pharmacy</div>

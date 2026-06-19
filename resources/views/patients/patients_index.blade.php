@@ -293,19 +293,23 @@
                                         title="View">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{{ route('patients.edit', $patient->id) }}"
-                                        class="btn btn-sm btn-outline-warning py-0 px-2" style="font-size:12px"
-                                        title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form method="POST" action="{{ route('patients.destroy', $patient->id) }}"
-                                        onsubmit="return confirm('Delete this patient?')">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:12px"
-                                            title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                    {{-- Check karo ke user doctor ya nurse NA HO, tabhi ye buttons dikhao --}}
+                                    @if (auth()->user() && !in_array(auth()->user()->role, ['doctor', 'nurse']))
+                                        <a href="{{ route('patients.edit', $patient->id) }}"
+                                            class="btn btn-sm btn-outline-warning py-0 px-2" style="font-size:12px"
+                                            title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        <form method="POST" action="{{ route('patients.destroy', $patient->id) }}"
+                                            style="display:inline;" onsubmit="return confirm('Delete this patient?')">
+                                            @csrf @method('DELETE')
+                                            <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:12px"
+                                                title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

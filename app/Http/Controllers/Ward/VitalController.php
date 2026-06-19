@@ -70,6 +70,6 @@ class VitalController extends Controller
             ->take(20)
             ->get();
 
-        return view('wards.tabs.vitals_history', compact('vitals', 'patient'));
+        return view('wards.vital_history', compact('vitals', 'patient'));
     }
 }

@@ -193,7 +193,8 @@ class UserController extends Controller
      */
     private function getAvailableEmployees($currentEmployeeId = null)
     {
-        return Employee::select('id', 'first_name', 'last_name', 'employee_id')
+        return Employee::select('id', 'first_name', 'last_name', 'employee_id','department','designation')
+
             ->where(function ($query) use ($currentEmployeeId) {
                 $query->whereDoesntHave('user'); // Unhe dikhao jin ka user nahi bana
                 if ($currentEmployeeId) {
