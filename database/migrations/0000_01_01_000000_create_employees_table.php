@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -26,7 +27,7 @@ return new class extends Migration {
                 'Single',
                 'Married',
                 'Divorced',
-                'Widowed'
+                'Widowed',
             ])->default('Single');
             $table->string('religion')->nullable();
             $table->string('nationality')->default('Pakistani');
@@ -49,6 +50,8 @@ return new class extends Migration {
             $table->string('province')->nullable();
             $table->string('postal_code')->nullable();
             // ── EMPLOYMENT DETAILS ──────────────────────────────────
+            $table->string('biometric_id')->nullable()->unique()->after('badge_number')
+                ->comment('ZKTeco enroll number — HR assigns this when registering fingerprint');
             $table->string('department');
             $table->string('designation');
             $table->string('job_grade')->nullable();
@@ -80,7 +83,7 @@ return new class extends Migration {
                 'Evening',
                 'Night',
                 'Rotating',
-                'Custom'
+                'Custom',
             ])->default('Morning');
             $table->time('shift_start')->nullable();
             $table->time('shift_end')->nullable();
@@ -103,7 +106,7 @@ return new class extends Migration {
             $table->enum('salary_type', [
                 'Monthly',
                 'Daily',
-                'Hourly'
+                'Hourly',
             ])->default('Monthly');
             $table->decimal('basic_salary', 12, 2)->default(0);
             // ── GOVERNMENT / COMPLIANCE ─────────────────────────────

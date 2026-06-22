@@ -380,7 +380,7 @@
             @if ($user && ($user->hasRole('nurse') || $user->isSuperAdmin()))
                 <a href="{{ route('nurse.dashboard') }}"
                     class="nav-item {{ request()->routeIs('nurse.dashboard') ? 'active' : '' }}">
-                   <i class="bi bi-heart-pulse"></i> Nurse Dashboard
+                    <i class="bi bi-heart-pulse"></i> Nurse Dashboard
                 </a>
             @endif
 
@@ -611,6 +611,11 @@
                 <a href="{{ route('hr.attendance.index') }}"
                     class="nav-item {{ request()->routeIs('hr.attendance.*') ? 'active' : '' }}">
                     <i class="bi bi-calendar-check"></i> Attendance
+                </a>
+                {{-- Biometric Sidebar Link --}}
+                <a href="{{ route('hr.employees.biometric.show', auth()->user()->employee_id ?? 1) }}"
+                    class="nav-item {{ request()->routeIs('hr.employees.biometric.*') ? 'active' : '' }}">
+                    <i class="bi bi-fingerprint"></i> Biometric
                 </a>
                 <a href="{{ route('hr.leaves.index') }}"
                     class="nav-item {{ request()->routeIs('hr.leaves.*') ? 'active' : '' }}">

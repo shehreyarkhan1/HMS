@@ -5,6 +5,7 @@ use App\Http\Controllers\AuditLog\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Billing\BillingController;
 use App\Http\Controllers\Billing\BillServiceChargeController;
+use App\Http\Controllers\Biometric\BiometricController;
 use App\Http\Controllers\BloodBank\BloodBankController;
 use App\Http\Controllers\BloodBank\BloodCrossmatchController;
 use App\Http\Controllers\BloodBank\BloodDonationController;
@@ -444,6 +445,18 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{holiday}', [HolidayController::class, 'update'])->name('update');
             Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('destroy');
         });
+        // ── Biometric ──────────────────────────────────────────────────────
+        Route::prefix('employees')->name('employees.')->group(function () {
+            Route::get('/{employee}/biometric', [BiometricController::class, 'show'])
+                ->name('biometric.show');
+            Route::post('/{employee}/biometric-id', [BiometricController::class, 'assignBiometricId'])
+                ->name('biometric-id');
+            Route::delete('/{employee}/biometric-id', [BiometricController::class, 'removeBiometricId'])
+                ->name('biometric-id.remove');
+        });
+
+        Route::get('/biometric/status', [BiometricController::class, 'syncStatus'])
+            ->name('biometric.status');
 
     });
 
@@ -553,3 +566,33 @@ Route::middleware(['auth'])->group(function () {
 
     });
 });
+// ZKTeco machine push endpoint — NO auth middleware (machine authenticates via IP)
+// Add this OUTSIDE your auth middleware group
+// Route::post('/biometric/push', [BiometricController::class, 'push'])
+//     ->name('biometric.push')
+//     ->withoutMiddleware(['auth', 'verified']); // machine se no session
+
+// // Status endpoint — HR dashboard mein use karo
+// Route::get('/biometric/status', [BiometricController::class, 'syncStatus'])
+//     ->middleware(['auth'])
+//     ->name('biometric.status');
+
+// // HR: assign biometric ID to employee
+// Route::post('/hr/employees/{employee}/biometric-id', [BiometricController::class, 'assignBiometricId'])
+//     ->middleware(['auth'])
+//     ->name('hr.employees.biometric-id');
+// Route::delete('/hr/employees/{employee}/biometric-id', [BiometricController::class, 'removeBiometricId'])
+//     ->middleware(['auth'])
+//     ->name('hr.employees.biometric-id.remove');
+
+// Route::get('/hr/employees/{employee}/biometric', [BiometricController::class, 'show'])
+//     ->name('hr.employees.biometric.show');
+
+// Route::post('/hr/employees/{employee}/biometric-id', [BiometricController::class, 'assignBiometricId'])
+//     ->name('hr.employees.biometric-id');
+
+// Route::delete('/hr/employees/{employee}/biometric-id', [BiometricController::class, 'removeBiometricId'])
+//     ->name('hr.employees.biometric-id.remove');
+// // machine routes
+Route::post('/biometric/push', [BiometricController::class, 'push'])
+    ->name('biometric.push');
