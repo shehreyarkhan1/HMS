@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Employee;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
@@ -98,7 +98,6 @@ class EmployeeController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-
         $data = $request->except('photo');
         $data['is_tax_filer'] = $request->has('is_tax_filer');
         $data['has_system_access'] = $request->has('has_system_access');
@@ -119,6 +118,7 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         $employee->load('doctor');
+
         return view('employee.employee_show', compact('employee'));
     }
 
@@ -139,8 +139,8 @@ class EmployeeController extends Controller
             'last_name' => 'required|string|max:100',
             'gender' => 'required|in:Male,Female,Other',
             'personal_phone' => 'required|string|max:15',
-            'cnic' => 'nullable|string|size:13|unique:employees,cnic,' . $employee->id,
-            'office_email' => 'nullable|email|unique:employees,office_email,' . $employee->id,
+            'cnic' => 'nullable|string|size:13|unique:employees,cnic,'.$employee->id,
+            'office_email' => 'nullable|email|unique:employees,office_email,'.$employee->id,
             'department' => 'required|string',
             'designation' => 'required|string|max:100',
             'employment_type' => 'required',

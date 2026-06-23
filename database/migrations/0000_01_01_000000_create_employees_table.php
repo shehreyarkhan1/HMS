@@ -50,7 +50,7 @@ return new class extends Migration
             $table->string('province')->nullable();
             $table->string('postal_code')->nullable();
             // ── EMPLOYMENT DETAILS ──────────────────────────────────
-            $table->string('biometric_id')->nullable()->unique()->after('badge_number')
+            $table->string('biometric_id')->nullable()->unique()
                 ->comment('ZKTeco enroll number — HR assigns this when registering fingerprint');
             $table->string('department');
             $table->string('designation');

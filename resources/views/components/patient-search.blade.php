@@ -308,10 +308,26 @@
             showMsg('hourglass-split', 'Searching...');
 
             searchTimeout = setTimeout(function() {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
                 fetch('{{ route('ajax.patient-search') }}?q=' + encodeURIComponent(q) +
-                        '@if ($filter)&status={{ $filter }}@endif'
-                        )
-                    .then(r => r.json())
+                        '@if ($filter)&status={{ $filter }}@endif', {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
+                            }
+                        })
+                    .then(function(r) {
+                        if (!r.ok) {
+                            if (r.status === 401 || r.status === 419) {
+                                throw new Error(
+                                    'Session expired. Please refresh the page and login again.'
+                                    );
+                            }
+                            throw new Error('Server error (' + r.status + '). Try again.');
+                        }
+                        return r.json();
+                    })
                     .then(function(patients) {
                         if (!patients.length) {
                             showMsg('person-x', 'No patient found');
@@ -344,8 +360,9 @@
                         </div>`;
                         }).join('');
                     })
-                    .catch(function() {
-                        showMsg('exclamation-triangle', 'Search failed. Try again.', '#dc2626');
+                    .catch(function(err) {
+                        showMsg('exclamation-triangle', err.message ||
+                            'Search failed. Try again.', '#dc2626');
                     });
             }, 300);
         });
