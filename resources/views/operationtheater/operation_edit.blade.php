@@ -335,23 +335,28 @@
                                     <div class="col-md-3">
                                         <label
                                             style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Role</label>
-                                        <select name="team[{{ $i }}][role]">
+                                        <select name="team[{{ $i }}][role]" class="form-select form-select-sm"
+                                            required>
+                                            <option value="">— Role —</option>
                                             @foreach (['Assistant Surgeon', 'Scrub Nurse', 'Circulating Nurse', 'OT Technician', 'Anesthesia Technician', 'Perfusionist', 'Observer', 'Other'] as $role)
                                                 <option value="{{ $role }}"
-                                                    {{ $member->role == $role ? 'selected' : '' }}>{{ $role }}
+                                                    {{ $member->role == $role ? 'selected' : '' }}>
+                                                    {{ $role }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label
-                                            style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Doctor</label>
-                                        <select name="team[{{ $i }}][doctor_id]">
-                                            <option value="">— None —</option>
-                                            @foreach ($surgeons as $doc)
+                                        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Doctor
+                                            (if applicable)</label>
+                                        <select name="team[{{ $i }}][doctor_id]"
+                                            class="form-select form-select-sm">
+                                            <option value="">— Select Doctor —</option>
+                                            @foreach ($allDoctors as $doc)
                                                 <option value="{{ $doc->id }}"
                                                     {{ $member->doctor_id == $doc->id ? 'selected' : '' }}>
                                                     Dr. {{ $doc->employee?->first_name }} {{ $doc->employee?->last_name }}
+                                                    ({{ $doc->specialization }})
                                                 </option>
                                             @endforeach
                                         </select>
@@ -359,7 +364,8 @@
                                     <div class="col-md-4">
                                         <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Staff /
                                             Nurse</label>
-                                        <select name="team[{{ $i }}][employee_id]">
+                                        <select name="team[{{ $i }}][employee_id]"
+                                            class="form-select form-select-sm">
                                             <option value="">— Select Staff —</option>
                                             @foreach ($employees as $emp)
                                                 <option value="{{ $emp->id }}"
@@ -380,6 +386,7 @@
                             </div>
                         @endforeach
                     </div>
+
                     <button type="button" id="add-team-member" class="btn btn-sm btn-outline-primary px-3 mt-1"
                         style="font-size:12px">
                         <i class="bi bi-plus-lg me-1"></i>Add Team Member
@@ -391,31 +398,35 @@
                                 <div class="col-md-3">
                                     <label
                                         style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Role</label>
-                                    <select name="team[__INDEX__][role]">
+                                    <select name="team[__INDEX__][role]" class="form-select form-select-sm" required>
+                                        <option value="">— Role —</option>
                                         @foreach (['Assistant Surgeon', 'Scrub Nurse', 'Circulating Nurse', 'OT Technician', 'Anesthesia Technician', 'Perfusionist', 'Observer', 'Other'] as $role)
                                             <option value="{{ $role }}">{{ $role }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label
-                                        style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Doctor</label>
-                                    <select name="team[__INDEX__][doctor_id]">
-                                        <option value="">— None —</option>
-                                        @foreach ($surgeons as $doc)
-                                            <option value="{{ $doc->id }}">Dr. {{ $doc->employee?->first_name }}
-                                                {{ $doc->employee?->last_name }}</option>
+                                    <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Doctor (if
+                                        applicable)</label>
+                                    <select name="team[__INDEX__][doctor_id]" class="form-select form-select-sm">
+                                        <option value="">— Select Doctor —</option>
+                                        @foreach ($allDoctors as $doc)
+                                            <option value="{{ $doc->id }}">
+                                                Dr. {{ $doc->employee?->first_name }} {{ $doc->employee?->last_name }}
+                                                ({{ $doc->specialization }})
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label
-                                        style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Staff</label>
-                                    <select name="team[__INDEX__][employee_id]">
-                                        <option value="">— None —</option>
+                                    <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Staff /
+                                        Nurse</label>
+                                    <select name="team[__INDEX__][employee_id]" class="form-select form-select-sm">
+                                        <option value="">— Select Staff —</option>
                                         @foreach ($employees as $emp)
-                                            <option value="{{ $emp->id }}">{{ $emp->first_name }}
-                                                {{ $emp->last_name }}</option>
+                                            <option value="{{ $emp->id }}">
+                                                {{ $emp->first_name }} {{ $emp->last_name }} ({{ $emp->designation }})
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

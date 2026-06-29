@@ -61,8 +61,17 @@ class OtScheduleController extends Controller
             $query->where('ot_room_id', $request->ot_room_id);
         }
 
-        $schedules = $query->orderBy('scheduled_date')->orderBy('scheduled_time')->paginate(12)->withQueryString();
-
+        $schedules = $query->orderByRaw("
+    FIELD(status,
+        'In-Progress',
+        'Preparing',
+        'Confirmed',
+        'Scheduled',
+        'Postponed',
+        'Cancelled',
+        'Completed'
+    )
+")->orderBy('scheduled_date')->orderBy('scheduled_time')->paginate(12)->withQueryString();
         // ── STATS ─────────────────────────────────────────────────────────
         $stats = [
             'today_total' => OtSchedule::whereDate('scheduled_date', today())->count(),
@@ -86,30 +95,39 @@ class OtScheduleController extends Controller
 
     public function create()
     {
+        // 1. Sirf Surgeons (Surgery department)
         $surgeons = Doctor::with('employee')
             ->where('is_active', true)
-            ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Surgery%'))
-            ->get();
+            ->whereHas('employee', function ($q) {
+                $q->where('department', 'LIKE', '%Surgery%');
+            })->get();
 
+        // 2. Sirf Anesthesiologists (Anesthesia department)
         $anesthesiologists = Doctor::with('employee')
             ->where('is_active', true)
-            ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Anesthesia%'))
+            ->whereHas('employee', function ($q) {
+                $q->where('department', 'LIKE', '%Anesthesia%');
+            })->get();
+
+        // 3. Team Row ke Doctor dropdown ke liye (Tammam Doctors)
+        $allDoctors = Doctor::with('employee')->where('is_active', true)->get();
+
+        // 4. Staff/Nurse List (Anesthesia ko nikal kar baaki nursing aur OT staff)
+        $employees = Employee::where(function ($query) {
+            $query->where('department', 'LIKE', '%Nursing%')
+                ->orWhere('department', 'LIKE', '%OT%');
+        })
+            ->where('department', 'NOT LIKE', '%Anesthesia%') // Isse Anesthesia wala koi nahi ayega
+            ->orderBy('first_name')
             ->get();
 
         $rooms = OtRoom::where('status', 'Available')->orderBy('room_code')->get();
-
-        $employees = Employee::where(function ($query) {
-            $query->where('department', 'LIKE', '%Anesthesia%')
-                ->orWhere('department', 'LIKE', '%Nursing%');
-        })->orderBy('first_name')->get();
-
         $selectedPatient = null;
-        $defaultCharges = $this->getDefaultOtCharges(); // ← ADD
+        $defaultCharges = $this->getDefaultOtCharges();
 
         return view('operationtheater.operation_create', compact(
-            'surgeons', 'anesthesiologists', 'rooms', 'employees',
-            'selectedPatient',
-            'defaultCharges'   // ← ADD
+            'surgeons', 'anesthesiologists', 'allDoctors', 'rooms', 'employees',
+            'selectedPatient', 'defaultCharges'
         ));
     }
 
@@ -204,7 +222,7 @@ class OtScheduleController extends Controller
         $ot->load('teamMembers');
 
         $selectedPatient = $ot->patient;
-        $defaultCharges = $this->getDefaultOtCharges(); // ← ADD
+        $defaultCharges = $this->getDefaultOtCharges();
 
         $surgeons = Doctor::with('employee')
             ->where('is_active', true)
@@ -216,16 +234,22 @@ class OtScheduleController extends Controller
             ->whereHas('employee', fn ($q) => $q->where('department', 'LIKE', '%Anesthesia%'))
             ->get();
 
+        $allDoctors = Doctor::with('employee')->where('is_active', true)->get(); // ← ADD
+
         $rooms = OtRoom::active()->orderBy('room_code')->get();
+
         $employees = Employee::where(function ($query) {
-            $query->where('department', 'LIKE', '%Anesthesia%')
-                ->orWhere('department', 'LIKE', '%Nursing%');
-        })->orderBy('first_name')->get();
+            $query->where('department', 'LIKE', '%Nursing%')
+                ->orWhere('department', 'LIKE', '%OT%');
+        })
+            ->where('department', 'NOT LIKE', '%Anesthesia%')
+            ->orderBy('first_name')
+            ->get();
 
         return view('operationtheater.operation_edit', compact(
             'ot', 'selectedPatient', 'surgeons', 'anesthesiologists',
-            'rooms', 'employees',
-            'defaultCharges'   // ← ADD
+            'allDoctors',   // ← ADD
+            'rooms', 'employees', 'defaultCharges'
         ));
     }
 
