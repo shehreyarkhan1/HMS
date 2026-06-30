@@ -48,8 +48,19 @@
             box-shadow: 0 4px 12px rgba(29, 78, 216, 0.15);
         }
 
-        .profile-name { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-        .profile-username { font-size: 13px; font-family: monospace; color: #64748b; margin-bottom: 16px; }
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .profile-username {
+            font-size: 13px;
+            font-family: monospace;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
 
         .profile-actions-wrap {
             padding: 20px;
@@ -68,8 +79,13 @@
             transition: background 0.15s;
         }
 
-        .detail-row:hover { background: #f8fafc; }
-        .detail-row:last-child { border-bottom: none; }
+        .detail-row:hover {
+            background: #f8fafc;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
 
         .detail-label {
             font-size: 11.5px;
@@ -96,15 +112,59 @@
             font-weight: 500;
         }
 
-        .role-super_admin    { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
-        .role-doctor         { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
-        .role-nurse          { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
-        .role-receptionist   { background:#fefce8; color:#ca8a04; border:1px solid #fef08a; }
-        .role-accountant     { background:#f5f3ff; color:#7c3aed; border:1px solid #ddd6fe; }
-        .role-pharmacist     { background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; }
-        .role-lab_technician { background:#ecfeff; color:#0891b2; border:1px solid #a5f3fc; }
-        .role-radiologist    { background:#f0fdf4; color:#059669; border:1px solid #a7f3d0; }
-        .role-hr_manager     { background:#fdf4ff; color:#9333ea; border:1px solid #e9d5ff; }
+        .role-super_admin {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .role-doctor {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .role-nurse {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .role-receptionist {
+            background: #fefce8;
+            color: #ca8a04;
+            border: 1px solid #fef08a;
+        }
+
+        .role-accountant {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border: 1px solid #ddd6fe;
+        }
+
+        .role-pharmacist {
+            background: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #fed7aa;
+        }
+
+        .role-lab_technician {
+            background: #ecfeff;
+            color: #0891b2;
+            border: 1px solid #a5f3fc;
+        }
+
+        .role-radiologist {
+            background: #f0fdf4;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+
+        .role-hr_manager {
+            background: #fdf4ff;
+            color: #9333ea;
+            border: 1px solid #e9d5ff;
+        }
 
         .badge-status {
             display: inline-flex;
@@ -116,8 +176,17 @@
             font-weight: 500;
         }
 
-        .badge-status.active   { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
-        .badge-status.inactive { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+        .badge-status.active {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-status.inactive {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
 
         /* Employee card inside show */
         .emp-linked-card {
@@ -264,7 +333,7 @@
 
                     <form method="POST" action="{{ route('admin.users.toggle-status', $user) }}">
                         @csrf @method('PATCH')
-                        @if($user->is_active)
+                        @if ($user->is_active)
                             <button type="submit" class="btn-danger-outline w-100">
                                 <i class="bi bi-pause-circle"></i> Suspend Account
                             </button>
@@ -274,6 +343,12 @@
                                 <i class="bi bi-play-circle"></i> Reactivate Account
                             </button>
                         @endif
+                    </form>
+                    <form method="POST" action="{{ route('admin.users.resend-welcome', $user) }}">
+                        @csrf
+                        <button type="submit" class="btn-ghost-white w-100">
+                            <i class="bi bi-envelope-arrow-up"></i> Resend Welcome Email
+                        </button>
                     </form>
                 </div>
 
@@ -331,7 +406,7 @@
                     <div class="detail-row">
                         <div class="detail-label">Email Verification</div>
                         <div class="detail-value">
-                            @if($user->email_verified_at)
+                            @if ($user->email_verified_at)
                                 <span class="badge-status active">
                                     <i class="bi bi-check2-circle"></i>
                                     Verified on {{ $user->email_verified_at->format('d M Y') }}
@@ -354,7 +429,7 @@
                     <div class="detail-row">
                         <div class="detail-label">Account Status</div>
                         <div class="detail-value">
-                            @if($user->is_active)
+                            @if ($user->is_active)
                                 <span style="color:#16a34a; font-weight:600; font-size:13px;">
                                     Currently Active &amp; Permitted
                                 </span>
@@ -372,7 +447,7 @@
             <div class="page-card-white">
                 <div class="page-card-header d-flex justify-content-between align-items-center">
                     <h6><i class="bi bi-person-badge me-2" style="color:#94a3b8;"></i>Linked Employee Record</h6>
-                    @if($user->employee)
+                    @if ($user->employee)
                         <a href="{{ route('admin.users.edit', $user) }}"
                             style="font-size:12px; color:#1d4ed8; text-decoration:none;">
                             <i class="bi bi-pencil me-1"></i>Change
@@ -380,7 +455,7 @@
                     @endif
                 </div>
 
-                @if($user->employee)
+                @if ($user->employee)
                     <div class="emp-linked-card">
                         <div class="emp-avatar">
                             {{ strtoupper(substr($user->employee->first_name, 0, 1)) }}
@@ -389,13 +464,14 @@
                             <div style="font-weight:600; font-size:14px; color:#1e293b;">
                                 {{ $user->employee->first_name }}
                             </div>
-                            @if($user->employee->employee_id)
+                            @if ($user->employee->employee_id)
                                 <div style="font-family:monospace; font-size:12px; color:#64748b; margin-top:2px;">
                                     {{ $user->employee->employee_id }}
                                 </div>
                             @endif
                         </div>
-                        <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 12px;
+                        <span
+                            style="display:inline-flex; align-items:center; gap:5px; padding:4px 12px;
                                      border-radius:6px; font-size:11.5px; font-weight:500;
                                      background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0;">
                             <i class="bi bi-link-45deg"></i> Linked

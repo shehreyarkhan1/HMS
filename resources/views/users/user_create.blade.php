@@ -230,35 +230,65 @@
                         <h6><i class="bi bi-shield-lock me-2 text-success"></i>Security</h6>
                     </div>
                     <div class="form-card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Password <span class="required-star">*</span></label>
-                                <div style="position:relative;">
-                                    <input type="password" name="password" id="password"
-                                        class="form-control @error('password') is-invalid @enderror"
-                                        placeholder="Min. 8 characters" required>
-                                    <button type="button" onclick="togglePass('password','eye1')"
-                                        class="toggle-password-btn">
-                                        <i id="eye1" class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Confirm Password <span class="required-star">*</span></label>
-                                <div style="position:relative;">
-                                    <input type="password" name="password_confirmation" id="password_conf"
-                                        class="form-control" placeholder="Repeat password" required>
-                                    <button type="button" onclick="togglePass('password_conf','eye2')"
-                                        class="toggle-password-btn">
-                                        <i id="eye2" class="bi bi-eye"></i>
-                                    </button>
+                        {{-- Email invite toggle --}}
+                        <div class="d-flex align-items-start gap-3 p-3 mb-3 rounded"
+                            style="background:#eff6ff; border:1px solid #bfdbfe;">
+                            <div class="form-check form-switch mb-0 mt-1">
+                                <input class="form-check-input" type="checkbox" role="switch" name="send_welcome_email"
+                                    id="sendWelcomeEmail" value="1" checked
+                                    onchange="togglePasswordFields(this.checked)">
+                            </div>
+                            <div>
+                                <div style="font-size:13px; font-weight:600; color:#1d4ed8;">
+                                    Send Welcome Email (Recommended)
+                                </div>
+                                <div style="font-size:12px; color:#64748b; margin-top:2px;">
+                                    User ko email bhejega jisme apna password set karne ka link hoga.
+                                    Password fields khali chhod sakte hain.
                                 </div>
                             </div>
                         </div>
+
+                        <div id="passwordFields">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Password
+                                        <span class="required-star" id="passRequired">*</span>
+                                        <span id="passOptional"
+                                            style="display:none; color:#94a3b8; font-weight:400;">(optional)</span>
+                                    </label>
+                                    <div style="position:relative;">
+                                        <input type="password" name="password" id="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="Min. 8 characters">
+                                        <button type="button" onclick="togglePass('password','eye1')"
+                                            class="toggle-password-btn">
+                                            <i id="eye1" class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Confirm Password
+                                        <span id="confRequired" class="required-star">*</span>
+                                    </label>
+                                    <div style="position:relative;">
+                                        <input type="password" name="password_confirmation" id="password_conf"
+                                            class="form-control" placeholder="Repeat password">
+                                        <button type="button" onclick="togglePass('password_conf','eye2')"
+                                            class="toggle-password-btn">
+                                            <i id="eye2" class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -430,5 +460,33 @@
 
         // Restore on validation error
         if (empSelect.value) empSelect.dispatchEvent(new Event('change'));
+
+
+        function togglePasswordFields(sendEmail) {
+            const passInput = document.getElementById('password');
+            const confInput = document.getElementById('password_conf');
+            const req = document.getElementById('passRequired');
+            const opt = document.getElementById('passOptional');
+            const confReq = document.getElementById('confRequired');
+
+            if (sendEmail) {
+                // Email bhej rahe hain — password optional
+                passInput.required = false;
+                confInput.required = false;
+                req.style.display = 'none';
+                opt.style.display = 'inline';
+                confReq.style.display = 'none';
+            } else {
+                // Manual password — required
+                passInput.required = true;
+                confInput.required = true;
+                req.style.display = 'inline';
+                opt.style.display = 'none';
+                confReq.style.display = 'inline';
+            }
+        }
+
+        // Page load par run karo
+        togglePasswordFields(document.getElementById('sendWelcomeEmail').checked);
     </script>
 @endpush

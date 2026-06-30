@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\User;
+use App\Notifications\UserWelcomeNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -63,15 +64,40 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username', 'regex:/^[a-zA-Z0-9_]+$/'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(array_keys($this->getRoles()))],
             'is_active' => ['boolean'],
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        $sendWelcomeEmail = $request->boolean('send_welcome_email', true);
+
+        // Password: agar email bhej rahe hain toh random, warna jo diya
+        $validated['password'] = Hash::make(
+            ($sendWelcomeEmail || empty($validated['password']))
+                ? \Str::random(32)   // user email se set karega
+                : $validated['password']
+        );
+
         $validated['is_active'] = $request->boolean('is_active', true);
 
         $user = User::create($validated);
+
+        // Welcome email bhejo
+        if ($sendWelcomeEmail) {
+            try {
+                $user->notify(new UserWelcomeNotification(auth()->user()->name));
+
+                return redirect()
+                    ->route('admin.users.show', $user)
+                    ->with('success', "User \"{$user->name}\" created. Welcome email sent to {$user->email}.");
+
+            } catch (\Exception $e) {
+                return redirect()
+                    ->route('admin.users.show', $user)
+                    ->with('success', "User \"{$user->name}\" created.")
+                    ->with('warning', 'Welcome email send nahi ho saka: '.$e->getMessage());
+            }
+        }
 
         return redirect()
             ->route('admin.users.show', $user)
@@ -122,7 +148,7 @@ class UserController extends Controller
             'is_active' => ['boolean'],
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
@@ -142,7 +168,7 @@ class UserController extends Controller
      */
     public function toggleStatus(User $user)
     {
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
         $status = $user->is_active ? 'activated' : 'deactivated';
 
         return redirect()->back()->with('success', "User \"{$user->name}\" has been {$status}.");
@@ -193,7 +219,7 @@ class UserController extends Controller
      */
     private function getAvailableEmployees($currentEmployeeId = null)
     {
-        return Employee::select('id', 'first_name', 'last_name', 'employee_id','department','designation')
+        return Employee::select('id', 'first_name', 'last_name', 'employee_id', 'department', 'designation')
 
             ->where(function ($query) use ($currentEmployeeId) {
                 $query->whereDoesntHave('user'); // Unhe dikhao jin ka user nahi bana
@@ -203,5 +229,16 @@ class UserController extends Controller
             })
             ->orderBy('first_name')
             ->get();
+    }
+
+    public function resendWelcome(User $user)
+    {
+        try {
+            $user->notify(new UserWelcomeNotification(auth()->user()->name));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Email send nahi ho saka: '.$e->getMessage());
+        }
+
+        return back()->with('success', "Welcome email re-sent to {$user->email}.");
     }
 }

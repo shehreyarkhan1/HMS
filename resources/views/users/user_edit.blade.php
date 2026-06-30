@@ -245,9 +245,12 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Full Name <span class="required-star">*</span></label>
-                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                                <input type="text" name="name"
+                                    class="form-control @error('name') is-invalid @enderror"
                                     value="{{ old('name', $user->name) }}" required>
-                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -256,14 +259,19 @@
                                     class="form-control @error('username') is-invalid @enderror"
                                     value="{{ old('username', $user->username) }}" required>
                                 <div class="form-hint">Only letters, numbers, and underscores.</div>
-                                @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('username')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label">Email Address <span class="required-star">*</span></label>
-                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                                <input type="email" name="email"
+                                    class="form-control @error('email') is-invalid @enderror"
                                     value="{{ old('email', $user->email) }}" required>
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -288,7 +296,9 @@
                                         <i id="eye1" class="bi bi-eye"></i>
                                     </button>
                                 </div>
-                                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -311,13 +321,16 @@
                             <div class="col-md-6">
                                 <label class="form-label">Role <span class="required-star">*</span></label>
                                 <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-                                    @foreach($roles as $value => $label)
-                                        <option value="{{ $value }}" {{ old('role', $user->role) === $value ? 'selected' : '' }}>
+                                    @foreach ($roles as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ old('role', $user->role) === $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('role')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -325,7 +338,8 @@
                                 <div style="padding-top:8px;">
                                     <div class="form-check form-switch mb-0">
                                         <input class="form-check-input" type="checkbox" role="switch" name="is_active"
-                                            id="is_active" value="1" {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
+                                            id="is_active" value="1"
+                                            {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="is_active"
                                             style="color:#64748b; font-size:13px; margin-left:6px;">Active</label>
                                     </div>
@@ -342,14 +356,15 @@
                                 <select name="employee_id" class="form-select @error('employee_id') is-invalid @enderror"
                                     id="employeeSelect">
                                     <option value="">— None (System User / Super Admin) —</option>
-                                    @foreach($employees as $emp)
+                                    @foreach ($employees as $emp)
                                         <option value="{{ $emp->id }}" {{-- Yahan first_name aur employee_id use karein --}}
                                             data-name="{{ $emp->first_name }} {{ $emp->last_name }}"
-                                            data-code="{{ $emp->employee_id }}" {{ (old('employee_id') ?? ($user->employee_id ?? '')) == $emp->id ? 'selected' : '' }}>
+                                            data-code="{{ $emp->employee_id }}"
+                                            {{ (old('employee_id') ?? ($user->employee_id ?? '')) == $emp->id ? 'selected' : '' }}>
 
                                             {{ $emp->first_name }} {{ $emp->last_name }}
 
-                                            @if($emp->employee_id)
+                                            @if ($emp->employee_id)
                                                 ({{ $emp->employee_id }})
                                             @endif
                                         </option>
@@ -362,7 +377,9 @@
                                     <i class="bi bi-person-check me-1"></i>
                                     <span id="empInfoText"></span>
                                 </div>
-                                @error('employee_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('employee_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                         </div>
@@ -393,7 +410,8 @@
                 </div>
                 <div class="form-card-body" style="font-size:13px;">
                     <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                        <div style="width:44px; height:44px; border-radius:10px; background:#eff6ff;
+                        <div
+                            style="width:44px; height:44px; border-radius:10px; background:#eff6ff;
                                         color:#1d4ed8; font-size:18px; font-weight:700;
                                         display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                             {{ strtoupper(substr($user->name, 0, 1)) }}
@@ -403,7 +421,8 @@
                             <div style="color:#94a3b8; font-size:12px;">{{ $user->email }}</div>
                         </div>
                     </div>
-                    <div style="border-top:1px solid #e2e8f0; padding-top:12px;
+                    <div
+                        style="border-top:1px solid #e2e8f0; padding-top:12px;
                                     display:flex; flex-direction:column; gap:10px;">
                         <div class="d-flex justify-content-between align-items-center">
                             <span style="color:#94a3b8; font-size:12px;">Username</span>
@@ -419,11 +438,12 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span style="color:#94a3b8; font-size:12px;">Status</span>
-                            <span style="display:inline-flex; align-items:center; gap:5px; padding:2px 10px;
+                            <span
+                                style="display:inline-flex; align-items:center; gap:5px; padding:2px 10px;
                                              border-radius:6px; font-size:11.5px; font-weight:500;
                                              {{ $user->is_active
-        ? 'background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0;'
-        : 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;' }}">
+                                                 ? 'background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0;'
+                                                 : 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;' }}">
                                 <i class="bi bi-circle-fill" style="font-size:7px;"></i>
                                 {{ $user->is_active ? 'Active' : 'Inactive' }}
                             </span>
@@ -431,7 +451,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <span style="color:#94a3b8; font-size:12px;">Employee</span>
                             <span>
-                                @if($user->employee)
+                                @if ($user->employee)
                                     <span class="emp-linked-chip">
                                         <i class="bi bi-person-badge" style="font-size:11px;"></i>
                                         {{ $user->employee->name }}
@@ -442,6 +462,43 @@
                             </span>
                         </div>
                     </div>
+                </div>
+            </div>
+            {{-- Account Actions --}}
+            <div class="form-card mb-3" style="border-color:#bfdbfe;">
+                <div class="form-card-header" style="background:#eff6ff;">
+                    <h6 style="color:#1d4ed8;">
+                        <i class="bi bi-envelope me-2"></i>Account Actions
+                    </h6>
+                </div>
+                <div class="form-card-body" style="display:flex; flex-direction:column; gap:10px;">
+
+                    {{-- Resend Welcome Email --}}
+                    <form method="POST" action="{{ route('admin.users.resend-welcome', $user) }}">
+                        @csrf
+                        <button type="submit" class="btn-ghost-white w-100">
+                            <i class="bi bi-envelope-arrow-up"></i> Resend Welcome Email
+                        </button>
+                    </form>
+
+                    {{-- Toggle Status --}}
+                    <form method="POST" action="{{ route('admin.users.toggle-status', $user) }}">
+                        @csrf @method('PATCH')
+                        @if ($user->is_active)
+                            <button type="submit" class="btn-danger-white w-100">
+                                <i class="bi bi-pause-circle"></i> Suspend Account
+                            </button>
+                        @else
+                            <button type="submit" class="w-100"
+                                style="display:inline-flex; align-items:center; justify-content:center;
+                           gap:8px; padding:9px 16px; background:#f0fdf4;
+                           border:1px solid #bbf7d0; border-radius:8px;
+                           color:#16a34a; font-size:13px; font-weight:500; cursor:pointer;">
+                                <i class="bi bi-play-circle"></i> Reactivate Account
+                            </button>
+                        @endif
+                    </form>
+
                 </div>
             </div>
 
@@ -489,7 +546,7 @@
         const empInfo = document.getElementById('empInfo');
         const empText = document.getElementById('empInfoText');
 
-        empSelect.addEventListener('change', function () {
+        empSelect.addEventListener('change', function() {
             const opt = this.options[this.selectedIndex];
             if (this.value) {
                 const code = opt.dataset.code ? ` (${opt.dataset.code})` : '';

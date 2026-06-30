@@ -52,7 +52,11 @@ use App\Http\Controllers\Ward\VisitNoteController;
 use App\Http\Controllers\Ward\VitalController;
 use App\Http\Controllers\Ward\WardController;
 use App\Http\Controllers\Ward\WardNurseAssignmentController;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -61,8 +65,28 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-});
 
+});
+// ── PASSWORD RESET (welcome email link) ──────────────────────────────
+Route::get('/reset-password/{token}', function (string $token) {
+    return view('auth.reset_password', ['token' => $token]);
+})->name('password.reset');
+
+Route::post('/reset-password', function (Request $request) {
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function (User $user, string $password) {
+            $user->forceFill([
+                'password' => Hash::make($password),
+                'email_verified_at' => now(),
+            ])->save();
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? redirect()->route('login')->with('success', 'Password set successfully. Please login.')
+        : back()->withErrors(['email' => __($status)]);
+})->name('password.update');
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
@@ -87,6 +111,8 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('users', UserController::class);
             Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
                 ->name('users.toggle-status');
+            Route::post('users/{user}/resend-welcome', [UserController::class, 'resendWelcome'])
+                ->name('users.resend-welcome');
         });
 
     // ── PATIENTS ──────────────────────────────────────────────────────────
@@ -566,6 +592,7 @@ Route::middleware(['auth'])->group(function () {
 
     });
 });
+
 // ZKTeco machine push endpoint — NO auth middleware (machine authenticates via IP)
 // Add this OUTSIDE your auth middleware group
 // Route::post('/biometric/push', [BiometricController::class, 'push'])
