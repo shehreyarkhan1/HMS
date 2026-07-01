@@ -2,16 +2,16 @@
 
 use App\Http\Middleware\EnsureActive;
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\LogActivity;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use App\Http\Middleware\LogActivity;
-use App\Providers\AppServiceProvider;
-use App\Models\ActivityLogger;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,38 +20,64 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Custom Middlewares
+        // --- AAPKA PURANA MIDDLEWARE CODE (RETAINED) ---
         $middleware->alias([
             'role' => EnsureRole::class,
             'active' => EnsureActive::class,
-             'log.activity' => LogActivity::class,
+            'log.activity' => LogActivity::class,
         ]);
 
-        // Global Web Middleware
         $middleware->appendToGroup('web', [
             EnsureActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-        // Industry Standard: Customizing 403 Forbidden Response
-        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+        // 1. DATABASE ERRORS (Added for HMS Stability)
+        $exceptions->render(function (QueryException $e, Request $request) {
+            Log::error('Database Error: '.$e->getMessage(), [
+                'url' => $request->fullUrl(),
+                'user_id' => auth()->id(),
+            ]);
 
-            $message = "You don't have permission to perform this action.";
-
-            // 1. Agar Request API ki taraf se hai (ya AJAX hai)
-            if ($request->is('api/*') || $request->expectsJson()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $message,
-                ], 403);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Database operation failed.'], 500);
             }
 
-            // 2. Agar Request Normal Web Browser se hai
-            // Hum user ko ek pyara sa custom error page dikhayenge
-            return response()->view('errors.403', [
-                'friendly_message' => $message,
-            ], 403);
+            return redirect()->back()->with('error', 'Database ka masla hai. IT department ko inform karein.');
+        });
+
+        // 2. RECORD NOT FOUND (Added to prevent 404 crashes)
+        $exceptions->render(function (ModelNotFoundException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Record not found.'], 404);
+            }
+
+            return redirect()->back()->with('error', 'Maafi! Ye record system mein nahi mila.');
+        });
+
+        // 3. 403 FORBIDDEN (Aapka original logic + professional message)
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+            $message = "You don't have permission to perform this action.";
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => $message], 403);
+            }
+
+            return response()->view('errors.403', ['friendly_message' => $message], 403);
+        });
+
+        // 4. 404 PAGE NOT FOUND (Standard UI)
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'URL not found.'], 404);
+            }
+
+            return response()->view('errors.404', [], 404);
+        });
+
+        // 5. UNEXPECTED ERRORS LOGGING
+        $exceptions->report(function (Throwable $e) {
+            Log::error('Global System Error: '.$e->getMessage());
         });
 
     })->create();

@@ -757,20 +757,75 @@
         {{-- PAGE CONTENT --}}
         <div class="page-content">
 
-            {{-- Flash Messages --}}
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+            {{-- Alert Container (Top Center/Right for better UX) --}}
+            <div class="flash-message-container"
+                style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;">
 
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                    <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+                {{-- Success Message --}}
+                @if (session('success'))
+                    <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show mb-3"
+                        role="alert" style="border-left: 5px solid #198754 !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-3 fs-4 text-success"></i>
+                            <div>
+                                <strong class="d-block">Success</strong>
+                                <span class="small">{{ session('success') }}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                {{-- Error Message (Custom or Exception) --}}
+                @if (session('error'))
+                    <div class="alert alert-danger border-0 shadow-sm alert-dismissible fade show mb-3" role="alert"
+                        style="border-left: 5px solid #dc3545 !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-3 fs-4 text-danger"></i>
+                            <div>
+                                <strong class="d-block">Error</strong>
+                                <span class="small">{{ session('error') }}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                {{-- Form Validation Errors --}}
+                @if ($errors->any())
+                    <div class="alert alert-warning border-0 shadow-sm alert-dismissible fade show mb-3"
+                        role="alert" style="border-left: 5px solid #ffc107 !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-circle-fill me-3 fs-4 text-warning"></i>
+                            <div>
+                                <strong class="d-block">Validation Failed</strong>
+                                <ul class="mb-0 ps-0 small" style="list-style: none;">
+                                    @foreach ($errors->all() as $error)
+                                        <li>• {{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Auto-hide Script --}}
+            @push('scripts')
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // 5 second baad success alerts ko khud hi band kar do
+                        setTimeout(function() {
+                            let alerts = document.querySelectorAll('.alert-success');
+                            alerts.forEach(function(alert) {
+                                let bsAlert = new bootstrap.Alert(alert);
+                                bsAlert.close();
+                            });
+                        }, 5000);
+                    });
+                </script>
+            @endpush
 
             {{-- Child Page Content --}}
             @yield('content')

@@ -59,6 +59,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
+// Sabse upar rakhen testing ke liye
+Route::get('/test-403', function () {
+    throw new AccessDeniedHttpException("Testing 403 Forbidden");
+});
+
+Route::get('/test-model', function () {
+    // Aisi ID jo kabhi nahi hogi
+    return User::findOrFail(888888);
+});
+
+Route::get('/test-db', function () {
+    return DB::table('wrong_table_name')->get();
+});
 // ══════════════════════════════════════════════════════════════════════════════
 //  AUTH ROUTES — No middleware (guest only)
 // ══════════════════════════════════════════════════════════════════════════════

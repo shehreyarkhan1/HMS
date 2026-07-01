@@ -8,17 +8,16 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
-    // ── Helper: doctors with employee loaded, sorted by employee first_name ──
     public function index(Request $request)
     {
         $query = Appointment::with(['patient', 'doctor.employee'])
             ->orderBy('appointment_date', 'desc')
             ->orderBy('appointment_time', 'asc');
 
-        // Search by patient name or MRN
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('patient', function ($q) use ($search) {
@@ -28,32 +27,26 @@ class AppointmentController extends Controller
             });
         }
 
-        // Filter by date
         if ($request->filled('date')) {
             $query->whereDate('appointment_date', $request->date);
         } else {
-            // Default: show today + upcoming
             $query->whereDate('appointment_date', '>=', today()->subDays(7));
         }
 
-        // Filter by doctor
         if ($request->filled('doctor_id')) {
             $query->where('doctor_id', $request->doctor_id);
         }
 
-        // Filter by type
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         $appointments = $query->paginate(20)->withQueryString();
 
-        // Stats
         $stats = [
             'today' => Appointment::today()->count(),
             'scheduled' => Appointment::today()->byStatus('Scheduled')->count(),
@@ -61,47 +54,35 @@ class AppointmentController extends Controller
             'cancelled' => Appointment::today()->byStatus('Cancelled')->count(),
         ];
 
-        $doctors = Doctor::with('employee')
-            ->active()
-            ->orderBy('doctor_id')
-            ->get();
+        $doctors = Doctor::with('employee')->active()->orderBy('doctor_id')->get();
 
         return view('appointments.appointments_index', compact('appointments', 'stats', 'doctors'));
     }
 
-    // =============================================
-    // CREATE — Show form
-    // =============================================
     public function create(Request $request)
     {
-        // 1. Saare active doctors dropdown ke liye
-        $doctors = Doctor::with('employee')->where('is_active', true)
+        $doctors = Doctor::with('employee')
+            ->where('is_active', true)
             ->get()
             ->sortBy('employee.first_name');
 
         $selectedDoctor = null;
+        $selectedPatient = null;
 
-        // 2. Agar login banda Doctor hai
         if (auth()->user()->hasRole('doctor')) {
-            // Hum user table se employee_id uthayenge aur Doctors table mein check karenge
             $employeeId = auth()->user()->employee_id;
-
             if ($employeeId) {
                 $selectedDoctor = Doctor::where('employee_id', $employeeId)->first();
             }
         }
 
-        // 3. Pre-fill patient (agar kisi specific patient ke page se aa rahe hain)
-        $selectedPatient = $request->filled('patient_id')
-            ? Patient::find($request->patient_id)
-            : null;
+        if ($request->filled('patient_id')) {
+            $selectedPatient = Patient::find($request->patient_id);
+        }
 
         return view('appointments.appointments_create', compact('doctors', 'selectedPatient', 'selectedDoctor'));
     }
 
-    // =============================================
-    // STORE — Save new appointment
-    // =============================================
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -115,21 +96,20 @@ class AppointmentController extends Controller
             'notes' => 'nullable|string',
             'follow_up_date' => 'nullable|date|after:appointment_date',
         ]);
-        // ✅ Patient status check
+
+        // ── Business rule checks (try-catch se bahar — yeh intentional redirects hain) ──
         $patient = Patient::findOrFail($validated['patient_id']);
 
         if ($patient->status === 'Deceased') {
-            return back()
-                ->withInput()
+            return back()->withInput()
                 ->withErrors(['patient_id' => 'Cannot book appointment for a deceased patient.']);
         }
 
         if ($patient->status === 'Discharged') {
-            return back()
-                ->withInput()
+            return back()->withInput()
                 ->withErrors(['patient_id' => 'Cannot book appointment for a discharged patient.']);
         }
-        // Doctor availability conflict check
+
         if (! empty($validated['doctor_id']) && ! empty($validated['appointment_time'])) {
             $conflict = Appointment::hasConflict(
                 $validated['doctor_id'],
@@ -138,30 +118,38 @@ class AppointmentController extends Controller
             );
 
             if ($conflict) {
-                return back()
-                    ->withInput()
+                return back()->withInput()
                     ->withErrors(['appointment_time' => 'Doctor already has an appointment at this time.']);
             }
         }
 
-        // Auto-generate token for OPD
-        if ($validated['type'] === 'OPD' && ! empty($validated['doctor_id'])) {
-            $validated['token_number'] = Appointment::nextToken(
-                $validated['doctor_id'],
-                $validated['appointment_date']
-            );
+        // ── DB write — try-catch ──
+        try {
+            if ($validated['type'] === 'OPD' && ! empty($validated['doctor_id'])) {
+                $validated['token_number'] = Appointment::nextToken(
+                    $validated['doctor_id'],
+                    $validated['appointment_date']
+                );
+            }
+
+            $appointment = Appointment::create($validated);
+
+            return redirect()
+                ->route('appointments.show', $appointment->id)
+                ->with('success', "Appointment booked! Token: #{$appointment->token_number}");
+
+        } catch (\Exception $e) {
+            Log::error('Appointment store failed', [
+                'user_id' => auth()->id(),
+                'data' => $validated,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withInput()
+                ->with('error', 'Appointment booking is not Completed. Please Try again.');
         }
-
-        $appointment = Appointment::create($validated);
-
-        return redirect()
-            ->route('appointments.show', $appointment->id)
-            ->with('success', "Appointment booked! Token: #{$appointment->token_number}");
     }
 
-    // =============================================
-    // SHOW — Single appointment detail
-    // =============================================
     public function show(Appointment $appointment)
     {
         $appointment->load(['patient', 'doctor.employee']);
@@ -169,25 +157,14 @@ class AppointmentController extends Controller
         return view('appointments.appointments_show', compact('appointment'));
     }
 
-    // =============================================
-    // EDIT — Show edit form
-    // =============================================
     public function edit(Appointment $appointment)
     {
-        $doctors = Doctor::with('employee')
-            ->active()
-            ->orderBy('doctor_id')
-            ->get();
-
-        $selectedPatient = $appointment->patient; // ← YEH ADD KARO
+        $doctors = Doctor::with('employee')->active()->orderBy('doctor_id')->get();
+        $selectedPatient = $appointment->patient;
 
         return view('appointments.appointments_edit', compact('appointment', 'doctors', 'selectedPatient'));
-
     }
 
-    // =============================================
-    // UPDATE — Save changes
-    // =============================================
     public function update(Request $request, Appointment $appointment)
     {
         $validated = $request->validate([
@@ -205,7 +182,7 @@ class AppointmentController extends Controller
             'cancellation_reason' => 'nullable|string|max:255',
         ]);
 
-        // Conflict check (exclude current appointment)
+        // ── Conflict check (business rule — try-catch se bahar) ──
         if (! empty($validated['doctor_id']) && ! empty($validated['appointment_time'])) {
             $conflict = Appointment::hasConflict(
                 $validated['doctor_id'],
@@ -215,63 +192,91 @@ class AppointmentController extends Controller
             );
 
             if ($conflict) {
-                return back()
-                    ->withInput()
+                return back()->withInput()
                     ->withErrors(['appointment_time' => 'Doctor already has an appointment at this time.']);
             }
         }
 
-        // Auto-set consulted_at when status → In-Progress
-        if ($validated['status'] === 'In-Progress' && ! $appointment->consulted_at) {
-            $validated['consulted_at'] = now();
+        // ── DB write — try-catch ──
+        try {
+            if ($validated['status'] === 'In-Progress' && ! $appointment->consulted_at) {
+                $validated['consulted_at'] = now();
+            }
+
+            $appointment->update($validated);
+
+            return redirect()
+                ->route('appointments.show', $appointment->id)
+                ->with('success', 'Appointment updated successfully!');
+
+        } catch (\Exception $e) {
+            Log::error('Appointment update failed', [
+                'user_id' => auth()->id(),
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withInput()
+                ->with('error', 'Appointment update has not done. Please Try again.');
         }
-
-        $appointment->update($validated);
-
-        return redirect()
-            ->route('appointments.show', $appointment->id)
-            ->with('success', 'Appointment updated successfully!');
     }
 
-    // =============================================
-    // DESTROY — Soft delete
-    // =============================================
     public function destroy(Appointment $appointment)
     {
-        $appointment->delete();
+        try {
+            $appointment->delete();
 
-        return redirect()
-            ->route('appointments.index')
-            ->with('success', 'Appointment removed.');
+            return redirect()
+                ->route('appointments.index')
+                ->with('success', 'Appointment removed.');
+
+        } catch (\Exception $e) {
+            Log::error('Appointment delete failed', [
+                'user_id' => auth()->id(),
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'Appointment delete nahi ho saka.');
+        }
     }
 
-    // =============================================
-    // QUICK STATUS UPDATE (AJAX-friendly)
-    // =============================================
     public function updateStatus(Request $request, Appointment $appointment)
     {
         $request->validate([
             'status' => 'required|in:Scheduled,Confirmed,In-Progress,Completed,Cancelled,No-show',
         ]);
 
-        $data = ['status' => $request->status];
+        try {
+            $data = ['status' => $request->status];
 
-        if ($request->status === 'In-Progress' && ! $appointment->consulted_at) {
-            $data['consulted_at'] = now();
+            if ($request->status === 'In-Progress' && ! $appointment->consulted_at) {
+                $data['consulted_at'] = now();
+            }
+
+            $appointment->update($data);
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'status' => $request->status]);
+            }
+
+            return back()->with('success', "Status updated to {$request->status}.");
+
+        } catch (\Exception $e) {
+            Log::error('Appointment status update failed', [
+                'user_id' => auth()->id(),
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Status update failed.'], 500);
+            }
+
+            return back()->with('error', 'Status update nahi ho saka.');
         }
-
-        $appointment->update($data);
-
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'status' => $request->status]);
-        }
-
-        return back()->with('success', "Status updated to {$request->status}.");
     }
 
-    // =============================================
-    // CALENDAR VIEW
-    // =============================================
     public function calendar(Request $request)
     {
         $month = $request->integer('month', now()->month);
@@ -288,28 +293,16 @@ class AppointmentController extends Controller
             $query->where('doctor_id', $doctorId);
         }
 
-        // Group by date string for easy calendar rendering
         $appointments = $query->get()->groupBy(fn ($a) => $a->appointment_date->format('Y-m-d'));
 
-        $doctors = Doctor::with('employee')
-            ->active()
-            ->orderBy('doctor_id')
-            ->get();
+        $doctors = Doctor::with('employee')->active()->orderBy('doctor_id')->get();
 
         return view('appointments.appointments_calendar', compact(
-            'appointments',
-            'doctors',
-            'month',
-            'year',
-            'startDate',
-            'endDate',
-            'doctorId'
+            'appointments', 'doctors', 'month', 'year',
+            'startDate', 'endDate', 'doctorId'
         ));
     }
 
-    // =============================================
-    // DOCTOR AVAILABILITY (AJAX)
-    // =============================================
     public function availability(Request $request)
     {
         $request->validate([
@@ -317,17 +310,28 @@ class AppointmentController extends Controller
             'date' => 'required|date',
         ]);
 
-        $booked = Appointment::where('doctor_id', $request->doctor_id)
-            ->whereDate('appointment_date', $request->date)
-            ->whereNotIn('status', ['Cancelled', 'No-show'])
-            ->pluck('appointment_time')
-            ->map(fn ($t) => Carbon::parse($t)->format('H:i'))
-            ->toArray();
+        try {
+            $booked = Appointment::where('doctor_id', $request->doctor_id)
+                ->whereDate('appointment_date', $request->date)
+                ->whereNotIn('status', ['Cancelled', 'No-show'])
+                ->pluck('appointment_time')
+                ->map(fn ($t) => Carbon::parse($t)->format('H:i'))
+                ->toArray();
 
-        return response()->json([
-            'date' => $request->date,
-            'booked_slots' => $booked,
-            'total_booked' => count($booked),
-        ]);
+            return response()->json([
+                'date' => $request->date,
+                'booked_slots' => $booked,
+                'total_booked' => count($booked),
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Availability check failed', [
+                'doctor_id' => $request->doctor_id,
+                'date' => $request->date,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json(['error' => 'Availability check failed.'], 500);
+        }
     }
 }

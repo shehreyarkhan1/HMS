@@ -636,6 +636,7 @@
                     @endif
 
                     {{-- START SCAN FORM — doctor nahi dekhe --}}
+                    {{-- START SCAN FORM --}}
                     @if (in_array($item->status, ['Pending', 'Scheduled']) && !$isDoctor)
                         <div class="form-section" id="scan-form-{{ $item->id }}">
                             <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:12px">
@@ -645,11 +646,22 @@
                                 @csrf
                                 <input type="hidden" name="item_ids[]" value="{{ $item->id }}">
                                 <div class="row g-2">
+
+                                    {{-- Technician Dropdown ← replace text input --}}
                                     <div class="col-md-5">
-                                        <label class="form-label-sm">Technician Name *</label>
-                                        <input type="text" name="technician_name" class="form-control-sm2"
-                                            placeholder="Tech. name" required>
+                                        <label class="form-label-sm">Technician <span
+                                                style="color:#ef4444">*</span></label>
+                                        <select name="technician_name" class="form-control-sm2" required>
+                                            <option value="">— Select Technician —</option>
+                                            @foreach ($technicians as $tech)
+                                                <option value="{{ $tech->first_name }} {{ $tech->last_name }}">
+                                                    {{ $tech->first_name }} {{ $tech->last_name }}
+                                                    ({{ $tech->designation }})
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+
                                     <div class="col-md-5">
                                         <label class="form-label-sm">Equipment / Room</label>
                                         <input type="text" name="equipment_used" class="form-control-sm2"

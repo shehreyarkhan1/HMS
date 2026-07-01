@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Radiology;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\Employee;
 use App\Models\Patient;
 use App\Models\RadiologyExam;
 use App\Models\RadiologyImage;
@@ -194,32 +195,42 @@ class RadiologyController extends Controller
     //  SHOW
     // ─────────────────────────────────────────────
     public function show(RadiologyOrder $radiologyOrder)
-{
-    // Doctor sirf apna order dekh sakta hai
-    if (auth()->user()->hasRole('doctor')) {
-        $doctor = Doctor::whereHas('employee', function ($q) {
-            $q->whereHas('user', function ($q2) {
-                $q2->where('id', auth()->id());
-            });
-        })->first();
+    {
+        // Doctor sirf apna order dekh sakta hai
+        if (auth()->user()->hasRole('doctor')) {
+            $doctor = Doctor::whereHas('employee', function ($q) {
+                $q->whereHas('user', function ($q2) {
+                    $q2->where('id', auth()->id());
+                });
+            })->first();
 
-        abort_if(!$doctor || $radiologyOrder->doctor_id !== $doctor->id, 403);
+            abort_if(! $doctor || $radiologyOrder->doctor_id !== $doctor->id, 403);
+        }
+
+        $radiologyOrder->load([
+            'patient',
+            'doctor',
+            'appointment',
+            'items.exam.modality',
+            'items.exam.bodyPart',
+            'items.report.reportedBy',
+            'items.report.verifiedBy',
+            'items.images',
+            'consents',
+        ]);
+
+        // Technician dropdown ke liye
+        $technicians = Employee::where(function ($q) {
+            $q->where('department', 'LIKE', '%Radiology%')
+                ->orWhere('designation', 'LIKE', '%Technician%')
+                ->orWhere('designation', 'LIKE', '%Radiographer%');
+        })
+            ->where('employment_status', 'Active')
+            ->orderBy('first_name')
+            ->get();
+
+        return view('radiology.radiology_show', compact('radiologyOrder', 'technicians'));
     }
-
-    $radiologyOrder->load([
-        'patient',
-        'doctor',
-        'appointment',
-        'items.exam.modality',
-        'items.exam.bodyPart',
-        'items.report.reportedBy',
-        'items.report.verifiedBy',
-        'items.images',
-        'consents',
-    ]);
-
-    return view('radiology.radiology_show', compact('radiologyOrder'));
-}
 
     // ─────────────────────────────────────────────
     //  START SCAN  (In Progress)
