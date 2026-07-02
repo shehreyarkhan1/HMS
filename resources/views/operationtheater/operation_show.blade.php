@@ -194,8 +194,8 @@
                 {{ $ot->procedure_name }}
             </h5>
             <div style="font-size:13px;color:#64748b;margin-top:2px">
-                {{ $ot->patient->name }}
-                <span style="color:#94a3b8">({{ $ot->patient->mrn }})</span>
+                {{ $ot->patient?->name }}
+                <span style="color:#94a3b8">({{ $ot->patient?->mrn }})</span>
             </div>
         </div>
         <div class="d-flex gap-2 align-items-center flex-wrap justify-content-end">
@@ -393,23 +393,23 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Name</span>
-                    <span class="detail-value">{{ $ot->patient->name }}</span>
+                    <span class="detail-value">{{ $ot->patient?->name }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">MRN</span>
-                    <span class="detail-value" style="font-family:monospace">{{ $ot->patient->mrn }}</span>
+                    <span class="detail-value" style="font-family:monospace">{{ $ot->patient?->mrn }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Gender</span>
-                    <span class="detail-value">{{ $ot->patient->gender }}</span>
+                    <span class="detail-value">{{ $ot->patient?->gender }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Blood Group</span>
-                    <span class="detail-value">{{ $ot->patient->blood_group ?? '—' }}</span>
+                    <span class="detail-value">{{ $ot->patient?->blood_group ?? '—' }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Phone</span>
-                    <span class="detail-value">{{ $ot->patient->phone }}</span>
+                    <span class="detail-value">{{ $ot->patient?->phone }}</span>
                 </div>
             </div>
 
@@ -422,19 +422,19 @@
                 <div class="detail-row">
                     <span class="detail-label">Surgeon</span>
                     <span class="detail-value">
-                        Dr. {{ $ot->surgeon->employee?->first_name }}
-                        {{ $ot->surgeon->employee?->last_name }}
+                        Dr. {{ $ot->surgeon?->employee?->first_name }}
+                        {{ $ot->surgeon?->employee?->last_name }}
                     </span>
                 </div>
                 <div style="font-size:11px;color:#94a3b8;text-align:right;margin-top:-6px;margin-bottom:8px">
-                    {{ $ot->surgeon->specialization }}
+                    {{ $ot->surgeon?->specialization }}
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Anesthesiologist</span>
                     <span class="detail-value">
                         @if ($ot->anesthesiologist)
-                            Dr. {{ $ot->anesthesiologist->employee?->first_name }}
-                            {{ $ot->anesthesiologist->employee?->last_name }}
+                            Dr. {{ $ot->anesthesiologist?->employee?->first_name }}
+                            {{ $ot->anesthesiologist?->employee?->last_name }}
                         @else
                             —
                         @endif

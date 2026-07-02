@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasAuditLog;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\BillItem;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class BillServiceCharge extends Model
@@ -27,6 +30,11 @@ class BillServiceCharge extends Model
         'is_active'     => 'boolean',
     ];
 
+    public function billItems(): HasMany
+    {
+
+        return $this->hasMany(BillItem::class, 'service_charge_id');
+    }
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

@@ -102,8 +102,8 @@
                 <tr>
                     <td><code style="font-size:12px;color:#6366f1">{{ $dsp->dispense_number }}</code></td>
                     <td>
-                        <div style="font-weight:500">{{ $dsp->patient->name }}</div>
-                        <div style="font-size:11px;color:#94a3b8">{{ $dsp->patient->mrn }}</div>
+                        <div style="font-weight:500">{{ $dsp->patient?->name }}</div>
+                        <div style="font-size:11px;color:#94a3b8">{{ $dsp->patient?->mrn }}</div>
                     </td>
                     <td>
                         @if($dsp->prescription)
@@ -122,7 +122,7 @@
                                class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:12px">
                                 <i class="bi bi-eye"></i>
                             </a>
-                           
+
                         </div>
                     </td>
                 </tr>

@@ -3,4 +3,4 @@
 @section('code', '404')
 @section('icon') <i class="bi bi-search"></i> @endsection
 @section('heading', 'Page Not Found')
-@section('message', 'Maafi chahte hain! Jo page aap dhoond rahe hain wo shayad delete ho chuka hai ya URL galat hai.')
+@section('message', 'We apologize! The page you are looking for may have been deleted, or the URL is incorrect..')

@@ -254,13 +254,6 @@
 
 @section('content')
 
-    {{-- Session alerts --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible mb-4" style="border-radius:10px;font-size:13px">
-            <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
 
     {{-- Header strip --}}
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
@@ -597,7 +590,7 @@
                     <span class="pay-{{ $labOrder->payment_status }}">{{ $labOrder->payment_status }}</span>
                 </div>
                 <div class="detail-card-body">
- 
+
                     {{-- Amounts --}}
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px">
                         <span style="font-size:13px;color:#64748b">Subtotal</span>
@@ -623,17 +616,17 @@
                             Rs. {{ number_format($labOrder->balance, 0) }}
                         </span>
                     </div>
- 
+
                     {{-- Payment Status Actions --}}
                     @if($labOrder->payment_status === 'Paid')
- 
+
                         {{-- Fully Paid --}}
                         <div style="text-align:center;padding:12px;background:#f0fdf4;border-radius:10px;font-size:13px;color:#16a34a;font-weight:600">
                             <i class="bi bi-check-circle-fill me-2"></i>Fully Paid
                         </div>
- 
+
                     @else
- 
+
                         {{-- Not paid — show Create Bill or Go to Bill button --}}
                         @php
                             // Check if this lab order is already linked to a bill
@@ -642,7 +635,7 @@
                                 ->with('bill')
                                 ->first()?->bill;
                         @endphp
- 
+
                         @if($linkedBill)
                             {{-- Already has a bill --}}
                             <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-bottom:12px">
@@ -660,7 +653,7 @@
                                 class="btn btn-primary w-100" style="font-size:13px;height:38px">
                                 <i class="bi bi-receipt me-2"></i>View Bill & Pay
                             </a>
- 
+
                         @else
                             {{-- No bill yet — create one --}}
                             <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:#92400e">
@@ -675,12 +668,12 @@
                                 Click "Load Pending Services" on the billing page<br>to auto-load this lab order.
                             </div>
                         @endif
- 
+
                     @endif
- 
+
                 </div>
             </div>
- 
+
             {{-- Tests list summary --}}
             <div class="detail-card" style="margin-top:20px">
                 <div class="detail-card-header">

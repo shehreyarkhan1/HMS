@@ -80,9 +80,9 @@ class MortuaryController extends Controller
         $employees = Employee::where('employment_status', 'Active')->orderBy('first_name')->get();
         $patients = Patient::whereIn('status', ['Active', 'Admitted'])
             ->orderBy('name')->get();
-
+        $selectedPatient =$patient ?? null;
         return view('mortuarydeath.mortuary_create', compact(
-            'patient', 'doctors', 'employees', 'patients'
+            'patient', 'doctors', 'employees', 'selectedPatient', 'patients'
         ));
     }
 

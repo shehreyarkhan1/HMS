@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PatientController extends Controller
 {
@@ -130,21 +131,79 @@ class PatientController extends Controller
             ->with('success', 'Patient updated successfully!');
     }
 
-    // ===== DESTROY - Soft delete =====
-    // ===== DESTROY - Soft delete =====
     public function destroy(Patient $patient)
     {
-        // 1. Authorization Check: Agar doctor ya nurse hai toh delete nahi karne dena
+        // 1. Authorization Check
         if (in_array(auth()->user()->role, ['doctor', 'nurse'])) {
             return redirect()->back()->with('error', 'You are not authorized to perform this operation.');
         }
 
-        // 2. Perform Delete
-        $patient->delete();
+        // 2. Dependency Checks — jo bhi "pending/active" ho, delete block karo
+        $blockers = $this->getDeletionBlockers($patient);
 
-        // 3. Redirect to Index with Success Message
-        return redirect()
-            ->route('patients.index')
-            ->with('success', "Patient {$patient->name} removed successfully.");
+        if (! empty($blockers)) {
+            return redirect()->back()
+                ->with('error', 'Cannot remove patient. Pending items: '.implode(', ', $blockers));
+        }
+
+        // 3. Perform soft delete
+        try {
+            $patientName = $patient->name;
+            $patient->delete();
+
+            return redirect()
+                ->route('patients.index')
+                ->with('success', "Patient {$patientName} removed successfully.");
+
+        } catch (\Throwable $e) {
+            Log::error('Patient delete failed', [
+                'patient_id' => $patient->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Patient can not be removed. Please try again.');
+        }
+    }
+
+    /**
+     * Check karo patient ke pas koi pending/active records hain ya nahi
+     */
+    private function getDeletionBlockers(Patient $patient): array
+    {
+        $blockers = [];
+
+        // Unpaid/Partial bills
+        if ($patient->bills()->whereIn('payment_status', ['Unpaid', 'Partial'])->exists()) {
+            $blockers[] = 'unpaid bills';
+        }
+
+        // Active/scheduled appointments
+        if ($patient->appointments()->whereIn('status', ['Scheduled', 'Confirmed', 'In-Progress'])->exists()) {
+            $blockers[] = 'active appointments';
+        }
+
+        // Pending lab orders
+        if ($patient->labOrders()->whereNotIn('status', ['Completed', 'Cancelled'])->exists()) {
+            $blockers[] = 'pending lab tests';
+        }
+
+        // Pending radiology orders
+        if ($patient->radiologyOrders()->whereNotIn('status', ['Completed', 'Cancelled'])->exists()) {
+            $blockers[] = 'pending radiology tests';
+        }
+
+        // Currently admitted (bed occupied)
+        if ($patient->beds()->where('status', 'Occupied')->exists()) {
+            $blockers[] = 'active bed admission';
+        }
+
+        // Scheduled OT / Surgery
+        if ($patient->otSchedules()->whereIn('status', ['Scheduled', 'In-Progress'])->exists()) {
+            $blockers[] = 'scheduled surgery';
+        }
+
+        return $blockers;
     }
 }

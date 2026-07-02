@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Billing;
 use App\Http\Controllers\Controller;
 use App\Models\BillServiceCharge;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class BillServiceChargeController extends Controller
 {
@@ -25,7 +26,7 @@ class BillServiceChargeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:bill_service_charges,code',
-            'blood_component'=>'nullable|string',
+            'blood_component' => 'nullable|string',
             'category' => 'required|in:'.implode(',', BillServiceCharge::categories()),
             'default_price' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:255',
@@ -35,7 +36,7 @@ class BillServiceChargeController extends Controller
             'name' => $request->name,
             'code' => strtoupper($request->code),
             'category' => $request->category,
-            'blood_component'=>$request->blood_component,
+            'blood_component' => $request->blood_component,
             'default_price' => $request->default_price,
             'description' => $request->description,
             'is_active' => true,
@@ -55,7 +56,7 @@ class BillServiceChargeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|in:'.implode(',', BillServiceCharge::categories()),
-            'blood_component'=>'nullable|string',
+            'blood_component' => 'nullable|string',
             'default_price' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
@@ -64,7 +65,7 @@ class BillServiceChargeController extends Controller
         $charge->update([
             'name' => $request->name,
             'category' => $request->category,
-            'blood_component'=>$request->blood_component,
+            'blood_component' => $request->blood_component,
             'default_price' => $request->default_price,
             'description' => $request->description,
             'is_active' => $request->boolean('is_active'),
@@ -76,10 +77,27 @@ class BillServiceChargeController extends Controller
 
     public function destroy(BillServiceCharge $charge)
     {
-        $charge->delete();
+        try {
+            if ($charge->billItems()->exists()) {
+                return redirect()->route('billing.service-charges.index')
+                    ->with('error', 'Cannot delete "'.$charge->name.'" — it is already used in existing bills. Deactivate it instead.');
+            }
 
-        return redirect()->route('billing.service-charges.index')
-            ->with('success', 'Service charge deleted.');
+            $charge->delete();
+
+            return redirect()->route('billing.service-charges.index')
+                ->with('success', 'Service charge deleted.');
+
+        } catch (\Throwable $e) {
+            Log::error('Service charge delete failed', [
+                'charge_id' => $charge->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('billing.service-charges.index')
+                ->with('error', 'Service charge could not be deleted.');
+        }
     }
 
     public function toggle(BillServiceCharge $charge)

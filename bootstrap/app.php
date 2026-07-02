@@ -3,12 +3,14 @@
 use App\Http\Middleware\EnsureActive;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\LogActivity;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -73,6 +75,30 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return response()->view('errors.404', [], 404);
+        });
+
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Session expired. Please login again.'], 401);
+            }
+
+            return redirect()->guest(route('login'))->with('error', 'Session expire ho gayi, dobara login karein.');
+        });
+
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            return redirect()->back()->with('error', 'Form expire ho gaya, dobara try karein.');
+        });
+
+        // Catch-all fallback for anything not covered above (production only)
+        $exceptions->render(function (Throwable $e, Request $request) {
+            if (! app()->environment('production')) {
+                return null; // let Laravel show debug page in local/dev
+            }
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Something went wrong.'], 500);
+            }
+
+            return response()->view('errors.500', [], 500);
         });
 
         // 5. UNEXPECTED ERRORS LOGGING

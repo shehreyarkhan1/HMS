@@ -272,7 +272,7 @@
         $canDischarge = $user->hasAnyRole(['doctor', 'super_admin']);
         $latestVital = $vitals->first();
     @endphp
-    @if ($errors->any())
+    {{-- @if ($errors->any())
         <div class="alert alert-danger">
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
@@ -280,7 +280,7 @@
                 @endforeach
             </ul>
         </div>
-    @endif
+    @endif --}}
     {{-- ── Patient Header ── --}}
     <div class="patient-header">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">

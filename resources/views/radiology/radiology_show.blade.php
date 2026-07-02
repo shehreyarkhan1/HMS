@@ -399,21 +399,21 @@
                 <div class="info-card-title"><i class="bi bi-person-circle text-primary"></i> Patient</div>
                 <div class="info-row">
                     <span class="info-label">Name</span>
-                    <span class="info-value">{{ $radiologyOrder->patient->name }}</span>
+                    <span class="info-value">{{ $radiologyOrder->patient?->name }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">MRN</span>
-                    <span class="info-value"><code>{{ $radiologyOrder->patient->mrn }}</code></span>
+                    <span class="info-value"><code>{{ $radiologyOrder->patient?->mrn }}</code></span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Gender</span>
-                    <span class="info-value">{{ $radiologyOrder->patient->gender ?? '—' }}</span>
+                    <span class="info-value">{{ $radiologyOrder->patient?->gender ?? '—' }}</span>
                 </div>
                 <div style="border-top:1px solid #e2e8f0;margin:12px 0"></div>
                 <div class="info-card-title"><i class="bi bi-person-badge text-primary"></i> Referring Doctor</div>
                 <div class="info-row">
                     <span class="info-label">Name</span>
-                    <span class="info-value">{{ $radiologyOrder->doctor->name ?? '—' }}</span>
+                    <span class="info-value">{{ $radiologyOrder->doctor?->name ?? '—' }}</span>
                 </div>
                 @if ($radiologyOrder->clinical_indication)
                     <div class="info-row">

@@ -846,14 +846,15 @@
                 ).join('');
 
                 const row = `
-    <tr id="row-${i}">
-        <td>
-            <select name="items[${i}][service_type]" class="form-select-sm" required>
-                ${typeOptions}
-            </select>
-            <input type="hidden" name="items[${i}][reference_type]" value="${escHtml(data.reference_type ?? '')}">
-            <input type="hidden" name="items[${i}][reference_id]"   value="${escHtml(String(data.reference_id ?? ''))}">
-        </td>
+<tr id="row-${i}">
+    <td>
+        <select name="items[${i}][service_type]" class="form-select-sm" required>
+            ${typeOptions}
+        </select>
+        <input type="hidden" name="items[${i}][reference_type]" value="${escHtml(data.reference_type ?? '')}">
+        <input type="hidden" name="items[${i}][reference_id]"   value="${escHtml(String(data.reference_id ?? ''))}">
+        <input type="hidden" name="items[${i}][service_charge_id]" value="${escHtml(String(data.service_charge_id ?? ''))}">
+    </td>
         <td>
             <input type="text" name="items[${i}][description]"
                    class="form-control-sm"
@@ -939,7 +940,8 @@
                     description: c.name,
                     quantity: 1,
                     unit_price: parseFloat(c.default_price) || 0,
-                    discount: 0
+                    discount: 0,
+                    service_charge_id: c.id
                 });
                 scrollToBillItems();
             }

@@ -113,54 +113,67 @@ class BillingController extends Controller
             'items.*.discount' => 'nullable|numeric|min:0',
             'items.*.reference_type' => 'nullable|string',
             'items.*.reference_id' => 'nullable|integer',
+            'items.*.service_charge_id' => 'nullable|exists:bill_service_charges,id', // ← ye add karo
         ]);
 
-        // FIX: $createdBill reference se closure ke bahar pass karo
         $createdBill = null;
 
-        DB::transaction(function () use ($request, &$createdBill) {
-            $bill = Bill::create([
-                'bill_number' => Bill::generateBillNumber(),
+        try {
+            DB::transaction(function () use ($request, &$createdBill) {
+                $bill = Bill::create([
+                    'bill_number' => Bill::generateBillNumber(),
+                    'patient_id' => $request->patient_id,
+                    'created_by' => Auth::id(),
+                    'bill_date' => $request->bill_date,
+                    'bill_type' => $request->bill_type,
+                    'status' => 'Draft',
+                    'discount_amount' => $request->discount_amount ?? 0,
+                    'discount_reason' => $request->discount_reason,
+                    'tax_amount' => $request->tax_amount ?? 0,
+                    'notes' => $request->notes,
+                    'subtotal' => 0,
+                    'net_amount' => 0,
+                    'paid_amount' => 0,
+                    'due_amount' => 0,
+                    'payment_status' => 'Unpaid',
+                ]);
+
+                foreach ($request->items as $item) {
+                    BillItem::create([
+                        'bill_id' => $bill->id,
+                        'service_charge_id' => ! empty($item['service_charge_id']) ? $item['service_charge_id'] : null,
+                        'service_type' => $item['service_type'],
+                        'description' => $item['description'],
+                        'reference_type' => $item['reference_type'] ?? null,
+                        'reference_id' => $item['reference_id'] ?? null,
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'discount' => $item['discount'] ?? 0,
+                    ]);
+                }
+
+                if ($request->discount_amount > 0) {
+                    $bill->update(['discount_by' => Auth::id()]);
+                }
+
+                $bill->recalculateTotals();
+
+                $createdBill = $bill;
+            });
+
+            return redirect()->route('billing.show', $createdBill)
+                ->with('success', 'Bill created successfully. Review and finalize when ready.');
+
+        } catch (\Throwable $e) {
+            Log::error('Bill creation failed', [
                 'patient_id' => $request->patient_id,
-                'created_by' => Auth::id(),
-                'bill_date' => $request->bill_date,
-                'bill_type' => $request->bill_type,
-                'status' => 'Draft',
-                'discount_amount' => $request->discount_amount ?? 0,
-                'discount_reason' => $request->discount_reason,
-                'tax_amount' => $request->tax_amount ?? 0,
-                'notes' => $request->notes,
-                'subtotal' => 0,
-                'net_amount' => 0,
-                'paid_amount' => 0,
-                'due_amount' => 0,
-                'payment_status' => 'Unpaid',
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
             ]);
 
-            foreach ($request->items as $item) {
-                BillItem::create([
-                    'bill_id' => $bill->id,
-                    'service_type' => $item['service_type'],
-                    'description' => $item['description'],
-                    'reference_type' => $item['reference_type'] ?? null,
-                    'reference_id' => $item['reference_id'] ?? null,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'discount' => $item['discount'] ?? 0,
-                ]);
-            }
-
-            if ($request->discount_amount > 0) {
-                $bill->update(['discount_by' => Auth::id()]);
-            }
-
-            $bill->recalculateTotals();
-
-            $createdBill = $bill;
-        });
-
-        return redirect()->route('billing.show', $createdBill)
-            ->with('success', 'Bill created successfully. Review and finalize when ready.');
+            return back()->withInput()
+                ->with('error', 'Bill create nahi ho saka. Please try again.');
+        }
     }
 
     // ─── SHOW ─────────────────────────────────────────────────────────
@@ -195,7 +208,6 @@ class BillingController extends Controller
                 ->with('error', 'Only Draft bills can be edited.');
         }
 
-        // FIX: store() jaisi full items validation
         $request->validate([
             'bill_date' => 'required|date',
             'bill_type' => 'required|in:OPD,IPD,Emergency',
@@ -211,39 +223,53 @@ class BillingController extends Controller
             'items.*.discount' => 'nullable|numeric|min:0',
             'items.*.reference_type' => 'nullable|string',
             'items.*.reference_id' => 'nullable|integer',
+            'items.*.service_charge_id' => 'nullable|exists:bill_service_charges,id',
         ]);
 
-        DB::transaction(function () use ($request, $bill) {
-            $bill->update([
-                'bill_date' => $request->bill_date,
-                'bill_type' => $request->bill_type,
-                'discount_amount' => $request->discount_amount ?? 0,
-                'discount_reason' => $request->discount_reason,
-                'tax_amount' => $request->tax_amount ?? 0,
-                'notes' => $request->notes,
-                'discount_by' => ($request->discount_amount > 0) ? Auth::id() : null,
+        try {
+            DB::transaction(function () use ($request, $bill) {
+                $bill->update([
+                    'bill_date' => $request->bill_date,
+                    'bill_type' => $request->bill_type,
+                    'discount_amount' => $request->discount_amount ?? 0,
+                    'discount_reason' => $request->discount_reason,
+                    'tax_amount' => $request->tax_amount ?? 0,
+                    'notes' => $request->notes,
+                    'discount_by' => ($request->discount_amount > 0) ? Auth::id() : null,
+                ]);
+
+                $bill->items()->delete();
+
+                foreach ($request->items as $item) {
+                    BillItem::create([
+                        'bill_id' => $bill->id,
+                        'service_charge_id' => ! empty($item['service_charge_id']) ? $item['service_charge_id'] : null,
+                        'service_type' => $item['service_type'],
+                        'description' => $item['description'],
+                        'reference_type' => $item['reference_type'] ?? null,
+                        'reference_id' => $item['reference_id'] ?? null,
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'discount' => $item['discount'] ?? 0,
+                    ]);
+                }
+
+                $bill->recalculateTotals();
+            });
+
+            return redirect()->route('billing.show', $bill)
+                ->with('success', 'Bill updated successfully.');
+
+        } catch (\Throwable $e) {
+            Log::error('Bill update failed', [
+                'bill_id' => $bill->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
             ]);
 
-            $bill->items()->delete();
-
-            foreach ($request->items as $item) {
-                BillItem::create([
-                    'bill_id' => $bill->id,
-                    'service_type' => $item['service_type'],
-                    'description' => $item['description'],
-                    'reference_type' => $item['reference_type'] ?? null,
-                    'reference_id' => $item['reference_id'] ?? null,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'discount' => $item['discount'] ?? 0,
-                ]);
-            }
-
-            $bill->recalculateTotals();
-        });
-
-        return redirect()->route('billing.show', $bill)
-            ->with('success', 'Bill updated successfully.');
+            return back()->withInput()
+                ->with('error', 'Bill his not update. Please try again.');
+        }
     }
 
     // ─── FINALIZE ─────────────────────────────────────────────────────
@@ -287,49 +313,60 @@ class BillingController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($request, $bill) {
+        try {
+            DB::transaction(function () use ($request, $bill) {
 
-            BillPayment::create([
-                'payment_number' => BillPayment::generatePaymentNumber(),
+                BillPayment::create([
+                    'payment_number' => BillPayment::generatePaymentNumber(),
+                    'bill_id' => $bill->id,
+                    'received_by' => Auth::id(),
+                    'amount' => $request->amount,
+                    'payment_method' => $request->payment_method,
+                    'payment_date' => $request->payment_date,
+                    'reference_number' => $request->reference_number,
+                    'notes' => $request->notes,
+                ]);
+
+                $totalPaid = $bill->fresh()->payments()->sum('amount');
+                $dueAmount = max(0, $bill->net_amount - $totalPaid);
+
+                $paymentStatus = 'Partial';
+                if ($dueAmount <= 0) {
+                    $paymentStatus = 'Paid';
+                } elseif ($totalPaid <= 0) {
+                    $paymentStatus = 'Unpaid';
+                }
+
+                $bill->update([
+                    'paid_amount' => $totalPaid,
+                    'due_amount' => $dueAmount,
+                    'payment_status' => $paymentStatus,
+                ]);
+
+                $bill->refresh()->syncSourcePayments();
+            });
+
+            return redirect()->route('billing.show', $bill)
+                ->with('success', 'Payment of Rs. '.number_format($request->amount, 2).' recorded successfully.');
+
+        } catch (\Throwable $e) {
+            Log::error('Payment recording failed', [
                 'bill_id' => $bill->id,
-                'received_by' => Auth::id(),
                 'amount' => $request->amount,
                 'payment_method' => $request->payment_method,
-                'payment_date' => $request->payment_date,
-                'reference_number' => $request->reference_number,
-                'notes' => $request->notes,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
             ]);
 
-            $totalPaid = $bill->fresh()->payments()->sum('amount');
-            $dueAmount = max(0, $bill->net_amount - $totalPaid);
-
-            $paymentStatus = 'Partial';
-            if ($dueAmount <= 0) {
-                $paymentStatus = 'Paid';
-            } elseif ($totalPaid <= 0) {
-                $paymentStatus = 'Unpaid';
-            }
-
-            $bill->update([
-                'paid_amount' => $totalPaid,
-                'due_amount' => $dueAmount,
-                'payment_status' => $paymentStatus,
-            ]);
-
-            // Sync payment status to all linked source modules
-            // (lab_orders, radiology_orders, dispensings, death_certificates,
-            //  mortuary_records, blood_requests, appointments, beds)
-            $bill->refresh()->syncSourcePayments();
-        });
-
-        return redirect()->route('billing.show', $bill)
-            ->with('success', 'Payment of Rs. '.number_format($request->amount, 2).' recorded successfully.');
+            return back()->withInput()
+                ->with('error', 'Payment record nahi ho saka. Please try again ya IT ko inform karein.');
+        }
     }
 
     // ─── PRINT / INVOICE ──────────────────────────────────────────────
     public function printInvoice(Bill $bill)
     {
-        AuditLog::viewed($bill,'bill');
+        AuditLog::viewed($bill, 'bill');
         $bill->load(['patient', 'items', 'payments.receivedBy', 'createdBy']);
 
         return view('billing.print_invoice', compact('bill'));

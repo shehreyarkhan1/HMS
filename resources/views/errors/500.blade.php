@@ -3,4 +3,4 @@
 @section('code', '500')
 @section('icon') <i class="bi bi-gear-wide-connected text-warning"></i> @endsection
 @section('heading', 'System Maintenance')
-@section('message', 'Database connection ya server mein koi masla aaya hai. Hamari team is par kaam kar rahi hai.')
+@section('message', 'There is an issue with the database connection or the server. Our team is working to resolve it.')

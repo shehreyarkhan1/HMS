@@ -119,9 +119,9 @@
                 <div class="row g-4">
                     <div class="col-md-3">
                         <div class="info-label">Patient</div>
-                        <div class="info-value">{{ $bill->patient->name }}</div>
-                        <div style="font-size:12px;color:#94a3b8">MRN: {{ $bill->patient->mrn }}</div>
-                        <div style="font-size:12px;color:#94a3b8">{{ $bill->patient->phone }}</div>
+                        <div class="info-value">{{ $bill->patient?->name }}</div>
+                        <div style="font-size:12px;color:#94a3b8">MRN: {{ $bill->patient?->mrn }}</div>
+                        <div style="font-size:12px;color:#94a3b8">{{ $bill->patient?->phone }}</div>
                     </div>
                     <div class="col-md-2">
                         <div class="info-label">Bill #</div>

@@ -208,8 +208,8 @@
                                 <code style="font-size:12px;color:#6366f1">{{ $order->order_number }}</code>
                             </td>
                             <td>
-                                <div style="font-weight:500;color:#1e293b">{{ $order->patient->name }}</div>
-                                <div style="font-size:11px;color:#94a3b8">{{ $order->patient->mrn }}</div>
+                                <div style="font-weight:500;color:#1e293b">{{ $order->patient?->name }}</div>
+                                <div style="font-size:11px;color:#94a3b8">{{ $order->patient?->mrn }}</div>
                             </td>
                             <td style="color:#64748b">{{ $order->doctor->name ?? '—' }}</td>
                             <td style="color:#64748b;font-size:12px">

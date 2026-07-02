@@ -3,20 +3,13 @@
 namespace App\Http\Controllers\AuditLog;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\ActivityLog;
 use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\Facades\AuditLog;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\View;
-use App\Http\Middleware\LogActivity;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
 class AuditLogController extends Controller
 {
-
     public function index(Request $request)
     {
         $query = ActivityLog::with('user')->latest();
@@ -57,18 +50,36 @@ class AuditLogController extends Controller
 
         $logs = $query->paginate(50)->withQueryString();
 
-        // Stats for header cards
-        $stats = [
-            'today_total' => ActivityLog::today()->count(),
-            'today_critical' => ActivityLog::today()->critical()->count(),
-            'today_users' => ActivityLog::today()->distinct('user_id')->count('user_id'),
-            'total_all_time' => ActivityLog::count(),
-        ];
+        // Stats for header cards — cache 5 min (frequently changing data)
+        $stats = Cache::remember('audit_stats_today', 300, function () {
+            return [
+                'today_total' => ActivityLog::today()->count(),
+                'today_critical' => ActivityLog::today()->critical()->count(),
+                'today_users' => ActivityLog::today()->distinct()->count('user_id'),
+                'total_all_time' => ActivityLog::count(),
+            ];
+        });
 
-        // Dropdown options
-        $modules = ActivityLog::distinct('module')->orderBy('module')->pluck('module');
-        $actions = ActivityLog::distinct('action')->orderBy('action')->pluck('action');
-        $users = User::orderBy('name')->get(['id', 'name']);
+        // Dropdown options — cache 1 hour (rarely changes)
+        $modules = Cache::remember('audit_modules_list', 3600, function () {
+            return ActivityLog::whereNotNull('module')
+                ->select('module')
+                ->distinct()
+                ->orderBy('module')
+                ->pluck('module');
+        });
+
+        $actions = Cache::remember('audit_actions_list', 3600, function () {
+            return ActivityLog::whereNotNull('action')
+                ->select('action')
+                ->distinct()
+                ->orderBy('action')
+                ->pluck('action');
+        });
+
+        $users = Cache::remember('audit_users_list', 3600, function () {
+            return User::orderBy('name')->get(['id', 'name']);
+        });
 
         return view('auditlog.auditlog_index', compact('logs', 'stats', 'modules', 'actions', 'users'));
     }

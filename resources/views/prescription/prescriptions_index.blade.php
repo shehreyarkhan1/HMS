@@ -211,10 +211,10 @@
                         <tr>
                             <td><code style="font-size:12px;color:#6366f1">{{ $rx->prescription_number }}</code></td>
                             <td>
-                                <div style="font-weight:500;color:#1e293b">{{ $rx->patient->name }}</div>
-                                <div style="font-size:11px;color:#94a3b8">{{ $rx->patient->mrn }}</div>
+                                <div style="font-weight:500;color:#1e293b">{{ $rx->patient?->name }}</div>
+                                <div style="font-size:11px;color:#94a3b8">{{ $rx->patient?->mrn }}</div>
                             </td>
-                            <td style="color:#64748b">{{ $rx->doctor->name ?? '—' }}</td>
+                            <td style="color:#64748b">{{ $rx->doctor?->name ?? '—' }}</td>
                             <td style="color:#64748b;font-size:12px">{{ $rx->prescribed_date->format('d M Y') }}</td>
                             <td>
                                 @if ($rx->valid_until)

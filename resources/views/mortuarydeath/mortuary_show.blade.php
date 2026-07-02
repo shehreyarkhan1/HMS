@@ -412,19 +412,6 @@
 
 @section('content')
 
-    {{-- Flash --}}
-    @if (session('success'))
-        <div class="alert mb-3 d-flex align-items-center gap-2"
-            style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;color:#166534;font-size:13px">
-            <i class="bi bi-check-circle-fill"></i>{{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="alert mb-3 d-flex align-items-center gap-2"
-            style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;color:#991b1b;font-size:13px">
-            <i class="bi bi-exclamation-triangle-fill"></i>{{ session('error') }}
-        </div>
-    @endif
 
     {{-- MLC Alert --}}
     @if ($mortuary->is_medico_legal)
@@ -503,17 +490,17 @@
                             <div class="val">
                                 <a href="{{ route('patients.show', $mortuary->patient_id) }}"
                                     style="color:#1e40af;text-decoration:none;font-weight:600">
-                                    {{ $mortuary->patient->name }}
+                                    {{ $mortuary->patient?->name }}
                                 </a>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="lbl">MRN</div>
-                            <div class="val">{{ $mortuary->patient->mrn }}</div>
+                            <div class="val">{{ $mortuary->patient?->mrn }}</div>
                         </div>
                         <div class="info-item">
                             <div class="lbl">Age / Gender</div>
-                            <div class="val">{{ $mortuary->patient->age }} yrs / {{ $mortuary->patient->gender }}</div>
+                            <div class="val">{{ $mortuary->patient?->age }} yrs / {{ $mortuary->patient?->gender }}</div>
                         </div>
                         <div class="info-item">
                             <div class="lbl">Date of Death</div>
@@ -946,7 +933,7 @@
                                     class="bi bi-person"></i></div>
                             <div>
                                 <div style="font-weight:600">View Patient</div>
-                                <div style="font-size:11px;color:#94a3b8">{{ $mortuary->patient->mrn }}</div>
+                                <div style="font-size:11px;color:#94a3b8">{{ $mortuary->patient?->mrn }}</div>
                             </div>
                             <i class="bi bi-chevron-right action-arrow"></i>
                         </a>

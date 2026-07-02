@@ -290,8 +290,9 @@
                                 </a>
                             </td>
                             <td>
-                                <div style="font-weight:500;color:#1e293b">{{ $bill->patient->name }}</div>
-                                <div style="font-size:11px;color:#94a3b8">MRN: {{ $bill->patient->mrn }}</div>
+                                <div style="font-weight:500;color:#1e293b">{{ $bill->patient?->name ?? 'Patient Deleted' }}
+                                </div>
+                                <div style="font-size:11px;color:#94a3b8">MRN: {{ $bill->patient?->mrn ?? 'N/A' }}</div>
                             </td>
                             <td style="color:#64748b;font-size:12px">{{ $bill->bill_date->format('d M Y') }}</td>
                             <td><span class="type-{{ $bill->bill_type }}">{{ $bill->bill_type }}</span></td>

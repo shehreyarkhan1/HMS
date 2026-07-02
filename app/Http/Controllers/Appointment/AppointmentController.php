@@ -9,6 +9,7 @@ use App\Models\Patient;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Facades\AuditLog;
 
 class AppointmentController extends Controller
 {

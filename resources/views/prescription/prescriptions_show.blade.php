@@ -42,11 +42,11 @@
                     $rows = [
                         [
                             'label' => 'Patient',
-                            'value' => $prescription->patient->name . ' (' . $prescription->patient->mrn . ')',
+                            'value' => $prescription->patient?->name . ' (' . $prescription->patient?->mrn . ')',
                         ],
                         [
                             'label' => 'Doctor',
-                            'value' => $prescription->doctor ? 'Dr. ' . $prescription->doctor->name : '—',
+                            'value' => $prescription?->doctor ? 'Dr. ' . $prescription?->doctor->name : '—',
                         ],
                         ['label' => 'Date', 'value' => $prescription->prescribed_date->format('d M Y')],
                         [

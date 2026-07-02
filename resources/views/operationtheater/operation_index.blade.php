@@ -417,8 +417,8 @@
                         <div class="mb-2">
                             <div class="info-row">
                                 <i class="bi bi-person"></i>
-                                <strong style="color:#374151">{{ $schedule->patient->name }}</strong>
-                                <span style="color:#94a3b8;font-size:11px">{{ $schedule->patient->mrn }}</span>
+                                <strong style="color:#374151">{{ $schedule->patient?->name }}</strong>
+                                <span style="color:#94a3b8;font-size:11px">{{ $schedule->patient?->mrn }}</span>
                             </div>
                             <div class="info-row">
                                 <i class="bi bi-person-badge"></i>
